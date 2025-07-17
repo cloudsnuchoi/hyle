@@ -1,0 +1,596 @@
+# Hyle GraphQL Schema
+
+type User @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  email: String!
+  nickname: String!
+  learningType: LearningType
+  learningTypeDetails: AWSJSON # Full 16-type analysis
+  level: Int!
+  xp: Int!
+  totalStudyTime: Int!
+  currentStreak: Int!
+  longestStreak: Int!
+  statusMessage: String
+  profileImageUrl: String
+  selectedExam: ExamType
+  selectedSubjects: [String]
+  targetUniversity: String
+  targetMajor: String
+  coins: Int!
+  badges: [String]
+  premiumTier: PremiumTier
+  skinInventory: [String]
+  currentTheme: String
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  friends: [Friend] @hasMany
+  todos: [Todo] @hasMany
+  timerSessions: [TimerSession] @hasMany
+  posts: [Post] @hasMany
+  stories: [Story] @hasMany
+  studyGroups: [GroupMember] @hasMany
+  missions: [MissionProgress] @hasMany
+  aiInteractions: [AIInteraction] @hasMany
+  studyInsights: [StudyInsight] @hasMany
+}
+
+type LearningType {
+  planning: String! # PLANNED or SPONTANEOUS
+  social: String! # INDIVIDUAL or GROUP
+  processing: String! # VISUAL or AUDITORY
+  approach: String! # THEORETICAL or PRACTICAL
+}
+
+type Friend @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  friendID: ID! @index(name: "byFriend")
+  status: FriendStatus!
+  createdAt: AWSDateTime!
+  user: User @belongsTo(fields: ["userID"])
+  friend: User @belongsTo(fields: ["friendID"])
+}
+
+type Todo @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  title: String!
+  description: String
+  completed: Boolean!
+  priority: Priority!
+  dueDate: AWSDateTime
+  subject: String
+  estimatedTime: Int # minutes
+  actualTime: Int # minutes
+  aiSuggested: Boolean
+  xpReward: Int!
+  completedAt: AWSDateTime
+  userID: ID! @index(name: "byUser")
+  user: User @belongsTo(fields: ["userID"])
+}
+
+type TimerSession @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  startTime: AWSDateTime!
+  endTime: AWSDateTime
+  pausedDuration: Int # seconds paused
+  duration: Int! # total seconds
+  subject: String
+  type: TimerType!
+  todoID: ID # linked todo if any
+  notes: String # quick notes during session
+  productivityScore: Float # AI calculated
+  distractionCount: Int
+  xpEarned: Int!
+  location: String # home, school, cafe, etc
+  mood: String # focused, tired, stressed, etc
+  userID: ID! @index(name: "byUser")
+  user: User @belongsTo(fields: ["userID"])
+  events: [TimerEvent] @hasMany
+}
+
+type TimerEvent @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  type: EventType!
+  timestamp: AWSDateTime!
+  data: AWSJSON # pause reason, note content, etc
+  sessionID: ID! @index(name: "bySession")
+  session: TimerSession @belongsTo(fields: ["sessionID"])
+}
+
+type Post @model @auth(rules: [{allow: owner}, {allow: public, operations: [read]}]) {
+  id: ID!
+  type: PostType!
+  content: String!
+  imageUrls: [String]
+  videoUrl: String
+  subject: String
+  tags: [String]
+  likes: Int!
+  viewCount: Int!
+  isPublic: Boolean!
+  userID: ID! @index(name: "byUser")
+  user: User @belongsTo(fields: ["userID"])
+  comments: [Comment] @hasMany
+  createdAt: AWSDateTime!
+}
+
+type Story @model @auth(rules: [{allow: owner}, {allow: public, operations: [read]}]) {
+  id: ID!
+  content: String!
+  mediaUrl: String!
+  mediaType: MediaType!
+  viewCount: Int!
+  reactions: AWSJSON # emoji reactions count
+  expiresAt: AWSDateTime!
+  userID: ID! @index(name: "byUser")
+  user: User @belongsTo(fields: ["userID"])
+}
+
+type Comment @model @auth(rules: [{allow: owner}, {allow: public, operations: [read]}]) {
+  id: ID!
+  content: String!
+  likes: Int!
+  postID: ID! @index(name: "byPost")
+  userID: ID! @index(name: "byUser")
+  post: Post @belongsTo(fields: ["postID"])
+  user: User @belongsTo(fields: ["userID"])
+  createdAt: AWSDateTime!
+}
+
+type StudyGroup @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  name: String!
+  description: String
+  groupType: GroupType!
+  maxMembers: Int!
+  currentMembers: Int!
+  isPublic: Boolean!
+  tags: [String]
+  rules: String
+  avatarUrl: String
+  level: Int!
+  totalXP: Int!
+  weeklyGoal: Int # minutes
+  ownerID: ID!
+  createdAt: AWSDateTime!
+  members: [GroupMember] @hasMany
+  missions: [GroupMission] @hasMany
+  posts: [GroupPost] @hasMany
+}
+
+type GroupMember @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  role: GroupRole!
+  joinedAt: AWSDateTime!
+  contribution: Int! # XP contributed to group
+  weeklyStudyTime: Int!
+  status: String # custom status in group
+  userID: ID! @index(name: "byUser")
+  groupID: ID! @index(name: "byGroup")
+  user: User @belongsTo(fields: ["userID"])
+  group: StudyGroup @belongsTo(fields: ["groupID"])
+}
+
+type GroupMission @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  title: String!
+  description: String!
+  type: MissionType!
+  requirement: AWSJSON # specific requirements
+  progress: Int!
+  target: Int!
+  xpReward: Int!
+  coinReward: Int!
+  deadline: AWSDateTime!
+  completed: Boolean!
+  groupID: ID! @index(name: "byGroup")
+  group: StudyGroup @belongsTo(fields: ["groupID"])
+}
+
+type GroupPost @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  content: String!
+  imageUrls: [String]
+  isPinned: Boolean!
+  groupID: ID! @index(name: "byGroup")
+  userID: ID! @index(name: "byUser")
+  group: StudyGroup @belongsTo(fields: ["groupID"])
+  user: User @belongsTo(fields: ["userID"])
+  createdAt: AWSDateTime!
+}
+
+type Mission @model @auth(rules: [{allow: public, operations: [read]}, {allow: owner}]) {
+  id: ID!
+  type: MissionType!
+  title: String!
+  description: String!
+  requirement: AWSJSON # JSON with specific requirements
+  xpReward: Int!
+  coinReward: Int!
+  badgeReward: String
+  frequency: MissionFrequency!
+  isActive: Boolean!
+  order: Int!
+}
+
+type MissionProgress @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  progress: Int!
+  target: Int!
+  completed: Boolean!
+  completedAt: AWSDateTime
+  claimedAt: AWSDateTime
+  userID: ID! @index(name: "byUser")
+  missionID: ID! @index(name: "byMission")
+  user: User @belongsTo(fields: ["userID"])
+  mission: Mission @belongsTo(fields: ["missionID"])
+}
+
+type AIInteraction @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  type: AIInteractionType!
+  userPrompt: String!
+  aiResponse: String!
+  context: AWSJSON # Current study state, etc
+  feedback: String # user feedback on AI response
+  helpful: Boolean
+  userID: ID! @index(name: "byUser")
+  user: User @belongsTo(fields: ["userID"])
+  createdAt: AWSDateTime!
+}
+
+type StudyInsight @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  type: InsightType!
+  title: String!
+  description: String!
+  data: AWSJSON # Charts data, statistics, etc
+  importance: Int! # 1-5
+  actionable: Boolean!
+  dismissed: Boolean
+  userID: ID! @index(name: "byUser")
+  user: User @belongsTo(fields: ["userID"])
+  createdAt: AWSDateTime!
+}
+
+type StudyReel @model @auth(rules: [{allow: owner}, {allow: public, operations: [read]}]) {
+  id: ID!
+  title: String!
+  videoUrl: String!
+  thumbnailUrl: String!
+  duration: Int! # seconds
+  subject: String!
+  topic: String!
+  difficulty: Difficulty!
+  likes: Int!
+  views: Int!
+  saves: Int!
+  transcript: String
+  hashtags: [String]
+  isPublic: Boolean!
+  userID: ID! @index(name: "byUser")
+  user: User @belongsTo(fields: ["userID"])
+  createdAt: AWSDateTime!
+}
+
+# Enums
+enum ExamType {
+  CSAT # 수능
+  SAT
+  AP
+  ALEVEL
+  IBDP
+  TOEIC
+  TOEFL
+  IELTS
+  OTHER
+}
+
+enum PremiumTier {
+  FREE
+  PREMIUM
+  PREMIUM_PLUS
+}
+
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum TimerType {
+  STOPWATCH
+  TIMER
+  POMODORO
+}
+
+enum EventType {
+  START
+  PAUSE
+  RESUME
+  END
+  NOTE_ADDED
+  DISTRACTION
+}
+
+enum FriendStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+enum PostType {
+  STUDY_PROOF
+  NOTES
+  QUESTION
+  ACHIEVEMENT
+  TIP
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum GroupType {
+  STUDY_GROUP # 5-20 members
+  GUILD # 50-200 members
+  SCHOOL_OFFICIAL
+  EXAM_PREP
+}
+
+enum GroupRole {
+  OWNER
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+enum MissionType {
+  DAILY
+  WEEKLY
+  SPECIAL
+  GROUP
+  HIDDEN
+}
+
+enum MissionFrequency {
+  ONCE
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum AIInteractionType {
+  PLANNER
+  TUTOR
+  MOTIVATION
+  ANALYSIS
+  RECOMMENDATION
+}
+
+enum InsightType {
+  PATTERN
+  WARNING
+  ACHIEVEMENT
+  RECOMMENDATION
+  MILESTONE
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+# Custom Mutations for AI Services
+type Mutation {
+  # AI Tutor Functions
+  generateStudyPlan(input: GenerateStudyPlanInput!): StudyPlanResponse! @function(name: "aiTutorFunction-${env}")
+  getAITutorResponse(input: AITutorInput!): AITutorResponse! @function(name: "aiTutorFunction-${env}")
+  analyzeLearningPattern(userId: ID!): LearningPatternResponse! @function(name: "aiTutorFunction-${env}")
+  
+  # Curriculum Functions
+  searchCurriculum(input: CurriculumSearchInput!): CurriculumSearchResponse! @function(name: "curriculumFunction-${env}")
+  getCurriculumDetails(examType: ExamType!, subject: String!): CurriculumDetailsResponse! @function(name: "curriculumFunction-${env}")
+  
+  # Real-time Processing
+  processStudyEvent(input: StudyEventInput!): ProcessingResponse! @function(name: "realtimeProcessingFunction-${env}")
+  triggerIntervention(userId: ID!, type: String!): InterventionResponse! @function(name: "realtimeProcessingFunction-${env}")
+}
+
+type Query {
+  # Knowledge Graph Queries
+  findLearningPath(userId: ID!, targetConcept: String!): LearningPathResponse! @function(name: "graphQueryFunction-${env}")
+  getSimilarUsers(userId: ID!, limit: Int): SimilarUsersResponse! @function(name: "graphQueryFunction-${env}")
+  getConceptPrerequisites(conceptId: String!): PrerequisitesResponse! @function(name: "graphQueryFunction-${env}")
+  
+  # Embedding Search
+  searchSimilarContent(query: String!, limit: Int): ContentSearchResponse! @function(name: "embeddingFunction-${env}")
+  findRelatedProblems(problemId: String!, limit: Int): RelatedProblemsResponse! @function(name: "embeddingFunction-${env}")
+}
+
+# Input Types
+input GenerateStudyPlanInput {
+  prompt: String!
+  userLevel: Int!
+  learningType: String!
+  availableHours: Int!
+  subjects: [String!]!
+  examDate: AWSDateTime
+}
+
+input AITutorInput {
+  userId: ID!
+  message: String!
+  context: AWSJSON
+  sessionId: String
+}
+
+input CurriculumSearchInput {
+  examType: ExamType!
+  subject: String
+  grade: Int
+  keyword: String
+}
+
+input StudyEventInput {
+  userId: ID!
+  eventType: String!
+  eventData: AWSJSON!
+  timestamp: AWSDateTime!
+}
+
+# Response Types
+type StudyPlanResponse {
+  id: String!
+  tasks: [StudyTaskItem!]!
+  totalHours: Float!
+  recommendations: [String!]!
+}
+
+type StudyTaskItem {
+  title: String!
+  subject: String!
+  estimatedMinutes: Int!
+  priority: String!
+  suggestedTime: AWSDateTime
+}
+
+type AITutorResponse {
+  message: String!
+  suggestions: [String!]
+  resources: [ResourceItem!]
+  sessionId: String!
+}
+
+type ResourceItem {
+  title: String!
+  type: String!
+  url: String
+  relevance: Float!
+}
+
+type LearningPatternResponse {
+  patterns: [PatternItem!]!
+  insights: [String!]!
+  recommendations: [String!]!
+}
+
+type PatternItem {
+  type: String!
+  strength: Float!
+  description: String!
+}
+
+type CurriculumSearchResponse {
+  items: [CurriculumItem!]!
+  totalCount: Int!
+}
+
+type CurriculumItem {
+  id: String!
+  title: String!
+  examType: ExamType!
+  subject: String!
+  topics: [String!]!
+  difficulty: Difficulty!
+}
+
+type CurriculumDetailsResponse {
+  curriculum: CurriculumDetail!
+  relatedContent: [RelatedContentItem!]!
+}
+
+type CurriculumDetail {
+  id: String!
+  title: String!
+  description: String!
+  structure: AWSJSON!
+  prerequisites: [String!]!
+  estimatedHours: Int!
+}
+
+type RelatedContentItem {
+  id: String!
+  title: String!
+  type: String!
+  relevance: Float!
+}
+
+type ProcessingResponse {
+  success: Boolean!
+  message: String
+  processedData: AWSJSON
+}
+
+type InterventionResponse {
+  triggered: Boolean!
+  interventionType: String!
+  message: String!
+  scheduledTime: AWSDateTime
+}
+
+type LearningPathResponse {
+  path: [PathNode!]!
+  estimatedTime: Int!
+  difficulty: Float!
+}
+
+type PathNode {
+  conceptId: String!
+  conceptName: String!
+  order: Int!
+  estimatedMinutes: Int!
+}
+
+type SimilarUsersResponse {
+  users: [SimilarUser!]!
+}
+
+type SimilarUser {
+  userId: ID!
+  similarity: Float!
+  commonSubjects: [String!]!
+  learningType: String!
+}
+
+type PrerequisitesResponse {
+  prerequisites: [ConceptNode!]!
+  totalCount: Int!
+}
+
+type ConceptNode {
+  id: String!
+  name: String!
+  subject: String!
+  difficulty: Float!
+  importance: Float!
+}
+
+type ContentSearchResponse {
+  results: [SearchResult!]!
+  totalCount: Int!
+}
+
+type SearchResult {
+  id: String!
+  title: String!
+  content: String!
+  type: String!
+  similarity: Float!
+}
+
+type RelatedProblemsResponse {
+  problems: [ProblemItem!]!
+}
+
+type ProblemItem {
+  id: String!
+  title: String!
+  difficulty: Float!
+  similarity: Float!
+  concepts: [String!]!
+}

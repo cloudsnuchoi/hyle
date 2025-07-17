@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/auth/screens/splash_screen.dart';
+import '../features/auth/screens/confirmation_screen.dart';
+import '../features/auth/screens/forgot_password_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/learning_type/screens/learning_type_test_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
@@ -31,6 +33,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/signup',
         name: 'signup',
         builder: (context, state) => const SignupScreen(),
+      ),
+      GoRoute(
+        path: '/confirm',
+        name: 'confirm',
+        builder: (context, state) {
+          final email = state.queryParameters['email'] ?? '';
+          return ConfirmationScreen(email: email);
+        },
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgotPassword',
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       GoRoute(
         path: '/learning-type-test',
