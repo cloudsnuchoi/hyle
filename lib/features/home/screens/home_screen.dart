@@ -4,7 +4,9 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../providers/user_stats_provider.dart';
+import '../../../providers/learning_type_provider.dart';
 import '../../todo/screens/todo_screen.dart';
+import '../../learning_type/screens/learning_type_test_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -63,6 +65,7 @@ class _DashboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userStats = ref.watch(userStatsProvider);
     final dailyMissions = ref.watch(dailyMissionsProvider);
+    final learningType = ref.watch(currentLearningTypeProvider);
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -89,6 +92,12 @@ class _DashboardPage extends ConsumerWidget {
           padding: AppSpacing.paddingMD,
           sliver: SliverList(
             delegate: SliverChildListDelegate([
+              // Learning Type Card (if not taken)
+              if (learningType == null)
+                _buildLearningTypePrompt(context, ref),
+              if (learningType == null)
+                AppSpacing.verticalGapMD,
+              
               // User Level Card
               _buildLevelCard(context, userStats),
               AppSpacing.verticalGapMD,
@@ -327,6 +336,54 @@ class _DashboardPage extends ConsumerWidget {
       case 'History': return Icons.history_edu;
       default: return Icons.assignment;
     }
+  }
+  
+  Widget _buildLearningTypePrompt(BuildContext context, WidgetRef ref) {
+    return Card(
+      color: Theme.of(context).primaryColor.withOpacity(0.1),
+      child: Padding(
+        padding: AppSpacing.paddingMD,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.psychology, color: Theme.of(context).primaryColor),
+                AppSpacing.horizontalGapSM,
+                Expanded(
+                  child: Text(
+                    '당신의 학습 유형을 찾아보세요!',
+                    style: AppTypography.titleMedium.copyWith(
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            AppSpacing.verticalGapSM,
+            Text(
+              '8가지 질문으로 16가지 학습 유형 중 당신에게 맞는 학습법을 찾아드립니다.',
+              style: AppTypography.body,
+            ),
+            AppSpacing.verticalGapMD,
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LearningTypeTestScreen(),
+                    ),
+                  );
+                },
+                child: const Text('테스트 시작하기'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

@@ -1,18 +1,20 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../../../providers/user_stats_provider.dart';
 
 // Timer mode enum
 enum TimerMode { stopwatch, timer, pomodoro }
 
 // Timer state provider
 final timerStateProvider = StateNotifierProvider<TimerNotifier, TimerState>((ref) {
-  return TimerNotifier();
+  return TimerNotifier(ref);
 });
 
 class TimerState {
@@ -53,8 +55,9 @@ class TimerState {
 
 class TimerNotifier extends StateNotifier<TimerState> {
   Timer? _timer;
+  final Ref _ref;
   
-  TimerNotifier() : super(TimerState(
+  TimerNotifier(this._ref) : super(TimerState(
     duration: const Duration(),
     isRunning: false,
     mode: TimerMode.stopwatch,
@@ -129,6 +132,10 @@ class TimerNotifier extends StateNotifier<TimerState> {
   
   void _handlePomodoroComplete() {
     pause();
+    
+    // Play notification sound
+    SystemSound.play(SystemSound.alert);
+    
     if (state.isBreak) {
       // Break completed, start work session
       state = state.copyWith(
@@ -136,6 +143,9 @@ class TimerNotifier extends StateNotifier<TimerState> {
         duration: const Duration(minutes: 25),
         pomodoroCount: state.pomodoroCount + 1,
       );
+      
+      // Show break completion notification
+      _showCompletionNotification('휴식 완료!', '집중 시간을 시작하세요');
     } else {
       // Work completed, start break
       final breakDuration = state.pomodoroCount % 4 == 3
@@ -146,7 +156,28 @@ class TimerNotifier extends StateNotifier<TimerState> {
         isBreak: true,
         duration: breakDuration,
       );
+      
+      // Give XP reward for completing focus session
+      final xpReward = 25; // 25 XP for 25 minutes of focused work
+      _ref.read(userStatsProvider.notifier).addXP(
+        xpReward,
+        subject: state.subject.isNotEmpty ? state.subject : 'Focus Session',
+        studyMinutes: 25,
+      );
+      
+      // Show focus completion notification
+      final isLongBreak = state.pomodoroCount % 4 == 3;
+      _showCompletionNotification(
+        '집중 세션 완료! (+${xpReward} XP)',
+        isLongBreak ? '긴 휴식을 취하세요 (15분)' : '짧은 휴식을 취하세요 (5분)',
+      );
     }
+  }
+  
+  void _showCompletionNotification(String title, String message) {
+    // This would typically show a system notification
+    // For now, we'll just print to console
+    print('🔔 $title: $message');
   }
   
   @override
