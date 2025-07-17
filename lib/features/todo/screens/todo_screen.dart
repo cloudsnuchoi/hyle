@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,9 +7,11 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../../../providers/user_stats_provider.dart';
+import '../../../services/local_storage_service.dart';
 
-// Todo Model
-class Todo {
+// Todo Model (Local version for UI)
+class TodoItem {
   final String id;
   final String title;
   final String subject;
@@ -19,19 +22,19 @@ class Todo {
   final int xpReward;
   final bool isActive;
   
-  Todo({
+  TodoItem({
     required this.id,
     required this.title,
     required this.subject,
     this.estimatedTime,
-    this.actualTime = Duration.zero,
+    this.actualTime = const Duration(),
     this.isCompleted = false,
     this.completedAt,
     this.xpReward = 10,
     this.isActive = false,
   });
   
-  Todo copyWith({
+  TodoItem copyWith({
     String? id,
     String? title,
     String? subject,
@@ -42,7 +45,7 @@ class Todo {
     int? xpReward,
     bool? isActive,
   }) {
-    return Todo(
+    return TodoItem(
       id: id ?? this.id,
       title: title ?? this.title,
       subject: subject ?? this.subject,
@@ -57,7 +60,7 @@ class Todo {
 }
 
 // Todo List Provider
-final todoListProvider = StateNotifierProvider<TodoListNotifier, List<Todo>>((ref) {
+final todoListProvider = StateNotifierProvider<TodoListNotifier, List<TodoItem>>((ref) {
   return TodoListNotifier();
 });
 
@@ -66,47 +69,66 @@ final activeTodoTimerProvider = StateNotifierProvider<ActiveTodoTimer, ActiveTod
   return ActiveTodoTimer(ref);
 });
 
-class TodoListNotifier extends StateNotifier<List<Todo>> {
-  TodoListNotifier() : super([
-    // Sample todos
-    Todo(
+class TodoListNotifier extends StateNotifier<List<TodoItem>> {
+  TodoListNotifier() : super([]) {
+    _loadFromStorage();
+  }
+  
+  void _loadFromStorage() {
+    final savedTodos = LocalStorageService.loadTodoItems();
+    if (savedTodos.isNotEmpty) {
+      state = savedTodos;
+    } else {
+      // Initialize with sample todos if no saved data
+      state = [
+        TodoItem(
       id: '1',
       title: 'Complete Math Chapter 5',
       subject: 'Math',
       estimatedTime: const Duration(minutes: 45),
       xpReward: 50,
     ),
-    Todo(
+    TodoItem(
       id: '2', 
       title: 'Read English Literature pp. 120-150',
       subject: 'English',
       estimatedTime: const Duration(minutes: 30),
       xpReward: 35,
     ),
-    Todo(
+    TodoItem(
       id: '3',
       title: 'Physics Problem Set',
       subject: 'Science',
       estimatedTime: const Duration(hours: 1),
       xpReward: 60,
     ),
-  ]);
-  
-  void addTodo(Todo todo) {
-    state = [...state, todo];
+  ];
+      _saveToStorage();
+    }
   }
   
-  void updateTodo(String id, Todo Function(Todo) update) {
+  void addTodo(TodoItem todo) {
+    state = [...state, todo];
+    _saveToStorage();
+  }
+  
+  void updateTodo(String id, TodoItem Function(TodoItem) update) {
     state = state.map((todo) {
       if (todo.id == id) {
         return update(todo);
       }
       return todo;
     }).toList();
+    _saveToStorage();
+  }
+  
+  void _saveToStorage() {
+    LocalStorageService.saveTodoItems(state);
   }
   
   void deleteTodo(String id) {
     state = state.where((todo) => todo.id != id).toList();
+    _saveToStorage();
   }
   
   void completeTodo(String id) {
@@ -119,20 +141,20 @@ class TodoListNotifier extends StateNotifier<List<Todo>> {
 
 // Active Todo Timer State
 class ActiveTodoState {
-  final Todo? activeTodo;
+  final TodoItem? activeTodo;
   final Duration elapsedTime;
   final bool isRunning;
   final bool isPaused;
   
   ActiveTodoState({
     this.activeTodo,
-    this.elapsedTime = Duration.zero,
+    this.elapsedTime = const Duration(),
     this.isRunning = false,
     this.isPaused = false,
   });
   
   ActiveTodoState copyWith({
-    Todo? activeTodo,
+    TodoItem? activeTodo,
     Duration? elapsedTime,
     bool? isRunning,
     bool? isPaused,
@@ -152,7 +174,7 @@ class ActiveTodoTimer extends StateNotifier<ActiveTodoState> {
   
   ActiveTodoTimer(this.ref) : super(ActiveTodoState());
   
-  void startTodo(Todo todo) {
+  void startTodo(TodoItem todo) {
     // Mark todo as active
     ref.read(todoListProvider.notifier).updateTodo(
       todo.id,
@@ -163,7 +185,7 @@ class ActiveTodoTimer extends StateNotifier<ActiveTodoState> {
       activeTodo: todo,
       isRunning: true,
       isPaused: false,
-      elapsedTime: Duration.zero,
+      elapsedTime: const Duration(),
     );
     
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -228,7 +250,26 @@ class ActiveTodoTimer extends StateNotifier<ActiveTodoState> {
   }
   
   void _calculateXPBonus() {
-    // TODO: Implement XP calculation based on efficiency
+    if (state.activeTodo == null) return;
+    
+    final todo = state.activeTodo!;
+    final studyMinutes = state.elapsedTime.inMinutes;
+    
+    // Add XP to user stats
+    ref.read(userStatsProvider.notifier).addXP(
+      todo.xpReward,
+      subject: todo.subject,
+      studyMinutes: studyMinutes,
+    );
+    
+    // Update daily missions
+    ref.read(dailyMissionsProvider.notifier).updateMissionProgress('daily_study_time', studyMinutes);
+    ref.read(dailyMissionsProvider.notifier).updateMissionProgress('complete_quests', 1);
+    
+    // Morning study bonus (before 10 AM)
+    if (DateTime.now().hour < 10) {
+      ref.read(dailyMissionsProvider.notifier).updateMissionProgress('morning_study', 1);
+    }
   }
   
   @override
@@ -265,7 +306,7 @@ class TodoScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              // TODO: Add new todo dialog
+              _showAddTodoDialog(context, ref);
             },
           ),
         ],
@@ -286,7 +327,7 @@ class TodoScreen extends ConsumerWidget {
 
 // Todo Card Widget
 class _TodoCard extends ConsumerWidget {
-  final Todo todo;
+  final TodoItem todo;
   
   const _TodoCard({required this.todo});
 
@@ -344,7 +385,7 @@ class _TodoCard extends ConsumerWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          _formatDuration(todo.estimatedTime ?? Duration.zero),
+                          _formatDuration(todo.estimatedTime ?? const Duration()),
                           style: AppTypography.caption,
                         ),
                         AppSpacing.horizontalGapMD,
@@ -430,7 +471,7 @@ class _TodoCard extends ConsumerWidget {
 
 // Active Todo Timer Screen
 class _ActiveTodoScreen extends ConsumerWidget {
-  final Todo todo;
+  final TodoItem todo;
   final Duration elapsedTime;
   final bool isRunning;
   final bool isPaused;
@@ -744,5 +785,157 @@ class _EmptyState extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+// Add Todo Dialog
+void _showAddTodoDialog(BuildContext context, WidgetRef ref) {
+  showDialog(
+    context: context,
+    builder: (context) => const _AddTodoDialog(),
+  );
+}
+
+class _AddTodoDialog extends ConsumerStatefulWidget {
+  const _AddTodoDialog();
+
+  @override
+  ConsumerState<_AddTodoDialog> createState() => _AddTodoDialogState();
+}
+
+class _AddTodoDialogState extends ConsumerState<_AddTodoDialog> {
+  final _titleController = TextEditingController();
+  String _selectedSubject = 'Math';
+  int _estimatedMinutes = 30;
+  
+  final List<String> _subjects = ['Math', 'English', 'Science', 'History', 'Other'];
+  final List<int> _timeOptions = [15, 30, 45, 60, 90, 120];
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Add New Quest'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Title Input
+          TextField(
+            controller: _titleController,
+            decoration: const InputDecoration(
+              labelText: 'Quest Title',
+              hintText: 'What do you want to accomplish?',
+            ),
+            autofocus: true,
+          ),
+          
+          AppSpacing.verticalGapMD,
+          
+          // Subject Selection
+          DropdownButtonFormField<String>(
+            value: _selectedSubject,
+            decoration: const InputDecoration(
+              labelText: 'Subject',
+            ),
+            items: _subjects.map((subject) {
+              return DropdownMenuItem(
+                value: subject,
+                child: Row(
+                  children: [
+                    Icon(
+                      _getSubjectIcon(subject),
+                      color: _getSubjectColor(subject),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(subject),
+                  ],
+                ),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedSubject = value!;
+              });
+            },
+          ),
+          
+          AppSpacing.verticalGapMD,
+          
+          // Estimated Time
+          DropdownButtonFormField<int>(
+            value: _estimatedMinutes,
+            decoration: const InputDecoration(
+              labelText: 'Estimated Time',
+            ),
+            items: _timeOptions.map((minutes) {
+              return DropdownMenuItem(
+                value: minutes,
+                child: Text('${minutes}m'),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _estimatedMinutes = value!;
+              });
+            },
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _titleController.text.trim().isEmpty ? null : () {
+            final newTodo = TodoItem(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              title: _titleController.text.trim(),
+              subject: _selectedSubject,
+              estimatedTime: Duration(minutes: _estimatedMinutes),
+              xpReward: _calculateXPReward(_estimatedMinutes),
+            );
+            
+            ref.read(todoListProvider.notifier).addTodo(newTodo);
+            Navigator.of(context).pop();
+          },
+          child: const Text('Add Quest'),
+        ),
+      ],
+    );
+  }
+  
+  int _calculateXPReward(int minutes) {
+    // Base XP: 1 per minute + bonus for longer tasks
+    int baseXP = minutes;
+    if (minutes >= 60) baseXP += 20; // 1 hour bonus
+    if (minutes >= 120) baseXP += 30; // 2 hour bonus
+    return baseXP;
+  }
+  
+  Color _getSubjectColor(String subject) {
+    switch (subject) {
+      case 'Math': return Colors.blue;
+      case 'English': return Colors.purple;
+      case 'Science': return Colors.green;
+      case 'History': return Colors.orange;
+      default: return Colors.grey;
+    }
+  }
+  
+  IconData _getSubjectIcon(String subject) {
+    switch (subject) {
+      case 'Math': return Icons.calculate;
+      case 'English': return Icons.book;
+      case 'Science': return Icons.science;
+      case 'History': return Icons.history_edu;
+      default: return Icons.assignment;
+    }
   }
 }

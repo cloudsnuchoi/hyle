@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
@@ -54,7 +55,7 @@ class TimerNotifier extends StateNotifier<TimerState> {
   Timer? _timer;
   
   TimerNotifier() : super(TimerState(
-    duration: Duration.zero,
+    duration: const Duration(),
     isRunning: false,
     mode: TimerMode.stopwatch,
     subject: '',
@@ -68,7 +69,7 @@ class TimerNotifier extends StateNotifier<TimerState> {
       mode: mode,
       duration: mode == TimerMode.pomodoro 
         ? const Duration(minutes: 25)
-        : Duration.zero,
+        : const Duration(),
       pomodoroCount: 0,
       isBreak: false,
     );
@@ -116,7 +117,7 @@ class TimerNotifier extends StateNotifier<TimerState> {
       isRunning: false,
       duration: state.mode == TimerMode.pomodoro
         ? const Duration(minutes: 25)
-        : Duration.zero,
+        : const Duration(),
     );
   }
   

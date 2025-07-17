@@ -755,7 +755,7 @@ class PerformanceMetricsCalculator {
       Duration(minutes: sessions.fold(0, (sum, s) => sum + s.duration));
 
   Duration _calculateAverageSessionDuration(List<MetricsStudySession> sessions) =>
-      sessions.isEmpty ? Duration.zero :
+      sessions.isEmpty ? const Duration() :
       Duration(minutes: sessions.fold(0, (sum, s) => sum + s.duration) ~/ sessions.length);
 
   double _calculateTimePerMastery(

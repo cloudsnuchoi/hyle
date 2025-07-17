@@ -1029,7 +1029,7 @@ class ActiveNudge {
       behavior: '',
       applicablePrinciples: [],
       expectedImpact: 0,
-      validityDuration: Duration.zero,
+      validityDuration: const Duration(),
     ),
     createdAt: DateTime.now(),
     expiresAt: DateTime.now(),

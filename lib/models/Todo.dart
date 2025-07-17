@@ -15,7 +15,6 @@ class Todo extends amplify_core.Model {
   final int? actualTime;
   final int? xpReward;
   final DateTime? completedAt;
-  final bool? isCompleted;
   final bool? aiSuggested;
   
   @override
@@ -37,7 +36,6 @@ class Todo extends amplify_core.Model {
     this.actualTime,
     this.xpReward,
     this.completedAt,
-    this.isCompleted,
     this.aiSuggested,
   });
   
@@ -54,7 +52,6 @@ class Todo extends amplify_core.Model {
     int? actualTime,
     int? xpReward,
     DateTime? completedAt,
-    bool? isCompleted,
     bool? aiSuggested,
   }) {
     return Todo._internal(
@@ -70,7 +67,6 @@ class Todo extends amplify_core.Model {
       actualTime: actualTime,
       xpReward: xpReward,
       completedAt: completedAt,
-      isCompleted: isCompleted,
       aiSuggested: aiSuggested,
     );
   }
@@ -87,7 +83,6 @@ class Todo extends amplify_core.Model {
     int? actualTime,
     int? xpReward,
     DateTime? completedAt,
-    bool? isCompleted,
     bool? aiSuggested,
   }) {
     return Todo._internal(
@@ -103,7 +98,6 @@ class Todo extends amplify_core.Model {
       actualTime: actualTime ?? this.actualTime,
       xpReward: xpReward ?? this.xpReward,
       completedAt: completedAt ?? this.completedAt,
-      isCompleted: isCompleted ?? this.isCompleted,
       aiSuggested: aiSuggested ?? this.aiSuggested,
     );
   }
@@ -121,7 +115,6 @@ class Todo extends amplify_core.Model {
       actualTime = json['actualTime'],
       xpReward = json['xpReward'],
       completedAt = json['completedAt'] != null ? DateTime.parse(json['completedAt']) : null,
-      isCompleted = json['isCompleted'],
       aiSuggested = json['aiSuggested'];
   
   Map<String, dynamic> toJson() => {
@@ -137,7 +130,6 @@ class Todo extends amplify_core.Model {
     'actualTime': actualTime,
     'xpReward': xpReward,
     'completedAt': completedAt?.toIso8601String(),
-    'isCompleted': isCompleted,
     'aiSuggested': aiSuggested,
   };
   

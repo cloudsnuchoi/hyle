@@ -5,8 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/theme_provider.dart';
 import 'features/home/screens/home_screen.dart';
+import 'services/local_storage_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await LocalStorageService.init();
   runApp(const ProviderScope(child: HyleApp()));
 }
 

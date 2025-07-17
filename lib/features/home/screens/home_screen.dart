@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../providers/user_stats_provider.dart';
 import '../../todo/screens/todo_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -55,11 +56,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 // Dashboard Page
-class _DashboardPage extends StatelessWidget {
+class _DashboardPage extends ConsumerWidget {
   const _DashboardPage();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userStats = ref.watch(userStatsProvider);
+    final dailyMissions = ref.watch(dailyMissionsProvider);
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -86,37 +89,42 @@ class _DashboardPage extends StatelessWidget {
           padding: AppSpacing.paddingMD,
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              _buildStatCard(
-                context,
-                'Study Streak',
-                '7 Days',
-                Icons.local_fire_department,
-                Colors.orange,
+              // User Level Card
+              _buildLevelCard(context, userStats),
+              AppSpacing.verticalGapMD,
+              
+              // Stats Row
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      context,
+                      'Study Streak',
+                      '${userStats.currentStreak} Days',
+                      Icons.local_fire_department,
+                      Colors.orange,
+                    ),
+                  ),
+                  AppSpacing.horizontalGapMD,
+                  Expanded(
+                    child: _buildStatCard(
+                      context,
+                      'Total Time',
+                      userStats.getFormattedStudyTime(),
+                      Icons.access_time,
+                      Colors.blue,
+                    ),
+                  ),
+                ],
               ),
               AppSpacing.verticalGapMD,
-              _buildStatCard(
-                context,
-                'Total Study Time',
-                '24h 35m',
-                Icons.access_time,
-                Colors.blue,
-              ),
+              
+              // Daily Missions
+              _buildDailyMissionsCard(context, dailyMissions),
               AppSpacing.verticalGapMD,
-              _buildStatCard(
-                context,
-                'Level',
-                '12',
-                Icons.star,
-                Colors.purple,
-              ),
-              AppSpacing.verticalGapMD,
-              _buildStatCard(
-                context,
-                'XP Points',
-                '2,450',
-                Icons.bolt,
-                Colors.green,
-              ),
+              
+              // Subject Stats
+              _buildSubjectStatsCard(context, userStats.subjectStats),
             ]),
           ),
         ),
@@ -158,6 +166,167 @@ class _DashboardPage extends StatelessWidget {
         ),
       ),
     );
+  }
+  
+  Widget _buildLevelCard(BuildContext context, UserStats userStats) {
+    return Card(
+      child: Padding(
+        padding: AppSpacing.paddingMD,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: AppSpacing.paddingMD,
+                  decoration: BoxDecoration(
+                    color: Colors.purple.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.star, color: Colors.purple, size: 32),
+                ),
+                AppSpacing.horizontalGapMD,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Level ${userStats.level}', style: AppTypography.titleLarge),
+                      Text('${userStats.totalXP} XP', style: AppTypography.caption),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            AppSpacing.verticalGapMD,
+            LinearProgressIndicator(
+              value: userStats.getLevelProgress(),
+              backgroundColor: Colors.grey.shade300,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
+            ),
+            AppSpacing.verticalGapSM,
+            Text(
+              'Next Level: ${userStats.getXPForNextLevel() - userStats.totalXP} XP to go',
+              style: AppTypography.caption,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildDailyMissionsCard(BuildContext context, List<Mission> missions) {
+    return Card(
+      child: Padding(
+        padding: AppSpacing.paddingMD,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Daily Missions', style: AppTypography.titleMedium),
+            AppSpacing.verticalGapMD,
+            ...missions.map((mission) => _buildMissionItem(context, mission)),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildMissionItem(BuildContext context, Mission mission) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(
+            mission.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
+            color: mission.isCompleted ? Colors.green : Colors.grey,
+          ),
+          AppSpacing.horizontalGapMD,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(mission.title, style: AppTypography.body),
+                LinearProgressIndicator(
+                  value: mission.progress,
+                  backgroundColor: Colors.grey.shade300,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                ),
+                Text(
+                  '${mission.currentValue}/${mission.targetValue}',
+                  style: AppTypography.caption,
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '+${mission.xpReward} XP',
+            style: AppTypography.caption.copyWith(color: Colors.green),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildSubjectStatsCard(BuildContext context, Map<String, int> subjectStats) {
+    if (subjectStats.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    
+    return Card(
+      child: Padding(
+        padding: AppSpacing.paddingMD,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Subject Stats', style: AppTypography.titleMedium),
+            AppSpacing.verticalGapMD,
+            ...subjectStats.entries.map((entry) => _buildSubjectItem(context, entry.key, entry.value)),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildSubjectItem(BuildContext context, String subject, int minutes) {
+    final hours = minutes ~/ 60;
+    final remainingMinutes = minutes % 60;
+    final timeText = hours > 0 ? '${hours}h ${remainingMinutes}m' : '${remainingMinutes}m';
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(
+            _getSubjectIcon(subject),
+            color: _getSubjectColor(subject),
+          ),
+          AppSpacing.horizontalGapMD,
+          Expanded(
+            child: Text(subject, style: AppTypography.body),
+          ),
+          Text(timeText, style: AppTypography.caption),
+        ],
+      ),
+    );
+  }
+  
+  Color _getSubjectColor(String subject) {
+    switch (subject) {
+      case 'Math': return Colors.blue;
+      case 'English': return Colors.purple;
+      case 'Science': return Colors.green;
+      case 'History': return Colors.orange;
+      default: return Colors.grey;
+    }
+  }
+  
+  IconData _getSubjectIcon(String subject) {
+    switch (subject) {
+      case 'Math': return Icons.calculate;
+      case 'English': return Icons.book;
+      case 'Science': return Icons.science;
+      case 'History': return Icons.history_edu;
+      default: return Icons.assignment;
+    }
   }
 }
 

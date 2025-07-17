@@ -1525,7 +1525,7 @@ class SessionMetrics {
   double averageFocus = 0.0;
   double productivity = 0.0;
   double efficiency = 0.0;
-  Duration totalDuration = Duration.zero;
+  Duration totalDuration = const Duration();
 }
 
 class SessionUpdate {

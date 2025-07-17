@@ -881,7 +881,7 @@ class SolutionQualityEvaluator {
     required List<Struggle> struggles,
   }) => [];
 
-  Duration _calculateTotalTime(List<SolutionSnapshot> snapshots) => Duration.zero;
+  Duration _calculateTotalTime(List<SolutionSnapshot> snapshots) => const Duration();
 }
 
 // Data models

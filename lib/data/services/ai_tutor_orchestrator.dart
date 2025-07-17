@@ -1157,7 +1157,7 @@ class LearnerProfile {
   
   // Profile statistics
   int totalSessions = 0;
-  Duration totalStudyTime = Duration.zero;
+  Duration totalStudyTime = const Duration();
   DateTime? lastSessionAt;
 
   LearnerProfile({
