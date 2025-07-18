@@ -5,8 +5,15 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../providers/user_stats_provider.dart';
 import '../../../providers/learning_type_provider.dart';
-import '../../todo/screens/todo_screen.dart';
+import '../../todo/screens/todo_screen_with_categories.dart';
 import '../../learning_type/screens/learning_type_test_screen.dart';
+import '../../notes/screens/notes_screen_enhanced.dart';
+import '../../flashcards/screens/flashcards_screen.dart';
+import '../../timer/screens/timer_screen_enhanced.dart';
+import '../../schedule/screens/schedule_screen.dart';
+import '../../ai/screens/ai_assistant_screen.dart';
+import '../../profile/screens/profile_screen_improved.dart';
+import '../widgets/integrated_dashboard.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -19,9 +26,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const _DashboardPage(),
-    const TodoScreen(),
-    const _ProfilePage(),
+    const IntegratedDashboard(),
+    const ScheduleScreen(),
+    const TodoScreenWithCategories(),
+    const TimerScreenEnhanced(),
+    const NotesScreenEnhanced(),
+    const FlashcardsScreen(),
+    const AIAssistantScreen(),
+    const ProfileScreenImproved(),
   ];
 
   @override
@@ -42,9 +54,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             label: 'Dashboard',
           ),
           NavigationDestination(
+            icon: Icon(Icons.calendar_today_outlined),
+            selectedIcon: Icon(Icons.calendar_today),
+            label: 'Schedule',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.task_outlined),
             selectedIcon: Icon(Icons.task),
-            label: 'Quests',
+            label: 'Todo',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.timer_outlined),
+            selectedIcon: Icon(Icons.timer),
+            label: 'Timer',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.note_outlined),
+            selectedIcon: Icon(Icons.note),
+            label: 'Notes',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.quiz_outlined),
+            selectedIcon: Icon(Icons.quiz),
+            label: 'Cards',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.psychology_outlined),
+            selectedIcon: Icon(Icons.psychology),
+            label: 'AI',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
@@ -149,29 +186,47 @@ class _DashboardPage extends ConsumerWidget {
     Color color,
   ) {
     return Card(
-      child: Padding(
-        padding: AppSpacing.paddingMD,
-        child: Row(
-          children: [
-            Container(
-              padding: AppSpacing.paddingMD,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: color, size: 32),
+      child: InkWell(
+        onTap: () {
+          // 통계 상세 페이지로 이동
+          showModalBottomSheet(
+            context: context,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
-            AppSpacing.horizontalGapMD,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: AppTypography.caption),
-                  Text(value, style: AppTypography.titleLarge),
-                ],
-              ),
+            builder: (context) => _StatDetailSheet(
+              title: title,
+              value: value,
+              icon: icon,
+              color: color,
             ),
-          ],
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: AppSpacing.paddingMD,
+          child: Row(
+            children: [
+              Container(
+                padding: AppSpacing.paddingMD,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 32),
+              ),
+              AppSpacing.horizontalGapMD,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: AppTypography.caption),
+                    Text(value, style: AppTypography.titleLarge),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -387,77 +442,157 @@ class _DashboardPage extends ConsumerWidget {
   }
 }
 
-// Timer Page
-class _TimerPage extends StatelessWidget {
-  const _TimerPage();
+// 통계 상세 바텀시트
+class _StatDetailSheet extends ConsumerWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color color;
+  
+  const _StatDetailSheet({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userStats = ref.watch(userStatsProvider);
+    
+    return Container(
+      padding: AppSpacing.paddingLG,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.timer,
-            size: 100,
-            color: Theme.of(context).colorScheme.primary,
+          // 핸들바
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
           AppSpacing.verticalGapLG,
-          Text('Timer Feature', style: AppTypography.titleLarge),
-          AppSpacing.verticalGapMD,
-          Text('Coming Soon!', style: AppTypography.body),
+          
+          // 아이콘과 제목
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: AppSpacing.paddingMD,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 40),
+              ),
+              AppSpacing.horizontalGapMD,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTypography.titleMedium),
+                  Text(value, style: AppTypography.headlineMedium.copyWith(color: color)),
+                ],
+              ),
+            ],
+          ),
+          
+          AppSpacing.verticalGapXL,
+          
+          // 상세 정보
+          if (title == 'Study Streak') ...[
+            _buildDetailRow('현재 연속 학습', '${userStats.currentStreak}일'),
+            _buildDetailRow('최고 기록', '${userStats.longestStreak}일'),
+            _buildDetailRow('시작일', _formatDate(userStats.streakStartDate)),
+            AppSpacing.verticalGapMD,
+            LinearProgressIndicator(
+              value: userStats.currentStreak / 30, // 30일 목표
+              backgroundColor: Colors.grey[300],
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+            AppSpacing.verticalGapSM,
+            Text('30일 연속 학습 도전 중!', style: AppTypography.caption),
+          ] else if (title == 'Total Time') ...[
+            _buildDetailRow('오늘 학습 시간', '${userStats.todayStudyMinutes}분'),
+            _buildDetailRow('이번 주 학습 시간', '${userStats.weeklyStudyMinutes}분'),
+            _buildDetailRow('총 학습 시간', userStats.getFormattedStudyTime()),
+            AppSpacing.verticalGapMD,
+            // 과목별 학습 시간
+            if (userStats.subjectStats.isNotEmpty) ...[
+              Text('과목별 학습 시간', style: AppTypography.titleSmall),
+              AppSpacing.verticalGapMD,
+              ...userStats.subjectStats.entries.map((entry) {
+                final totalMinutes = userStats.subjectStats.values.fold(0, (sum, val) => sum + val);
+                final percentage = totalMinutes > 0 ? (entry.value / totalMinutes) : 0.0;
+                
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(entry.key, style: AppTypography.body),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: LinearProgressIndicator(
+                          value: percentage,
+                          backgroundColor: Colors.grey[300],
+                          valueColor: AlwaysStoppedAnimation<Color>(_getSubjectColor(entry.key)),
+                        ),
+                      ),
+                      AppSpacing.horizontalGapMD,
+                      Text('${entry.value}분', style: AppTypography.caption),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ],
+          ],
+          
+          AppSpacing.verticalGapXL,
+          
+          // 닫기 버튼
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('닫기'),
+            ),
+          ),
         ],
       ),
     );
   }
-}
-
-// Todo Page
-class _TodoPage extends StatelessWidget {
-  const _TodoPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(
-            Icons.check_circle,
-            size: 100,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          AppSpacing.verticalGapLG,
-          Text('Todo Feature', style: AppTypography.titleLarge),
-          AppSpacing.verticalGapMD,
-          Text('Coming Soon!', style: AppTypography.body),
+          Text(label, style: AppTypography.body),
+          Text(value, style: AppTypography.titleSmall),
         ],
       ),
     );
   }
-}
-
-// Profile Page
-class _ProfilePage extends StatelessWidget {
-  const _ProfilePage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.person,
-            size: 100,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          AppSpacing.verticalGapLG,
-          Text('Profile', style: AppTypography.titleLarge),
-          AppSpacing.verticalGapMD,
-          Text('Coming Soon!', style: AppTypography.body),
-        ],
-      ),
-    );
+  
+  String _formatDate(DateTime? date) {
+    if (date == null) return '-';
+    return '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+  }
+  
+  Color _getSubjectColor(String subject) {
+    switch (subject) {
+      case 'Math': return Colors.blue;
+      case 'English': return Colors.purple;
+      case 'Science': return Colors.green;
+      case 'History': return Colors.orange;
+      default: return Colors.grey;
+    }
   }
 }
+

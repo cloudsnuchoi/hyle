@@ -38,7 +38,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/confirm',
         name: 'confirm',
         builder: (context, state) {
-          final email = state.queryParameters['email'] ?? '';
+          final email = state.uri.queryParameters['email'] ?? '';
           return ConfirmationScreen(email: email);
         },
       ),

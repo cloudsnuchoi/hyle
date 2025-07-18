@@ -8,6 +8,7 @@ class UserStats {
   final int totalStudyTime; // in minutes
   final int currentStreak;
   final int longestStreak;
+  final int completedQuests;
   final DateTime lastStudyDate;
   final Map<String, int> subjectStats; // subject -> minutes studied
   
@@ -17,6 +18,7 @@ class UserStats {
     this.totalStudyTime = 0,
     this.currentStreak = 0,
     this.longestStreak = 0,
+    this.completedQuests = 0,
     DateTime? lastStudyDate,
     Map<String, int>? subjectStats,
   }) : lastStudyDate = lastStudyDate ?? DateTime.now(),
@@ -28,6 +30,7 @@ class UserStats {
     int? totalStudyTime,
     int? currentStreak,
     int? longestStreak,
+    int? completedQuests,
     DateTime? lastStudyDate,
     Map<String, int>? subjectStats,
   }) {
@@ -37,9 +40,34 @@ class UserStats {
       totalStudyTime: totalStudyTime ?? this.totalStudyTime,
       currentStreak: currentStreak ?? this.currentStreak,
       longestStreak: longestStreak ?? this.longestStreak,
+      completedQuests: completedQuests ?? this.completedQuests,
       lastStudyDate: lastStudyDate ?? this.lastStudyDate,
       subjectStats: subjectStats ?? Map.from(this.subjectStats),
     );
+  }
+  
+  // Get today's study minutes
+  int get todayStudyMinutes {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final todayKey = '${today.year}-${today.month}-${today.day}';
+    
+    // TODO: Implement proper daily tracking
+    // For now, return a sample value
+    return 45;
+  }
+  
+  // Get this week's study minutes
+  int get weeklyStudyMinutes {
+    // TODO: Implement proper weekly tracking
+    // For now, return a sample value
+    return 315;
+  }
+  
+  // Get streak start date
+  DateTime? get streakStartDate {
+    if (currentStreak == 0) return null;
+    return lastStudyDate.subtract(Duration(days: currentStreak - 1));
   }
   
   // Calculate level from XP
@@ -103,6 +131,13 @@ final userStatsProvider = StateNotifierProvider<UserStatsNotifier, UserStats>((r
 class UserStatsNotifier extends StateNotifier<UserStats> {
   UserStatsNotifier() : super(UserStats()) {
     _loadFromStorage();
+  }
+  
+  void incrementCompletedQuests() {
+    state = state.copyWith(
+      completedQuests: state.completedQuests + 1,
+    );
+    _saveToStorage();
   }
   
   void addXP(int xp, {String? subject, int? studyMinutes}) {

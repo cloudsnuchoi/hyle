@@ -580,7 +580,7 @@ class _ActionButtons extends ConsumerWidget {
                 onPressed: () {
                   ref.read(learningTypeTestProvider.notifier).retakeTest();
                 },
-                variant: CustomButtonVariant.outline,
+                isOutlined: true,
               ),
             ),
             AppSpacing.horizontalGapMD,

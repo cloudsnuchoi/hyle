@@ -30,6 +30,7 @@ class LocalStorageService {
       'totalStudyTime': stats.totalStudyTime,
       'currentStreak': stats.currentStreak,
       'longestStreak': stats.longestStreak,
+      'completedQuests': stats.completedQuests,
       'lastStudyDate': stats.lastStudyDate.toIso8601String(),
       'subjectStats': stats.subjectStats,
     };
@@ -49,6 +50,7 @@ class LocalStorageService {
         totalStudyTime: json['totalStudyTime'] ?? 0,
         currentStreak: json['currentStreak'] ?? 0,
         longestStreak: json['longestStreak'] ?? 0,
+        completedQuests: json['completedQuests'] ?? 0,
         lastStudyDate: DateTime.parse(json['lastStudyDate'] ?? DateTime.now().toIso8601String()),
         subjectStats: Map<String, int>.from(json['subjectStats'] ?? {}),
       );

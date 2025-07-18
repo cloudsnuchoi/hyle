@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/theme/app_theme.dart';
+import '../core/theme/app_colors.dart';
 
 // Theme mode provider
 final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
   return ThemeModeNotifier();
 });
 
-// Skin type provider
-final skinTypeProvider = StateNotifierProvider<SkinTypeNotifier, String>((ref) {
-  return SkinTypeNotifier();
+// Theme preset provider
+final themePresetProvider = StateNotifierProvider<ThemePresetNotifier, ThemePreset>((ref) {
+  return ThemePresetNotifier();
 });
 
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
@@ -48,28 +49,31 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   }
 }
 
-class SkinTypeNotifier extends StateNotifier<String> {
-  static const String _skinKey = 'theme_skin';
+class ThemePresetNotifier extends StateNotifier<ThemePreset> {
+  static const String _presetKey = 'theme_preset';
   
-  SkinTypeNotifier() : super('default') {
-    _loadSkinFromPrefs();
+  ThemePresetNotifier() : super(ThemePresets.notionApple) {
+    _loadPresetFromPrefs();
   }
   
-  Future<void> _loadSkinFromPrefs() async {
+  Future<void> _loadPresetFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedSkin = prefs.getString(_skinKey);
+    final savedPresetIndex = prefs.getInt(_presetKey) ?? 0;
     
-    if (savedSkin != null) {
-      state = savedSkin;
+    if (savedPresetIndex >= 0 && savedPresetIndex < ThemePresets.all.length) {
+      state = ThemePresets.all[savedPresetIndex];
     }
   }
   
-  Future<void> setSkin(String skin) async {
-    if (state == skin) return;
+  Future<void> setThemePreset(ThemePreset preset) async {
+    if (state == preset) return;
     
-    state = skin;
+    state = preset;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_skinKey, skin);
+    final index = ThemePresets.all.indexOf(preset);
+    if (index != -1) {
+      await prefs.setInt(_presetKey, index);
+    }
   }
 }
 
@@ -84,69 +88,34 @@ final isDarkModeProvider = Provider<bool>((ref) {
   return themeMode == ThemeMode.dark;
 });
 
-// Available skins
-final availableSkinsProvider = Provider<List<String>>((ref) {
-  return [
-    'default',
-    'ocean',
-    'forest',
-    'sunset',
-    'midnight',
-  ];
+// Available theme presets
+final availablePresetsProvider = Provider<List<ThemePreset>>((ref) {
+  return ThemePresets.all;
 });
 
-// Skin display names
-String getSkinDisplayName(String skin) {
-  switch (skin) {
-    case 'default':
-      return 'Classic';
-    case 'ocean':
-      return 'Ocean Blue';
-    case 'forest':
-      return 'Forest Green';
-    case 'sunset':
-      return 'Sunset Orange';
-    case 'midnight':
-      return 'Midnight Purple';
+// Get preset description
+String getPresetDescription(ThemePreset preset) {
+  switch (preset.name) {
+    case 'Notion + Apple':
+      return '깔끔하고 집중하기 좋은 미니멀 디자인';
+    case 'Colorful Fun':
+      return '듀오링고처럼 밝고 재미있는 스타일';
+    case 'Study Focus':
+      return '집중력을 높이는 차분한 학구적 스타일';
+    case 'Modern Dark':
+      return 'Discord처럼 모던한 다크 테마';
+    case 'Pastel Soft':
+      return '파스텔톤의 부드럽고 편안한 스타일';
     default:
-      return skin;
+      return preset.name;
   }
 }
 
-// Skin preview colors
-List<Color> getSkinPreviewColors(String skin) {
-  switch (skin) {
-    case 'default':
-      return [
-        const Color(0xFF2196F3),
-        const Color(0xFF1976D2),
-        const Color(0xFF0D47A1),
-      ];
-    case 'ocean':
-      return [
-        const Color(0xFF00BCD4),
-        const Color(0xFF0097A7),
-        const Color(0xFF006064),
-      ];
-    case 'forest':
-      return [
-        const Color(0xFF4CAF50),
-        const Color(0xFF388E3C),
-        const Color(0xFF1B5E20),
-      ];
-    case 'sunset':
-      return [
-        const Color(0xFFFF9800),
-        const Color(0xFFF57C00),
-        const Color(0xFFE65100),
-      ];
-    case 'midnight':
-      return [
-        const Color(0xFF9C27B0),
-        const Color(0xFF7B1FA2),
-        const Color(0xFF4A148C),
-      ];
-    default:
-      return [Colors.grey];
-  }
+// Get preset preview colors
+List<Color> getPresetPreviewColors(ThemePreset preset) {
+  return [
+    preset.primary,
+    preset.secondary,
+    preset.accent,
+  ];
 }

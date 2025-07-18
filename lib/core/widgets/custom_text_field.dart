@@ -24,6 +24,7 @@ class CustomTextField extends StatelessWidget {
   final Function(String)? onFieldSubmitted;
   final String? Function(String?)? validator;
   final AutovalidateMode? autovalidateMode;
+  final TextAlign textAlign;
 
   const CustomTextField({
     super.key,
@@ -46,6 +47,7 @@ class CustomTextField extends StatelessWidget {
     this.onFieldSubmitted,
     this.validator,
     this.autovalidateMode,
+    this.textAlign = TextAlign.start,
   });
 
   @override
@@ -80,6 +82,7 @@ class CustomTextField extends StatelessWidget {
           validator: validator,
           autovalidateMode: autovalidateMode,
           style: AppTypography.body,
+          textAlign: textAlign,
           decoration: InputDecoration(
             hintText: hint,
             errorText: errorText,

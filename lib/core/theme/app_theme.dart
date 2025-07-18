@@ -1,14 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
 import 'app_spacing.dart';
 import 'app_shadows.dart';
 
 class AppTheme {
+  // 테마별 폰트 가져오기
+  static TextTheme _getTextTheme(ThemePreset preset, Brightness brightness) {
+    TextTheme baseTextTheme = brightness == Brightness.light 
+      ? AppTypography.lightTextTheme 
+      : AppTypography.darkTextTheme;
+      
+    switch (preset.name) {
+      case 'Notion + Apple':
+        return GoogleFonts.interTextTheme(baseTextTheme);
+      case 'Colorful Fun':
+        return GoogleFonts.poppinsTextTheme(baseTextTheme);
+      case 'Study Focus':
+        return GoogleFonts.robotoTextTheme(baseTextTheme);
+      case 'Modern Dark':
+        return GoogleFonts.spaceGroteskTextTheme(baseTextTheme);
+      case 'Pastel Soft':
+        return GoogleFonts.quicksandTextTheme(baseTextTheme);
+      default:
+        return baseTextTheme;
+    }
+  }
+  
   // Light Theme
   static ThemeData lightTheme({ThemePreset? preset}) {
-    final themePreset = preset ?? ThemePresets.purple;
+    final themePreset = preset ?? ThemePresets.notionApple;
     
     return ThemeData(
       useMaterial3: true,
@@ -31,7 +54,7 @@ class AppTheme {
       ),
       
       // Typography
-      textTheme: AppTypography.lightTextTheme,
+      textTheme: _getTextTheme(themePreset, Brightness.light),
       
       // AppBar
       appBarTheme: AppBarTheme(
@@ -50,13 +73,14 @@ class AppTheme {
       ),
       
       // Card
-      cardTheme: CardTheme(
-        color: AppColors.white,
-        elevation: 0,
+      cardTheme: CardThemeData(
+        color: themePreset.surface ?? AppColors.white,
+        elevation: themePreset.elevation ?? 0,
         shape: RoundedRectangleBorder(
-          borderRadius: AppSpacing.borderRadiusMd,
+          borderRadius: BorderRadius.circular(themePreset.borderRadius ?? 12),
         ),
         clipBehavior: Clip.antiAlias,
+        shadowColor: themePreset.useShadows ?? false ? Colors.black26 : Colors.transparent,
       ),
       
       // Elevated Button
@@ -64,12 +88,14 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: themePreset.primary,
           foregroundColor: AppColors.white,
-          elevation: 0,
+          elevation: themePreset.elevation ?? 0,
           padding: AppSpacing.paddingButton,
           shape: RoundedRectangleBorder(
-            borderRadius: AppSpacing.borderRadiusSm,
+            borderRadius: BorderRadius.circular(themePreset.borderRadius ?? 8),
           ),
-          textStyle: AppTypography.button,
+          textStyle: AppTypography.button.copyWith(
+            fontFamily: themePreset.fontFamily,
+          ),
         ),
       ),
       
@@ -147,7 +173,7 @@ class AppTheme {
       ),
       
       // Dialog
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: AppColors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -182,7 +208,7 @@ class AppTheme {
       ),
       
       // Other
-      scaffoldBackgroundColor: AppColors.backgroundLight,
+      scaffoldBackgroundColor: themePreset.background ?? AppColors.backgroundLight,
       dividerTheme: const DividerThemeData(
         color: AppColors.divider,
         thickness: 1,
@@ -198,7 +224,7 @@ class AppTheme {
   
   // Dark Theme
   static ThemeData darkTheme({ThemePreset? preset}) {
-    final themePreset = preset ?? ThemePresets.purple;
+    final themePreset = preset ?? ThemePresets.modernDark;
     
     return ThemeData(
       useMaterial3: true,
@@ -221,7 +247,7 @@ class AppTheme {
       ),
       
       // Typography
-      textTheme: AppTypography.darkTextTheme,
+      textTheme: _getTextTheme(themePreset, Brightness.dark),
       
       // AppBar
       appBarTheme: AppBarTheme(
@@ -240,7 +266,7 @@ class AppTheme {
       ),
       
       // Card
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.surfaceDark,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -254,12 +280,14 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: themePreset.primary,
           foregroundColor: AppColors.white,
-          elevation: 0,
+          elevation: themePreset.elevation ?? 0,
           padding: AppSpacing.paddingButton,
           shape: RoundedRectangleBorder(
-            borderRadius: AppSpacing.borderRadiusSm,
+            borderRadius: BorderRadius.circular(themePreset.borderRadius ?? 8),
           ),
-          textStyle: AppTypography.button,
+          textStyle: AppTypography.button.copyWith(
+            fontFamily: themePreset.fontFamily,
+          ),
         ),
       ),
       
@@ -337,7 +365,7 @@ class AppTheme {
       ),
       
       // Dialog
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surfaceDark,
         elevation: 0,
         shape: RoundedRectangleBorder(

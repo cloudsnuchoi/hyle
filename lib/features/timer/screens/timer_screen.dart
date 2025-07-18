@@ -134,7 +134,7 @@ class TimerNotifier extends StateNotifier<TimerState> {
     pause();
     
     // Play notification sound
-    SystemSound.play(SystemSound.alert);
+    SystemSound.play(SystemSoundType.click);
     
     if (state.isBreak) {
       // Break completed, start work session

@@ -262,6 +262,9 @@ class ActiveTodoTimer extends StateNotifier<ActiveTodoState> {
       studyMinutes: studyMinutes,
     );
     
+    // Increment completed quests
+    ref.read(userStatsProvider.notifier).incrementCompletedQuests();
+    
     // Update daily missions
     ref.read(dailyMissionsProvider.notifier).updateMissionProgress('daily_study_time', studyMinutes);
     ref.read(dailyMissionsProvider.notifier).updateMissionProgress('complete_quests', 1);

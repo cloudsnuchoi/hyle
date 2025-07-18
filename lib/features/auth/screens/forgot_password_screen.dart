@@ -114,15 +114,13 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
-
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: AppColors.getBackground(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: colors.text),
+          icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
       ),
@@ -138,7 +136,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 Text(
                   _codeSent ? 'Reset Password' : 'Forgot Password?',
                   style: AppTypography.displaySmall.copyWith(
-                    color: colors.text,
+                    color: AppColors.textPrimary,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
@@ -149,7 +147,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       ? 'Enter the code we sent to your email and your new password'
                       : 'Enter your email to receive a password reset code',
                   style: AppTypography.bodyLarge.copyWith(
-                    color: colors.textSecondary,
+                    color: AppColors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -245,7 +243,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                     child: Text(
                       'Use a different email',
                       style: AppTypography.bodyMedium.copyWith(
-                        color: colors.primary,
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
@@ -257,7 +255,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                     Text(
                       'Remember your password? ',
                       style: AppTypography.bodyMedium.copyWith(
-                        color: colors.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                     TextButton(
@@ -265,7 +263,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       child: Text(
                         'Sign In',
                         style: AppTypography.bodyMedium.copyWith(
-                          color: colors.primary,
+                          color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

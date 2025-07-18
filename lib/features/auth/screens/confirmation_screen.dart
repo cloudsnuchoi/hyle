@@ -87,15 +87,13 @@ class _ConfirmationScreenState extends ConsumerState<ConfirmationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
-
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: AppColors.getBackground(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: colors.text),
+          icon: Icon(Icons.arrow_back, color: AppColors.getTextPrimary(context)),
           onPressed: () => context.pop(),
         ),
       ),
@@ -111,7 +109,7 @@ class _ConfirmationScreenState extends ConsumerState<ConfirmationScreen> {
                 Text(
                   'Confirm Your Email',
                   style: AppTypography.displaySmall.copyWith(
-                    color: colors.text,
+                    color: AppColors.textPrimary,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
@@ -120,7 +118,7 @@ class _ConfirmationScreenState extends ConsumerState<ConfirmationScreen> {
                 Text(
                   'We sent a confirmation code to',
                   style: AppTypography.bodyLarge.copyWith(
-                    color: colors.textSecondary,
+                    color: AppColors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -128,7 +126,7 @@ class _ConfirmationScreenState extends ConsumerState<ConfirmationScreen> {
                 Text(
                   widget.email,
                   style: AppTypography.bodyLarge.copyWith(
-                    color: colors.primary,
+                    color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
@@ -162,7 +160,7 @@ class _ConfirmationScreenState extends ConsumerState<ConfirmationScreen> {
                   child: Text(
                     'Resend Code',
                     style: AppTypography.bodyMedium.copyWith(
-                      color: colors.primary,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
@@ -173,7 +171,7 @@ class _ConfirmationScreenState extends ConsumerState<ConfirmationScreen> {
                     Text(
                       'Wrong email? ',
                       style: AppTypography.bodyMedium.copyWith(
-                        color: colors.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                     TextButton(
@@ -181,7 +179,7 @@ class _ConfirmationScreenState extends ConsumerState<ConfirmationScreen> {
                       child: Text(
                         'Go Back',
                         style: AppTypography.bodyMedium.copyWith(
-                          color: colors.primary,
+                          color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

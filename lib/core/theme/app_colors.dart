@@ -121,16 +121,99 @@ class ThemePreset {
   final Color primary;
   final Color secondary;
   final Color accent;
+  final Color? background;
+  final Color? surface;
+  final double? borderRadius;
+  final String? fontFamily;
+  final double? elevation;
+  final bool? useShadows;
   
   const ThemePreset({
     required this.name,
     required this.primary,
     required this.secondary,
     required this.accent,
+    this.background,
+    this.surface,
+    this.borderRadius,
+    this.fontFamily,
+    this.elevation,
+    this.useShadows,
   });
 }
 
 class ThemePresets {
+  // 노션 + 애플 스타일 (기본)
+  static const ThemePreset notionApple = ThemePreset(
+    name: 'Notion + Apple',
+    primary: Color(0xFF0066CC),  // iOS 블루
+    secondary: Color(0xFF5E72E4), // 노션 블루
+    accent: Color(0xFF2DCE89),   // 성공 그린
+    background: Color(0xFFFAFAFA),
+    surface: Color(0xFFFFFFFF),
+    borderRadius: 8.0,
+    fontFamily: 'SF Pro Display',
+    elevation: 0,
+    useShadows: false,
+  );
+  
+  // 컬러풀 & 재미있는
+  static const ThemePreset colorfulFun = ThemePreset(
+    name: 'Colorful Fun',
+    primary: Color(0xFFFF6B6B),
+    secondary: Color(0xFF4ECDC4),
+    accent: Color(0xFFFFE66D),
+    background: Color(0xFFF7FFF7),
+    surface: Color(0xFFFFFFFF),
+    borderRadius: 20.0,
+    fontFamily: 'Poppins',
+    elevation: 4,
+    useShadows: true,
+  );
+  
+  // 차분한 학구적
+  static const ThemePreset studyFocus = ThemePreset(
+    name: 'Study Focus',
+    primary: Color(0xFF5E72E4),
+    secondary: Color(0xFF2DCE89),
+    accent: Color(0xFFFB6340),
+    background: Color(0xFFF4F5F7),
+    surface: Color(0xFFFFFFFF),
+    borderRadius: 12.0,
+    fontFamily: 'Inter',
+    elevation: 1,
+    useShadows: true,
+  );
+  
+  // 모던 다크
+  static const ThemePreset modernDark = ThemePreset(
+    name: 'Modern Dark',
+    primary: Color(0xFF6C63FF),
+    secondary: Color(0xFFFF6584),
+    accent: Color(0xFF4FD1C5),
+    background: Color(0xFF0D0D0D),
+    surface: Color(0xFF1A1A1A),
+    borderRadius: 16.0,
+    fontFamily: 'Roboto',
+    elevation: 0,
+    useShadows: false,
+  );
+  
+  // 파스텔 소프트
+  static const ThemePreset pastelSoft = ThemePreset(
+    name: 'Pastel Soft',
+    primary: Color(0xFFB794F4),
+    secondary: Color(0xFFF687B3),
+    accent: Color(0xFF4FD1C5),
+    background: Color(0xFFFAF5FF),
+    surface: Color(0xFFFFFFFF),
+    borderRadius: 24.0,
+    fontFamily: 'Quicksand',
+    elevation: 2,
+    useShadows: true,
+  );
+  
+  // 기존 테마들도 유지 (호환성)
   static const ThemePreset purple = ThemePreset(
     name: 'Purple',
     primary: AppColors.primary,
@@ -159,5 +242,15 @@ class ThemePresets {
     accent: Color(0xFFF59E0B),
   );
   
-  static const List<ThemePreset> all = [purple, blue, green, pink];
+  static const List<ThemePreset> all = [
+    notionApple,
+    colorfulFun,
+    studyFocus,
+    modernDark,
+    pastelSoft,
+    purple,
+    blue,
+    green,
+    pink,
+  ];
 }

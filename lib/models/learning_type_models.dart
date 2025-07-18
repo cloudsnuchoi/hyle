@@ -31,6 +31,9 @@ class LearningType {
     required this.motivationalQuote,
     required this.colorScheme,
   });
+  
+  String getTitle() => '$emoji $name';
+  String getDescription() => description;
 }
 
 // 4 Dimensions
