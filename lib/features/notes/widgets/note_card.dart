@@ -64,7 +64,7 @@ class NoteCard extends ConsumerWidget {
           children: [
             // 헤더
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: note.color != null
                     ? note.color!.withOpacity(0.1)
@@ -130,7 +130,7 @@ class NoteCard extends ConsumerWidget {
                       child: Text(
                         note.content,
                         style: AppTypography.body,
-                        maxLines: 6,
+                        maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -201,7 +201,7 @@ class NoteCard extends ConsumerWidget {
             
             // 푸터
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
@@ -213,6 +213,7 @@ class NoteCard extends ConsumerWidget {
                 dateFormat.format(note.updatedAt),
                 style: AppTypography.caption.copyWith(
                   color: Colors.grey[600],
+                  fontSize: 11,
                 ),
               ),
             ),

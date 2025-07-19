@@ -887,6 +887,23 @@ class _ProfileActions extends StatelessWidget {
             ],
           ),
         ),
+        
+        AppSpacing.verticalGapMD,
+        
+        CustomButton(
+          onPressed: () {
+            Navigator.pushNamed(context, '/home/ai-features');
+          },
+          variant: ButtonVariant.primary,
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.psychology),
+              SizedBox(width: 8),
+              Text('AI 기능 베타 테스트'),
+            ],
+          ),
+        ),
       ],
     );
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../providers/locale_provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../profile/widgets/theme_settings_dialog.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -12,7 +14,7 @@ class SettingsScreen extends ConsumerWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('설정'),
+        title: Text(AppLocalizations.of(context)?.settings ?? '설정'),
       ),
       body: ListView(
         children: [
@@ -20,19 +22,15 @@ class SettingsScreen extends ConsumerWidget {
           _buildSectionHeader('일반'),
           _buildSettingTile(
             icon: Icons.palette,
-            title: '테마 설정',
+            title: AppLocalizations.of(context)?.theme ?? '테마 설정',
             subtitle: '앱의 색상과 스타일을 변경합니다',
             onTap: () => _showThemeSettings(context),
           ),
           _buildSettingTile(
             icon: Icons.language,
-            title: '언어 설정',
-            subtitle: '한국어',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('언어 설정 준비 중')),
-              );
-            },
+            title: AppLocalizations.of(context)?.language ?? '언어 설정',
+            subtitle: ref.watch(currentLocaleNameProvider),
+            onTap: () => _showLanguageSettings(context, ref),
           ),
           
           const Divider(height: 32),
@@ -350,6 +348,58 @@ class SettingsScreen extends ConsumerWidget {
             child: const Text('로그아웃'),
           ),
         ],
+      ),
+    );
+  }
+  
+  void _showLanguageSettings(BuildContext context, WidgetRef ref) {
+    final currentLocale = ref.read(localeProvider);
+    
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppLocalizations.of(context)?.language ?? '언어 설정',
+              style: AppTypography.titleLarge,
+            ),
+            const SizedBox(height: 24),
+            RadioListTile<String>(
+              title: Text(AppLocalizations.of(context)?.korean ?? '한국어'),
+              value: 'ko',
+              groupValue: currentLocale.languageCode,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(localeProvider.notifier).setLocale(Locale(value));
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            RadioListTile<String>(
+              title: Text(AppLocalizations.of(context)?.english ?? 'English'),
+              value: 'en',
+              groupValue: currentLocale.languageCode,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(localeProvider.notifier).setLocale(Locale(value));
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(AppLocalizations.of(context)?.cancel ?? '취소'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

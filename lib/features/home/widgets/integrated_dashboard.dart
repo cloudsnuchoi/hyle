@@ -3,11 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/todo_category_provider.dart';
 import '../../../providers/notes_provider.dart';
 import '../../../providers/user_stats_provider.dart';
+import '../../../providers/dday_provider.dart';
+import '../../../providers/daily_goal_provider.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../services/web_notification_service.dart';
 import '../../todo/screens/todo_screen_enhanced.dart';
 import '../../timer/screens/timer_screen_enhanced.dart';
 import '../../notes/screens/notes_screen_enhanced.dart';
+import '../../social/widgets/social_button.dart';
+import 'dday_widget.dart';
+import 'level_badge.dart';
+import 'quest_widget.dart';
 
 class IntegratedDashboard extends ConsumerWidget {
   const IntegratedDashboard({super.key});
@@ -36,6 +43,12 @@ class IntegratedDashboard extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
         centerTitle: false,
+        actions: const [
+          LevelBadge(),
+          SizedBox(width: 8),
+          SocialButton(),
+          SizedBox(width: 8),
+        ],
       ),
       body: SingleChildScrollView(
       padding: AppSpacing.paddingMD,
@@ -44,6 +57,16 @@ class IntegratedDashboard extends ConsumerWidget {
         children: [
           // 오늘의 요약
           _buildTodaySummary(context, ref, todayIncompleteTodos.length, todayTodos),
+          
+          AppSpacing.verticalGapLG,
+          
+          // D-Day 위젯
+          const DDayWidget(),
+          
+          AppSpacing.verticalGapLG,
+          
+          // 퀘스트 위젯
+          const QuestWidget(),
           
           AppSpacing.verticalGapLG,
           
@@ -90,6 +113,15 @@ class IntegratedDashboard extends ConsumerWidget {
           Text('이번 주 학습 통계', style: AppTypography.titleLarge),
           AppSpacing.verticalGapMD,
           _buildWeeklyStats(context, ref, userStats),
+          
+          AppSpacing.verticalGapLG,
+          
+          // 알림 테스트 버튼 (개발용)
+          ElevatedButton.icon(
+            onPressed: () => _testNotifications(),
+            icon: const Icon(Icons.notifications),
+            label: const Text('알림 테스트'),
+          ),
         ],
       ),
     ),
@@ -98,14 +130,22 @@ class IntegratedDashboard extends ConsumerWidget {
 
   Widget _buildTodaySummary(BuildContext context, WidgetRef ref, int todayTodos, int completedTodos) {
     final theme = Theme.of(context);
-    final progress = todayTodos > 0 ? completedTodos / (todayTodos + completedTodos) : 0.0;
+    final totalTodos = todayTodos + completedTodos;
+    final progress = totalTodos > 0 ? completedTodos / totalTodos : 0.0;
+    final userStats = ref.watch(userStatsProvider);
+    final dailyGoal = ref.watch(dailyGoalProvider);
+    final studyProgress = userStats.todayStudyMinutes / dailyGoal.studyMinutes;
     
     return Card(
-      child: Padding(
+      child: InkWell(
+        onTap: () => _showGoalSettingDialog(context, ref),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
         padding: AppSpacing.paddingLG,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 헤더
             Row(
               children: [
                 Icon(
@@ -115,32 +155,85 @@ class IntegratedDashboard extends ConsumerWidget {
                 ),
                 AppSpacing.horizontalGapMD,
                 Text(
-                  '오늘의 할 일',
+                  '오늘의 목표',
                   style: AppTypography.titleMedium,
                 ),
-                const Spacer(),
+              ],
+            ),
+            AppSpacing.verticalGapLG,
+            
+            // 할 일 진행도
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.task_alt, size: 20, color: Colors.green),
+                    const SizedBox(width: 8),
+                    Text('할 일', style: AppTypography.body),
+                  ],
+                ),
                 Text(
-                  '$completedTodos / ${todayTodos + completedTodos}',
-                  style: AppTypography.titleLarge.copyWith(
+                  '$completedTodos / $totalTodos',
+                  style: AppTypography.titleMedium.copyWith(
                     color: theme.colorScheme.primary,
                   ),
                 ),
               ],
             ),
-            AppSpacing.verticalGapMD,
+            AppSpacing.verticalGapSM,
             LinearProgressIndicator(
               value: progress,
               backgroundColor: Colors.grey[300],
               valueColor: AlwaysStoppedAnimation<Color>(
-                theme.colorScheme.primary,
+                Colors.green,
               ),
             ),
+            
+            AppSpacing.verticalGapMD,
+            
+            // 학습 시간 진행도
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.timer, size: 20, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    Text('학습 시간', style: AppTypography.body),
+                  ],
+                ),
+                Text(
+                  '${userStats.todayStudyMinutes}분 / ${dailyGoal.studyMinutes}분',
+                  style: AppTypography.titleMedium.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
             AppSpacing.verticalGapSM,
-            Text(
-              '${(progress * 100).toInt()}% 완료',
-              style: AppTypography.caption,
+            LinearProgressIndicator(
+              value: studyProgress.clamp(0.0, 1.0),
+              backgroundColor: Colors.grey[300],
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Colors.blue,
+              ),
+            ),
+            
+            AppSpacing.verticalGapMD,
+            
+            // 종합 진행률
+            Center(
+              child: Text(
+                '오늘 목표 ${((progress + studyProgress) / 2 * 100).toInt()}% 달성',
+                style: AppTypography.caption.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
             ),
           ],
+        ),
         ),
       ),
     );
@@ -177,6 +270,7 @@ class IntegratedDashboard extends ConsumerWidget {
       height: 120,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
         itemCount: activeTodos.length.clamp(0, 5),
         itemBuilder: (context, index) {
           final todo = activeTodos[index];
@@ -344,6 +438,7 @@ class IntegratedDashboard extends ConsumerWidget {
       height: 150,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
         itemCount: notes.length,
         itemBuilder: (context, index) {
           final note = notes[index];
@@ -429,34 +524,52 @@ class IntegratedDashboard extends ConsumerWidget {
     final theme = Theme.of(context);
     
     return Card(
-      child: Padding(
-        padding: AppSpacing.paddingLG,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatItem(
-                  icon: Icons.timer,
-                  label: '총 학습 시간',
-                  value: '${userStats.weeklyStudyMinutes}분',
-                  color: Colors.blue,
-                ),
-                _buildStatItem(
-                  icon: Icons.task_alt,
-                  label: '완료한 할 일',
-                  value: '${ref.watch(completedTodosCountProvider)}개',
-                  color: Colors.green,
-                ),
-                _buildStatItem(
-                  icon: Icons.note,
-                  label: '작성한 노트',
-                  value: '${ref.watch(notesProvider).length}개',
-                  color: Colors.orange,
-                ),
-              ],
-            ),
-          ],
+      child: InkWell(
+        onTap: () => _showStatsDetailDialog(context, ref),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: AppSpacing.paddingLG,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('이번 주 학습 통계', style: AppTypography.titleMedium),
+                  Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                ],
+              ),
+              AppSpacing.verticalGapMD,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Flexible(
+                    child: _buildStatItem(
+                      icon: Icons.timer,
+                      label: '총 학습 시간',
+                      value: '${userStats.weeklyStudyMinutes}분',
+                      color: Colors.blue,
+                    ),
+                  ),
+                  Flexible(
+                    child: _buildStatItem(
+                      icon: Icons.task_alt,
+                      label: '완료한 할 일',
+                      value: '${ref.watch(completedTodosCountProvider)}개',
+                      color: Colors.green,
+                    ),
+                  ),
+                  Flexible(
+                    child: _buildStatItem(
+                      icon: Icons.note,
+                      label: '작성한 노트',
+                      value: '${ref.watch(notesProvider).length}개',
+                      color: Colors.orange,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -491,5 +604,401 @@ class IntegratedDashboard extends ConsumerWidget {
     } else {
       return '${date.month}/${date.day}';
     }
+  }
+  
+  void _showGoalSettingDialog(BuildContext context, WidgetRef ref) {
+    final dailyGoal = ref.read(dailyGoalProvider);
+    int selectedTodoCount = dailyGoal.todoCount;
+    int selectedStudyHours = dailyGoal.studyMinutes ~/ 60;
+    int selectedStudyMinutes = dailyGoal.studyMinutes % 60;
+    
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                Icons.flag,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              const Text('오늘의 목표 설정'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 할 일 목표
+              Text('할 일 목표', style: AppTypography.titleMedium),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: Slider(
+                      value: selectedTodoCount.toDouble(),
+                      min: 1,
+                      max: 20,
+                      divisions: 19,
+                      label: '$selectedTodoCount개',
+                      onChanged: (value) {
+                        setState(() {
+                          selectedTodoCount = value.round();
+                        });
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: 60,
+                    child: Center(
+                      child: Text(
+                        '$selectedTodoCount개',
+                        style: AppTypography.titleMedium.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // 학습 시간 목표
+              Text('학습 시간 목표', style: AppTypography.titleMedium),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  // 시간 선택
+                  Column(
+                    children: [
+                      Text('시간', style: AppTypography.caption),
+                      const SizedBox(height: 4),
+                      DropdownButton<int>(
+                        value: selectedStudyHours,
+                        items: List.generate(13, (i) => i).map((hour) {
+                          return DropdownMenuItem(
+                            value: hour,
+                            child: Text('$hour시간'),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              selectedStudyHours = value;
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(width: 16),
+                  
+                  // 분 선택
+                  Column(
+                    children: [
+                      Text('분', style: AppTypography.caption),
+                      const SizedBox(height: 4),
+                      DropdownButton<int>(
+                        value: selectedStudyMinutes,
+                        items: [0, 15, 30, 45].map((minute) {
+                          return DropdownMenuItem(
+                            value: minute,
+                            child: Text('$minute분'),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              selectedStudyMinutes = value;
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // 권장 사항
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '하루 3-4시간, 5-7개의 할 일이 적당해요',
+                        style: AppTypography.caption,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('취소'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final totalMinutes = selectedStudyHours * 60 + selectedStudyMinutes;
+                ref.read(dailyGoalProvider.notifier).updateTodoGoal(selectedTodoCount);
+                ref.read(dailyGoalProvider.notifier).updateStudyGoal(totalMinutes);
+                Navigator.pop(context);
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('오늘의 목표가 설정되었습니다'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              child: const Text('설정'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  void _showStatsDetailDialog(BuildContext context, WidgetRef ref) {
+    final userStats = ref.read(userStatsProvider);
+    final todos = ref.read(todoItemsProvider);
+    final completedTodos = todos.where((t) => t.isCompleted).toList();
+    final notes = ref.read(notesProvider);
+    
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          width: 500,
+          constraints: const BoxConstraints(maxHeight: 600),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 헤더
+              Container(
+                padding: AppSpacing.paddingLG,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.analytics, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 8),
+                    const Text('이번 주 학습 통계 상세', style: AppTypography.titleLarge),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // 내용
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: AppSpacing.paddingLG,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 학습 시간 상세
+                      _buildDetailSection(
+                        context: context,
+                        icon: Icons.timer,
+                        title: '학습 시간 분석',
+                        color: Colors.blue,
+                        children: [
+                          _buildDetailRow('오늘', '${userStats.todayStudyMinutes}분'),
+                          _buildDetailRow('이번 주', '${userStats.weeklyStudyMinutes}분'),
+                          _buildDetailRow('일일 평균', '${userStats.weeklyStudyMinutes ~/ 7}분'),
+                          const Divider(),
+                          _buildDetailRow('총 누적 시간', userStats.getFormattedStudyTime()),
+                          if (userStats.subjectStats.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            const Text('과목별 시간', style: AppTypography.titleSmall),
+                            const SizedBox(height: 8),
+                            ...userStats.subjectStats.entries.map((entry) {
+                              return _buildDetailRow(entry.key, '${entry.value}분');
+                            }),
+                          ],
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 24),
+                      
+                      // 할 일 상세
+                      _buildDetailSection(
+                        context: context,
+                        icon: Icons.task_alt,
+                        title: '할 일 완료 현황',
+                        color: Colors.green,
+                        children: [
+                          _buildDetailRow('오늘 완료', '${ref.read(todayCompletedTodosProvider)}개'),
+                          _buildDetailRow('이번 주 완료', '${completedTodos.length}개'),
+                          _buildDetailRow('전체 할 일', '${todos.length}개'),
+                          _buildDetailRow('완료율', '${(completedTodos.length / todos.length * 100).toInt()}%'),
+                          const Divider(),
+                          const Text('최근 완료한 할 일', style: AppTypography.titleSmall),
+                          const SizedBox(height: 8),
+                          ...completedTodos.take(5).map((todo) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.check_circle, size: 16, color: Colors.green),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      todo.title,
+                                      style: AppTypography.body,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 24),
+                      
+                      // 노트 상세
+                      _buildDetailSection(
+                        context: context,
+                        icon: Icons.note,
+                        title: '노트 작성 현황',
+                        color: Colors.orange,
+                        children: [
+                          _buildDetailRow('전체 노트', '${notes.length}개'),
+                          _buildDetailRow('이번 주 작성', '${notes.where((n) => n.createdAt.isAfter(DateTime.now().subtract(const Duration(days: 7)))).length}개'),
+                          const Divider(),
+                          const Text('최근 작성한 노트', style: AppTypography.titleSmall),
+                          const SizedBox(height: 8),
+                          ...notes.take(5).map((note) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.description, size: 16, color: Colors.orange),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      note.title,
+                                      style: AppTypography.body,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildDetailSection({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required Color color,
+    required List<Widget> children,
+  }) {
+    return Container(
+      padding: AppSpacing.paddingLG,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color),
+              const SizedBox(width: 8),
+              Text(title, style: AppTypography.titleMedium),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...children,
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: AppTypography.body),
+          Text(value, style: AppTypography.body.copyWith(fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+  
+  // 알림 테스트 메서드
+  void _testNotifications() async {
+    final webNotificationService = WebNotificationService();
+    
+    // 즉시 알림 테스트
+    webNotificationService.showGoalProgress(
+      percentage: 75,
+      goalType: '오늘의 학습',
+      encouragement: '조금만 더 하면 목표 달성이에요!',
+    );
+    
+    // 2초 후 휴식 알림
+    await Future.delayed(const Duration(seconds: 2));
+    webNotificationService.showBreakReminder(
+      studyMinutes: 25,
+      breakMinutes: 5,
+    );
+    
+    // 4초 후 연속 학습 알림
+    await Future.delayed(const Duration(seconds: 2));
+    webNotificationService.showStreakNotification(
+      currentStreak: 3,
+      nextMilestone: 7,
+    );
+    
+    // 6초 후 스마트 제안
+    await Future.delayed(const Duration(seconds: 2));
+    webNotificationService.showSmartSuggestion(
+      suggestion: '지금이 집중력이 가장 높은 시간이에요!',
+      reason: '평소 이 시간대에 학습 효율이 20% 높았어요',
+    );
   }
 }

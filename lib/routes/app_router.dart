@@ -10,6 +10,8 @@ import '../features/home/screens/home_screen.dart';
 import '../features/learning_type/screens/learning_type_test_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../providers/auth_provider.dart';
+import '../features/ai/screens/ai_features_screen.dart';
+import '../presentation/screens/ai/ai_planner_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -61,6 +63,16 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'profile',
             name: 'profile',
             builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: 'ai-features',
+            name: 'aiFeatures',
+            builder: (context, state) => const AIFeaturesScreen(),
+          ),
+          GoRoute(
+            path: 'ai-planner',
+            name: 'aiPlanner',
+            builder: (context, state) => const AIPlannerScreen(),
           ),
         ],
       ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../providers/todo_category_provider.dart';
 import '../../../models/todo_category.dart';
 import '../../../models/todo_item.dart';
@@ -365,32 +364,10 @@ class _TodoScreenWithCategoriesState extends ConsumerState<TodoScreenWithCategor
     return Padding(
       key: key,
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-      child: Slidable(
-        endActionPane: ActionPane(
-          motion: const ScrollMotion(),
-          children: [
-            SlidableAction(
-              onPressed: (_) => _showTodoOptions(todo),
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              icon: Icons.edit,
-              label: '편집',
-            ),
-            SlidableAction(
-              onPressed: (_) {
-                ref.read(todoItemsProvider.notifier).deleteTodo(todo.id);
-              },
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              icon: Icons.delete,
-              label: '삭제',
-            ),
-          ],
-        ),
-        child: InkWell(
-          onTap: () => _showTodoOptions(todo),
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
+      child: InkWell(
+        onTap: () => _showTodoOptions(todo),
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: todo.isCompleted
@@ -531,7 +508,6 @@ class _TodoScreenWithCategoriesState extends ConsumerState<TodoScreenWithCategor
             ),
           ),
         ),
-      ),
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:amplify_analytics_pinpoint/amplify_analytics_pinpoint.dart';
 import 'package:flutter/material.dart';
 import '../../models/ModelProvider.dart';
+import '../../amplifyconfiguration.dart';
 
 class AmplifyService {
   static final AmplifyService _instance = AmplifyService._internal();
@@ -33,7 +34,7 @@ class AmplifyService {
       ]);
 
       // Configure Amplify
-      await Amplify.configure(amplifyconfig);
+      await Amplify.configure(amplifyConfig);
       
       _isConfigured = true;
       safePrint('Successfully configured Amplify');
@@ -370,77 +371,3 @@ enum DataStoreHubEvent {
   ready,
 }
 
-// Placeholder for amplifyconfig
-const amplifyconfig = '''
-{
-  "UserAgent": "aws-amplify-cli/2.0",
-  "Version": "1.0",
-  "auth": {
-    "plugins": {
-      "awsCognitoAuthPlugin": {
-        "UserAgent": "aws-amplify/cli",
-        "Version": "0.1.0",
-        "IdentityManager": {
-          "Default": {}
-        },
-        "CognitoUserPool": {
-          "Default": {
-            "PoolId": "YOUR_USER_POOL_ID",
-            "AppClientId": "YOUR_APP_CLIENT_ID",
-            "Region": "YOUR_REGION"
-          }
-        },
-        "Auth": {
-          "Default": {
-            "authenticationFlowType": "USER_SRP_AUTH",
-            "socialProviders": [],
-            "usernameAttributes": ["EMAIL"],
-            "signupAttributes": ["EMAIL", "NICKNAME"],
-            "passwordProtectionSettings": {
-              "passwordPolicyMinLength": 8,
-              "passwordPolicyCharacters": ["REQUIRES_LOWERCASE", "REQUIRES_UPPERCASE", "REQUIRES_NUMBERS"]
-            },
-            "mfaConfiguration": "OPTIONAL",
-            "mfaTypes": ["SMS_MFA"],
-            "verificationMechanisms": ["EMAIL"]
-          }
-        }
-      }
-    }
-  },
-  "api": {
-    "plugins": {
-      "awsAPIPlugin": {
-        "hyle": {
-          "endpointType": "GraphQL",
-          "endpoint": "YOUR_GRAPHQL_ENDPOINT",
-          "region": "YOUR_REGION",
-          "authorizationType": "AMAZON_COGNITO_USER_POOLS"
-        }
-      }
-    }
-  },
-  "storage": {
-    "plugins": {
-      "awsS3StoragePlugin": {
-        "bucket": "YOUR_S3_BUCKET",
-        "region": "YOUR_REGION",
-        "defaultAccessLevel": "guest"
-      }
-    }
-  },
-  "analytics": {
-    "plugins": {
-      "awsPinpointAnalyticsPlugin": {
-        "pinpointAnalytics": {
-          "appId": "YOUR_PINPOINT_APP_ID",
-          "region": "YOUR_REGION"
-        },
-        "pinpointTargeting": {
-          "region": "YOUR_REGION"
-        }
-      }
-    }
-  }
-}
-''';

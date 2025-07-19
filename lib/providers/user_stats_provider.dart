@@ -11,6 +11,7 @@ class UserStats {
   final int completedQuests;
   final DateTime lastStudyDate;
   final Map<String, int> subjectStats; // subject -> minutes studied
+  final int coins;
   
   UserStats({
     this.totalXP = 0,
@@ -21,6 +22,7 @@ class UserStats {
     this.completedQuests = 0,
     DateTime? lastStudyDate,
     Map<String, int>? subjectStats,
+    this.coins = 0,
   }) : lastStudyDate = lastStudyDate ?? DateTime.now(),
        subjectStats = subjectStats ?? {};
   
@@ -33,6 +35,7 @@ class UserStats {
     int? completedQuests,
     DateTime? lastStudyDate,
     Map<String, int>? subjectStats,
+    int? coins,
   }) {
     return UserStats(
       totalXP: totalXP ?? this.totalXP,
@@ -43,6 +46,7 @@ class UserStats {
       completedQuests: completedQuests ?? this.completedQuests,
       lastStudyDate: lastStudyDate ?? this.lastStudyDate,
       subjectStats: subjectStats ?? Map.from(this.subjectStats),
+      coins: coins ?? this.coins,
     );
   }
   
@@ -184,6 +188,13 @@ class UserStatsNotifier extends StateNotifier<UserStats> {
       subjectStats: newSubjectStats,
     );
     
+    _saveToStorage();
+  }
+  
+  void addCoins(int coins) {
+    state = state.copyWith(
+      coins: state.coins + coins,
+    );
     _saveToStorage();
   }
   

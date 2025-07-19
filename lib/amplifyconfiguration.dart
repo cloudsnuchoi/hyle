@@ -34,6 +34,25 @@ const amplifyConfig = ''' {
             }
         }
     },
+    "api": {
+        "plugins": {
+            "awsAPIPlugin": {
+                "hyle": {
+                    "endpointType": "GraphQL",
+                    "endpoint": "https://XXXXXXXXXXXXXXXXXXXXXXXXX.appsync-api.us-east-1.amazonaws.com/graphql",
+                    "region": "us-east-1",
+                    "authorizationType": "AMAZON_COGNITO_USER_POOLS",
+                    "apiKey": "da2-XXXXXXXXXXXXXXXXXXXXXXXXX"
+                },
+                "aiTutorAPI": {
+                    "endpointType": "REST",
+                    "endpoint": "https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/prod",
+                    "region": "us-east-1",
+                    "authorizationType": "AMAZON_COGNITO_USER_POOLS"
+                }
+            }
+        }
+    },
     "analytics": {
         "plugins": {
             "awsPinpointAnalyticsPlugin": {

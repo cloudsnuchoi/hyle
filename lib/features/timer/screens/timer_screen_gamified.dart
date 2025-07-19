@@ -5,10 +5,12 @@ import 'dart:math' as math;
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../providers/social_provider.dart';
+import '../../../models/friend.dart';
 
 // Timer State Provider
 final timerStateProvider = StateNotifierProvider<TimerStateNotifier, TimerState>((ref) {
-  return TimerStateNotifier();
+  return TimerStateNotifier(ref);
 });
 
 // Timer Mode
@@ -55,8 +57,12 @@ class TimerState {
 
 class TimerStateNotifier extends StateNotifier<TimerState> {
   Timer? _timer;
+  Duration _focusDuration = const Duration(minutes: 25);
+  Duration _shortBreakDuration = const Duration(minutes: 5);
+  Duration _longBreakDuration = const Duration(minutes: 15);
+  final Ref ref;
   
-  TimerStateNotifier() : super(TimerState());
+  TimerStateNotifier(this.ref) : super(TimerState());
   
   void setMode(TimerMode mode) {
     stop();
@@ -78,8 +84,8 @@ class TimerStateNotifier extends StateNotifier<TimerState> {
       case TimerMode.pomodoro:
         state = state.copyWith(
           mode: mode,
-          currentTime: const Duration(minutes: 25),
-          totalTime: const Duration(minutes: 25),
+          currentTime: _focusDuration,
+          totalTime: _focusDuration,
           pomodoroPhase: PomodoroPhase.focus,
         );
         break;
@@ -90,6 +96,16 @@ class TimerStateNotifier extends StateNotifier<TimerState> {
     if (state.isRunning) return;
     
     state = state.copyWith(isRunning: true);
+    
+    // 공부 시작 시 소셜 상태 업데이트
+    if (state.mode == TimerMode.pomodoro && state.pomodoroPhase == PomodoroPhase.focus) {
+      ref.read(myStatusProvider.notifier).state = OnlineStatus.studying;
+      ref.read(myActivityProvider.notifier).state = '뽀모도로 집중';
+    } else if (state.mode == TimerMode.timer) {
+      ref.read(myStatusProvider.notifier).state = OnlineStatus.studying;
+      ref.read(myActivityProvider.notifier).state = '타이머 학습';
+    }
+    
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       switch (state.mode) {
         case TimerMode.stopwatch:
@@ -118,6 +134,10 @@ class TimerStateNotifier extends StateNotifier<TimerState> {
   void stop() {
     _timer?.cancel();
     state = state.copyWith(isRunning: false);
+    
+    // 정지 시 소셜 상태 업데이트
+    ref.read(myStatusProvider.notifier).state = OnlineStatus.online;
+    ref.read(myActivityProvider.notifier).state = null;
   }
   
   void reset() {
@@ -141,6 +161,42 @@ class TimerStateNotifier extends StateNotifier<TimerState> {
     );
   }
   
+  void setPomodoroFocusDuration(Duration duration) {
+    stop();
+    if (state.pomodoroPhase == PomodoroPhase.focus) {
+      state = state.copyWith(
+        currentTime: duration,
+        totalTime: duration,
+      );
+    }
+    // Store for future focus phases
+    _focusDuration = duration;
+  }
+  
+  void setPomodoroShortBreakDuration(Duration duration) {
+    stop();
+    if (state.pomodoroPhase == PomodoroPhase.shortBreak) {
+      state = state.copyWith(
+        currentTime: duration,
+        totalTime: duration,
+      );
+    }
+    // Store for future short breaks
+    _shortBreakDuration = duration;
+  }
+  
+  void setPomodoroLongBreakDuration(Duration duration) {
+    stop();
+    if (state.pomodoroPhase == PomodoroPhase.longBreak) {
+      state = state.copyWith(
+        currentTime: duration,
+        totalTime: duration,
+      );
+    }
+    // Store for future long breaks
+    _longBreakDuration = duration;
+  }
+  
   void _handlePomodoroComplete() {
     switch (state.pomodoroPhase) {
       case PomodoroPhase.focus:
@@ -149,27 +205,30 @@ class TimerStateNotifier extends StateNotifier<TimerState> {
           // 긴 휴식
           state = state.copyWith(
             pomodoroPhase: PomodoroPhase.longBreak,
-            currentTime: const Duration(minutes: 15),
-            totalTime: const Duration(minutes: 15),
+            currentTime: _longBreakDuration,
+            totalTime: _longBreakDuration,
             pomodoroCount: newCount,
           );
         } else {
           // 짧은 휴식
           state = state.copyWith(
             pomodoroPhase: PomodoroPhase.shortBreak,
-            currentTime: const Duration(minutes: 5),
-            totalTime: const Duration(minutes: 5),
+            currentTime: _shortBreakDuration,
+            totalTime: _shortBreakDuration,
             pomodoroCount: newCount,
           );
         }
+        // 휴식 시간에는 소셜 상태를 휴식으로 변경
+        ref.read(myStatusProvider.notifier).state = OnlineStatus.rest;
+        ref.read(myActivityProvider.notifier).state = null;
         break;
       case PomodoroPhase.shortBreak:
       case PomodoroPhase.longBreak:
         // 다시 집중 시간으로
         state = state.copyWith(
           pomodoroPhase: PomodoroPhase.focus,
-          currentTime: const Duration(minutes: 25),
-          totalTime: const Duration(minutes: 25),
+          currentTime: _focusDuration,
+          totalTime: _focusDuration,
         );
         break;
     }
@@ -790,17 +849,20 @@ class TimerScreenGamified extends ConsumerWidget {
   void _showTimerSettings(BuildContext context, WidgetRef ref) {
     final state = ref.watch(timerStateProvider);
     
-    if (state.mode == TimerMode.timer) {
-      showModalBottomSheet(
-        context: context,
-        builder: (context) => Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('타이머 시간 설정', style: AppTypography.titleLarge),
-              const SizedBox(height: 24),
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              state.mode == TimerMode.timer ? '타이머 시간 설정' : '뽀모도로 설정',
+              style: AppTypography.titleLarge,
+            ),
+            const SizedBox(height: 24),
+            if (state.mode == TimerMode.timer) ...[
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
@@ -815,17 +877,91 @@ class TimerScreenGamified extends ConsumerWidget {
                   _buildTimeChip(context, ref, const Duration(hours: 1), '1시간'),
                 ],
               ),
+            ] else ...[
+              Text('집중 시간', style: AppTypography.titleMedium),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _buildPomodoroTimeChip(context, ref, 'focus', const Duration(minutes: 15), '15분'),
+                  _buildPomodoroTimeChip(context, ref, 'focus', const Duration(minutes: 20), '20분'),
+                  _buildPomodoroTimeChip(context, ref, 'focus', const Duration(minutes: 25), '25분'),
+                  _buildPomodoroTimeChip(context, ref, 'focus', const Duration(minutes: 30), '30분'),
+                  _buildPomodoroTimeChip(context, ref, 'focus', const Duration(minutes: 45), '45분'),
+                  _buildPomodoroTimeChip(context, ref, 'focus', const Duration(minutes: 50), '50분'),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Text('짧은 휴식', style: AppTypography.titleMedium),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _buildPomodoroTimeChip(context, ref, 'shortBreak', const Duration(minutes: 3), '3분'),
+                  _buildPomodoroTimeChip(context, ref, 'shortBreak', const Duration(minutes: 5), '5분'),
+                  _buildPomodoroTimeChip(context, ref, 'shortBreak', const Duration(minutes: 7), '7분'),
+                  _buildPomodoroTimeChip(context, ref, 'shortBreak', const Duration(minutes: 10), '10분'),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Text('긴 휴식', style: AppTypography.titleMedium),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _buildPomodoroTimeChip(context, ref, 'longBreak', const Duration(minutes: 10), '10분'),
+                  _buildPomodoroTimeChip(context, ref, 'longBreak', const Duration(minutes: 15), '15분'),
+                  _buildPomodoroTimeChip(context, ref, 'longBreak', const Duration(minutes: 20), '20분'),
+                  _buildPomodoroTimeChip(context, ref, 'longBreak', const Duration(minutes: 30), '30분'),
+                ],
+              ),
             ],
-          ),
+          ],
         ),
-      );
-    }
+      ),
+    );
   }
   
   Widget _buildTimeChip(BuildContext context, WidgetRef ref, Duration duration, String label) {
     return InkWell(
       onTap: () {
         ref.read(timerStateProvider.notifier).setTimerDuration(duration);
+        Navigator.pop(context);
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Theme.of(context).primaryColor.withOpacity(0.3),
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: Theme.of(context).primaryColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildPomodoroTimeChip(BuildContext context, WidgetRef ref, String type, Duration duration, String label) {
+    return InkWell(
+      onTap: () {
+        if (type == 'focus') {
+          ref.read(timerStateProvider.notifier).setPomodoroFocusDuration(duration);
+        } else if (type == 'shortBreak') {
+          ref.read(timerStateProvider.notifier).setPomodoroShortBreakDuration(duration);
+        } else if (type == 'longBreak') {
+          ref.read(timerStateProvider.notifier).setPomodoroLongBreakDuration(duration);
+        }
         Navigator.pop(context);
       },
       borderRadius: BorderRadius.circular(20),

@@ -77,6 +77,7 @@ class AppSpacing {
   
   // Legacy names for compatibility
   static const SizedBox horizontalGapMD = horizontalMd;
+  static const SizedBox horizontalGapLG = horizontalLg;
   
   // Vertical space
   static const SizedBox verticalXxs = SizedBox(height: xxs);

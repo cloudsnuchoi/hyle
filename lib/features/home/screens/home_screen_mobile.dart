@@ -5,6 +5,8 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../providers/user_stats_provider.dart';
 import '../../../providers/learning_type_provider.dart';
+import '../../../services/smart_notification_manager.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../todo/screens/todo_screen_with_categories.dart';
 import '../../learning_type/screens/learning_type_test_screen.dart';
 import '../../notes/screens/notes_screen_enhanced.dart';
@@ -34,6 +36,13 @@ class _HomeScreenMobileState extends ConsumerState<HomeScreenMobile> {
     const TimerScreenGamified(),
     const _MoreScreen(), // 더보기 화면
   ];
+  
+  @override
+  void initState() {
+    super.initState();
+    // Smart Notification Manager 초기화
+    ref.read(smartNotificationManagerProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,25 +55,25 @@ class _HomeScreenMobileState extends ConsumerState<HomeScreenMobile> {
             _selectedIndex = index;
           });
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: AppLocalizations.of(context)?.dashboard ?? 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.task_outlined),
-            selectedIcon: Icon(Icons.task),
-            label: 'Todo',
+            icon: const Icon(Icons.task_outlined),
+            selectedIcon: const Icon(Icons.task),
+            label: AppLocalizations.of(context)?.todo ?? 'Todo',
           ),
           NavigationDestination(
-            icon: Icon(Icons.timer_outlined),
-            selectedIcon: Icon(Icons.timer),
-            label: 'Timer',
+            icon: const Icon(Icons.timer_outlined),
+            selectedIcon: const Icon(Icons.timer),
+            label: AppLocalizations.of(context)?.timer ?? 'Timer',
           ),
           NavigationDestination(
-            icon: Icon(Icons.apps_outlined),
-            selectedIcon: Icon(Icons.apps),
+            icon: const Icon(Icons.apps_outlined),
+            selectedIcon: const Icon(Icons.apps),
             label: 'More',
           ),
         ],
@@ -83,7 +92,7 @@ class _MoreScreen extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('더보기'),
+        title: const Text('More'),
       ),
       body: GridView.count(
         padding: const EdgeInsets.all(16),

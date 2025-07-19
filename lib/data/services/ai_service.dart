@@ -9,12 +9,26 @@ final aiServiceProvider = Provider<AIService>((ref) {
 });
 
 class AIService {
+  // Check if service is available
+  bool get isAvailable {
+    try {
+      return Amplify.isConfigured;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // AI Study Planner - Natural language input
   Future<StudyPlan> generateStudyPlan({
     required String userPrompt,
     required UserContext context,
   }) async {
     try {
+      if (!isAvailable) {
+        // Return mock data for testing when Amplify is not configured
+        return _generateMockStudyPlan(userPrompt, context);
+      }
+
       // Call Lambda function that connects to Bedrock
       final operation = Amplify.API.mutate(
         request: GraphQLRequest<String>(
@@ -132,6 +146,42 @@ class AIService {
       safePrint('Error predicting duration: $e');
       return 30; // Default fallback
     }
+  }
+
+  // Mock data generators for testing
+  StudyPlan _generateMockStudyPlan(String userPrompt, UserContext context) {
+    return StudyPlan(
+      id: 'mock_${DateTime.now().millisecondsSinceEpoch}',
+      tasks: [
+        PlannedTask(
+          title: '개념 복습',
+          subject: context.subjects.first,
+          estimatedMinutes: 45,
+          priority: 'HIGH',
+          suggestedTime: DateTime.now().add(const Duration(hours: 1)),
+        ),
+        PlannedTask(
+          title: '문제 풀이',
+          subject: context.subjects.first,
+          estimatedMinutes: 60,
+          priority: 'MEDIUM',
+          suggestedTime: DateTime.now().add(const Duration(hours: 2)),
+        ),
+        PlannedTask(
+          title: '오답 노트 정리',
+          subject: context.subjects.first,
+          estimatedMinutes: 30,
+          priority: 'LOW',
+          suggestedTime: DateTime.now().add(const Duration(hours: 3)),
+        ),
+      ],
+      totalHours: 2.25,
+      recommendations: [
+        '45분 학습 후 10분 휴식을 권장합니다',
+        '어려운 문제는 아침 시간대에 집중하세요',
+        '시험 전날은 새로운 내용보다 복습에 집중하세요',
+      ],
+    );
   }
 
   // Get personalized learning insights

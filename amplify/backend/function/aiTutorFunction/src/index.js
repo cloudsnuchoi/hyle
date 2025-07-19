@@ -1,13 +1,20 @@
 const AWS = require('aws-sdk');
-const bedrock = new AWS.BedrockRuntime({ region: 'us-east-1' });
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+const { BedrockRuntimeClient, InvokeModelCommand } = require('@aws-sdk/client-bedrock-runtime');
+const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+const { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } = require('@aws-sdk/lib-dynamodb');
 const neptune = require('./neptune-client');
 const pinecone = require('./pinecone-client');
 
+// Initialize clients
+const bedrockClient = new BedrockRuntimeClient({ region: 'us-east-1' });
+const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION });
+const docClient = DynamoDBDocumentClient.from(dynamoClient);
+
 // Environment variables
 const BEDROCK_MODEL_ID = process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-opus-20240229';
-const USERS_TABLE = process.env.USERS_TABLE;
-const SESSIONS_TABLE = process.env.SESSIONS_TABLE;
+const USERS_TABLE = process.env.USERS_TABLE || 'User-' + process.env.ENV;
+const SESSIONS_TABLE = process.env.SESSIONS_TABLE || 'TimerSession-' + process.env.ENV;
+const TODOS_TABLE = process.env.TODOS_TABLE || 'Todo-' + process.env.ENV;
 
 /**
  * Main Lambda handler for AI tutor functions
@@ -68,7 +75,7 @@ ${JSON.stringify(userHistory, null, 2)}
 Similar successful patterns:
 ${JSON.stringify(similarPatterns, null, 2)}`;
 
-  const claudeResponse = await bedrock.invokeModel({
+  const command = new InvokeModelCommand({
     modelId: BEDROCK_MODEL_ID,
     contentType: 'application/json',
     accept: 'application/json',
@@ -87,10 +94,13 @@ ${JSON.stringify(similarPatterns, null, 2)}`;
       max_tokens: 2000,
       temperature: 0.7,
     }),
-  }).promise();
+  });
+  
+  const claudeResponse = await bedrockClient.send(command);
 
-  const response = JSON.parse(claudeResponse.body.toString());
-  const studyPlan = parseStudyPlanResponse(response.content);
+  const responseBody = new TextDecoder().decode(claudeResponse.body);
+  const response = JSON.parse(responseBody);
+  const studyPlan = parseStudyPlanResponse(response.content[0].text);
   
   // Store the plan in DynamoDB for tracking
   await storePlan(input.userId, studyPlan);
@@ -159,8 +169,8 @@ async function predictTaskDuration({ input }) {
   const { taskTitle, subject, userId } = input;
   
   // Get user's historical task completion times
-  const historicalTasks = await dynamodb.query({
-    TableName: 'TodoTable',
+  const command = new QueryCommand({
+    TableName: TODOS_TABLE,
     IndexName: 'byUser',
     KeyConditionExpression: 'userID = :userId',
     FilterExpression: 'subject = :subject AND completed = :completed',
@@ -170,7 +180,9 @@ async function predictTaskDuration({ input }) {
       ':completed': true,
     },
     Limit: 50,
-  }).promise();
+  });
+  
+  const historicalTasks = await docClient.send(command);
   
   // Find similar tasks using embeddings
   const taskEmbedding = await generateTaskEmbedding(taskTitle);
@@ -217,7 +229,7 @@ Analysis: ${JSON.stringify(contextAnalysis)}
 
 Provide brief, actionable advice in response to the student's question.`;
 
-  const claudeResponse = await bedrock.invokeModel({
+  const command = new InvokeModelCommand({
     modelId: BEDROCK_MODEL_ID,
     contentType: 'application/json',
     accept: 'application/json',
@@ -236,12 +248,15 @@ Provide brief, actionable advice in response to the student's question.`;
       max_tokens: 500,
       temperature: 0.6,
     }),
-  }).promise();
+  });
+  
+  const claudeResponse = await bedrockClient.send(command);
 
-  const response = JSON.parse(claudeResponse.body.toString());
+  const responseBody = new TextDecoder().decode(claudeResponse.body);
+  const response = JSON.parse(responseBody);
   
   return {
-    advice: response.content,
+    advice: response.content[0].text,
     confidence: contextAnalysis.confidence,
     reasoning: contextAnalysis.reasoning,
   };
@@ -330,7 +345,7 @@ async function generateSessionSuggestions({ productivityScore, focusLevel, timeO
 }
 
 async function getUserLearningHistory(userId) {
-  const params = {
+  const command = new QueryCommand({
     TableName: SESSIONS_TABLE,
     IndexName: 'byUser',
     KeyConditionExpression: 'userID = :userId',
@@ -339,10 +354,10 @@ async function getUserLearningHistory(userId) {
     },
     Limit: 20,
     ScanIndexForward: false, // Get most recent first
-  };
+  });
   
-  const result = await dynamodb.query(params).promise();
-  return result.Items;
+  const result = await docClient.send(command);
+  return result.Items || [];
 }
 
 function generateId() {
@@ -405,17 +420,92 @@ function parseStudyPlanResponse(claudeResponse) {
 }
 
 async function storePlan(userId, plan) {
-  const params = {
-    TableName: 'StudyPlansTable',
+  const command = new PutCommand({
+    TableName: 'StudyPlan-' + process.env.ENV,
     Item: {
       id: generateId(),
       userId,
       plan,
       createdAt: new Date().toISOString(),
+      __typename: 'StudyPlan',
     },
-  };
+  });
   
-  await dynamodb.put(params).promise();
+  await docClient.send(command);
 }
 
-module.exports = { handler };
+// Kinesis integration for real-time events
+const kinesis = new AWS.Kinesis({ region: process.env.AWS_REGION });
+
+async function publishStudyEvent(event) {
+  const params = {
+    StreamName: `hyle-study-events-${process.env.ENV}`,
+    PartitionKey: event.userId,
+    Data: JSON.stringify({
+      ...event,
+      timestamp: new Date().toISOString(),
+    }),
+  };
+  
+  try {
+    await kinesis.putRecord(params).promise();
+  } catch (error) {
+    console.error('Error publishing to Kinesis:', error);
+  }
+}
+
+// Enhanced main handler with event publishing
+exports.handler = async (event) => {
+  console.log('Event:', JSON.stringify(event, null, 2));
+  
+  const { operation, arguments } = event;
+  
+  try {
+    let result;
+    
+    switch (operation) {
+      case 'generateStudyPlan':
+        result = await generateStudyPlan(arguments);
+        await publishStudyEvent({
+          type: 'STUDY_PLAN_GENERATED',
+          userId: arguments.input.userId,
+          data: { planId: result.id },
+        });
+        break;
+        
+      case 'analyzeSession':
+        result = await analyzeSession(arguments);
+        await publishStudyEvent({
+          type: 'SESSION_ANALYZED',
+          userId: arguments.input.userId,
+          data: { sessionId: arguments.input.sessionId, score: result.productivityScore },
+        });
+        break;
+        
+      case 'predictTaskDuration':
+        result = await predictTaskDuration(arguments);
+        break;
+        
+      case 'getRealtimeAdvice':
+        result = await getRealtimeAdvice(arguments);
+        break;
+        
+      case 'analyzeLearningPattern':
+        result = await analyzeLearningPattern(arguments);
+        await publishStudyEvent({
+          type: 'PATTERN_ANALYZED',
+          userId: arguments.input.userId,
+          data: { insights: result },
+        });
+        break;
+        
+      default:
+        throw new Error(`Unknown operation: ${operation}`);
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+};

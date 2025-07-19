@@ -13,6 +13,8 @@ class TodoItem {
   final Map<String, dynamic>? sessionSettings; // 타이머 설정
   final int estimatedMinutes; // 예상 소요 시간
   final int actualMinutes; // 실제 소요 시간
+  final DateTime? dueDate; // 마감일
+  final String? difficulty; // 난이도 (easy, medium, hard)
   
   TodoItem({
     required this.id,
@@ -27,6 +29,8 @@ class TodoItem {
     this.sessionSettings,
     this.estimatedMinutes = 30,
     this.actualMinutes = 0,
+    this.dueDate,
+    this.difficulty,
   });
   
   TodoItem copyWith({
@@ -42,6 +46,8 @@ class TodoItem {
     Map<String, dynamic>? sessionSettings,
     int? estimatedMinutes,
     int? actualMinutes,
+    DateTime? dueDate,
+    String? difficulty,
   }) {
     return TodoItem(
       id: id ?? this.id,
@@ -56,6 +62,8 @@ class TodoItem {
       sessionSettings: sessionSettings ?? this.sessionSettings,
       estimatedMinutes: estimatedMinutes ?? this.estimatedMinutes,
       actualMinutes: actualMinutes ?? this.actualMinutes,
+      dueDate: dueDate ?? this.dueDate,
+      difficulty: difficulty ?? this.difficulty,
     );
   }
   
@@ -73,6 +81,8 @@ class TodoItem {
       'sessionSettings': sessionSettings,
       'estimatedMinutes': estimatedMinutes,
       'actualMinutes': actualMinutes,
+      'dueDate': dueDate?.toIso8601String(),
+      'difficulty': difficulty,
     };
   }
   
@@ -92,6 +102,10 @@ class TodoItem {
       sessionSettings: json['sessionSettings'],
       estimatedMinutes: json['estimatedMinutes'] ?? 30,
       actualMinutes: json['actualMinutes'] ?? 0,
+      dueDate: json['dueDate'] != null 
+        ? DateTime.parse(json['dueDate']) 
+        : null,
+      difficulty: json['difficulty'],
     );
   }
 }
