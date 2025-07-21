@@ -408,6 +408,93 @@ class QuestWidget extends ConsumerWidget {
     return '퀘스트를 수락할 수 없습니다';
   }
   
+  Widget _buildQuestListItem(BuildContext context, WidgetRef ref, Quest quest) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: quest.color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            quest.icon,
+            color: quest.color,
+            size: 24,
+          ),
+        ),
+        title: Text(quest.title),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(quest.description, maxLines: 2, overflow: TextOverflow.ellipsis),
+            const SizedBox(height: 4),
+            if (quest.status == QuestStatus.accepted)
+              LinearProgressIndicator(
+                value: quest.progress,
+                backgroundColor: Colors.grey[300],
+                valueColor: AlwaysStoppedAnimation<Color>(quest.color),
+                minHeight: 2,
+              ),
+          ],
+        ),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.military_tech, size: 16, color: Colors.amber),
+                const SizedBox(width: 2),
+                Text('+${quest.xpReward}', style: AppTypography.caption),
+              ],
+            ),
+            if (quest.status == QuestStatus.available)
+              TextButton(
+                onPressed: () async {
+                  final success = await ref.read(questProvider.notifier).acceptQuest(quest.id);
+                  Navigator.pop(context);
+                  _showAllQuests(context, ref);
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(success 
+                        ? '퀘스트를 수락했습니다!' 
+                        : _getAcceptLimitMessage(quest, ref)),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+                child: Text('수락', style: TextStyle(fontSize: 12)),
+              )
+            else if (quest.status == QuestStatus.completed)
+              TextButton(
+                onPressed: () {
+                  ref.read(questProvider.notifier).claimReward(quest.id);
+                  Navigator.pop(context);
+                  _showAllQuests(context, ref);
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('보상을 받았습니다!'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+                child: Text('보상받기', style: TextStyle(fontSize: 12, color: Colors.amber)),
+              )
+            else
+              Text('${quest.currentValue}/${quest.targetValue}', style: AppTypography.caption),
+          ],
+        ),
+        onTap: () => _showQuestDetail(context, ref, quest),
+      ),
+    );
+  }
+
   void _showAllQuests(BuildContext context, WidgetRef ref) {
     final dailyQuests = ref.read(dailyQuestsProvider);
     final weeklyQuests = ref.read(weeklyQuestsProvider);
@@ -475,7 +562,7 @@ class QuestWidget extends ConsumerWidget {
                               padding: AppSpacing.paddingLG,
                               itemCount: dailyQuests.length,
                               itemBuilder: (context, index) {
-                                return _buildQuestCard(context, ref, dailyQuests[index]);
+                                return _buildQuestListItem(context, ref, dailyQuests[index]);
                               },
                             ),
                             // 주간 퀘스트
@@ -483,7 +570,7 @@ class QuestWidget extends ConsumerWidget {
                               padding: AppSpacing.paddingLG,
                               itemCount: weeklyQuests.length,
                               itemBuilder: (context, index) {
-                                return _buildQuestCard(context, ref, weeklyQuests[index]);
+                                return _buildQuestListItem(context, ref, weeklyQuests[index]);
                               },
                             ),
                             // 특별 퀘스트
@@ -492,7 +579,7 @@ class QuestWidget extends ConsumerWidget {
                               itemCount: allQuests.where((q) => q.type == QuestType.special).length,
                               itemBuilder: (context, index) {
                                 final specialQuests = allQuests.where((q) => q.type == QuestType.special).toList();
-                                return _buildQuestCard(context, ref, specialQuests[index]);
+                                return _buildQuestListItem(context, ref, specialQuests[index]);
                               },
                             ),
                           ],

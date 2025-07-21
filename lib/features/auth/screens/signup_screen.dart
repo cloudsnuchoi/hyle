@@ -248,11 +248,17 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     if (value.length < 8) {
                       return 'Password must be at least 8 characters';
                     }
+                    if (!value.contains(RegExp(r'[A-Z]'))) {
+                      return 'Password must contain uppercase letters';
+                    }
                     if (!value.contains(RegExp(r'[a-z]'))) {
                       return 'Password must contain lowercase letters';
                     }
                     if (!value.contains(RegExp(r'[0-9]'))) {
                       return 'Password must contain numbers';
+                    }
+                    if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+                      return 'Password must contain special characters';
                     }
                     return null;
                   },

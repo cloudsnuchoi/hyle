@@ -9,6 +9,7 @@ import '../widgets/week_view.dart';
 import '../widgets/three_day_view.dart';
 import '../widgets/day_view.dart';
 import '../widgets/add_event_sheet.dart';
+import '../widgets/event_detail_sheet.dart';
 
 class ScheduleScreen extends ConsumerWidget {
   const ScheduleScreen({super.key});
@@ -32,21 +33,57 @@ class ScheduleScreen extends ConsumerWidget {
               ref.read(calendarViewProvider.notifier).state = view;
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: CalendarView.day,
-                child: Text('일간'),
+                child: Row(
+                  children: [
+                    if (calendarView == CalendarView.day)
+                      const Icon(Icons.check, size: 16)
+                    else
+                      const SizedBox(width: 16),
+                    const SizedBox(width: 8),
+                    const Text('일간'),
+                  ],
+                ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: CalendarView.threeDay,
-                child: Text('3일'),
+                child: Row(
+                  children: [
+                    if (calendarView == CalendarView.threeDay)
+                      const Icon(Icons.check, size: 16)
+                    else
+                      const SizedBox(width: 16),
+                    const SizedBox(width: 8),
+                    const Text('3일'),
+                  ],
+                ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: CalendarView.week,
-                child: Text('주간'),
+                child: Row(
+                  children: [
+                    if (calendarView == CalendarView.week)
+                      const Icon(Icons.check, size: 16)
+                    else
+                      const SizedBox(width: 16),
+                    const SizedBox(width: 8),
+                    const Text('주간'),
+                  ],
+                ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: CalendarView.month,
-                child: Text('월간'),
+                child: Row(
+                  children: [
+                    if (calendarView == CalendarView.month)
+                      const Icon(Icons.check, size: 16)
+                    else
+                      const SizedBox(width: 16),
+                    const SizedBox(width: 8),
+                    const Text('월간'),
+                  ],
+                ),
               ),
             ],
           ),
@@ -120,11 +157,17 @@ class ScheduleScreen extends ConsumerWidget {
   Widget _buildCalendarView(CalendarView view, WidgetRef ref) {
     switch (view) {
       case CalendarView.week:
-        return const WeekView();
+        return WeekView(
+          onEventTap: (event) => _showEventDetail(context, event),
+        );
       case CalendarView.threeDay:
-        return const ThreeDayView();
+        return ThreeDayView(
+          onEventTap: (event) => _showEventDetail(context, event),
+        );
       case CalendarView.day:
-        return const DayView();
+        return DayView(
+          onEventTap: (event) => _showEventDetail(context, event),
+        );
       case CalendarView.month:
         return _buildMonthView(ref);
     }
@@ -182,5 +225,16 @@ class ScheduleScreen extends ConsumerWidget {
       case CalendarView.month:
         return DateFormat('yyyy년 M월').format(date);
     }
+  }
+  
+  void _showEventDetail(BuildContext context, StudyEvent event) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => EventDetailSheet(event: event),
+    );
   }
 }

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
+import '../features/auth/screens/beta_signup_screen.dart';
+import '../features/auth/screens/beta_reset_password_screen.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/auth/screens/confirmation_screen.dart';
 import '../features/auth/screens/forgot_password_screen.dart';
@@ -35,6 +37,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/signup',
         name: 'signup',
         builder: (context, state) => const SignupScreen(),
+      ),
+      GoRoute(
+        path: '/beta',
+        name: 'beta',
+        builder: (context, state) => const BetaSignupScreen(),
+      ),
+      GoRoute(
+        path: '/beta-reset',
+        name: 'betaReset',
+        builder: (context, state) => const BetaResetPasswordScreen(),
       ),
       GoRoute(
         path: '/confirm',
@@ -88,8 +100,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
       
-      // If authenticated but no learning type, go to test
-      if (isAuth && authState.user?.learningType.isEmpty == true) {
+      // If not loading anymore and on splash
+      if (!authState.isLoading && isSplash) {
+        // If authenticated, check learning type
+        if (isAuth) {
+          if (authState.user?.learningType?.isEmpty ?? true) {
+            return '/learning-type-test';
+          }
+          return '/home';
+        }
+        // If not authenticated, go to login
+        return '/login';
+      }
+      
+      // If authenticated but no learning type (and not skipped), go to test
+      if (isAuth && (authState.user?.learningType?.isEmpty ?? true)) {
         return '/learning-type-test';
       }
       

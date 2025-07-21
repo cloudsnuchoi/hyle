@@ -15,7 +15,8 @@ class QuestNotifier extends StateNotifier<List<Quest>> {
   static const int maxDailyQuests = 3;
   static const int maxWeeklyQuests = 2;
   
-  QuestNotifier(this.ref) : super(_generateQuests()) {
+  QuestNotifier(this.ref) : super([]) {
+    state = _generateQuests();
     _loadAcceptedQuests();
     _setupListeners();
   }

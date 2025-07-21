@@ -6,8 +6,10 @@ import 'package:amplify_analytics_pinpoint/amplify_analytics_pinpoint.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-import 'amplifyconfiguration.dart';
+import 'services/amplify_service.dart';
+import 'services/local_storage_service.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/theme_provider.dart';
 import 'routes/app_router.dart';
@@ -15,29 +17,19 @@ import 'routes/app_router.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Initialize date formatting
+  await initializeDateFormatting('ko_KR', null);
+  
+  // Initialize LocalStorageService first
+  await LocalStorageService.init();
+  
   try {
-    await _configureAmplify();
+    await AmplifyService().configureAmplify();
   } catch (e) {
     print('Amplify configuration error: $e');
   }
   
   runApp(const ProviderScope(child: HyleApp()));
-}
-
-Future<void> _configureAmplify() async {
-  try {
-    final auth = AmplifyAuthCognito();
-    final api = AmplifyAPI();
-    final storage = AmplifyStorageS3();
-    final analytics = AmplifyAnalyticsPinpoint();
-    
-    await Amplify.addPlugins([auth, api, storage, analytics]);
-    await Amplify.configure(amplifyConfig);
-    
-    print('Successfully configured Amplify');
-  } on AmplifyAlreadyConfiguredException {
-    print('Amplify was already configured. Skipping configuration.');
-  }
 }
 
 class HyleApp extends ConsumerWidget {

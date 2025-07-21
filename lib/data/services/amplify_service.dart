@@ -27,7 +27,7 @@ class AmplifyService {
       // Add Amplify plugins
       await Amplify.addPlugins([
         AmplifyAuthCognito(),
-        AmplifyAPI(modelProvider: ModelProvider.instance),
+        AmplifyAPI(options: APIPluginOptions(modelProvider: ModelProvider.instance)),
         AmplifyDataStore(modelProvider: ModelProvider.instance),
         AmplifyStorageS3(),
         AmplifyAnalyticsPinpoint(),
@@ -147,7 +147,7 @@ class AmplifyService {
     }
   }
 
-  Future<UpdatePasswordResult> confirmResetPassword({
+  Future<ResetPasswordResult> confirmResetPassword({
     required String email,
     required String newPassword,
     required String confirmationCode,
@@ -183,7 +183,7 @@ class AmplifyService {
         ),
       ).result;
 
-      return result.path;
+      return key; // Return the key as path is not available in v2
     } catch (e) {
       safePrint('Error uploading file: $e');
       rethrow;
@@ -192,7 +192,7 @@ class AmplifyService {
 
   Future<String> getDownloadUrl({required String key}) async {
     try {
-      final result = await Amplify.Storage.getUrl(key: key).result;
+      final result = await Amplify.Storage.getUrl(path: StoragePath.fromString(key)).result;
       return result.url.toString();
     } catch (e) {
       safePrint('Error getting download URL: $e');
@@ -202,7 +202,7 @@ class AmplifyService {
 
   Future<void> deleteFile({required String key}) async {
     try {
-      await Amplify.Storage.remove(key: key).result;
+      await Amplify.Storage.remove(path: StoragePath.fromString(key)).result;
     } catch (e) {
       safePrint('Error deleting file: $e');
       rethrow;
@@ -215,23 +215,15 @@ class AmplifyService {
     Map<String, Object>? properties,
   }) async {
     try {
+      // For now, just record the event name without properties
+      // as the API has changed in v2
       final event = AnalyticsEvent(name);
-      
-      if (properties != null) {
-        properties.forEach((key, value) {
-          if (value is String) {
-            event.properties.addStringProperty(key, value);
-          } else if (value is int) {
-            event.properties.addIntProperty(key, value);
-          } else if (value is double) {
-            event.properties.addDoubleProperty(key, value);
-          } else if (value is bool) {
-            event.properties.addBoolProperty(key, value);
-          }
-        });
-      }
-
       await Amplify.Analytics.recordEvent(event: event);
+      
+      // TODO: Implement custom properties when API documentation is available
+      if (properties != null) {
+        safePrint('Custom properties not yet implemented in v2: $properties');
+      }
     } catch (e) {
       safePrint('Error recording event: $e');
     }
@@ -242,17 +234,19 @@ class AmplifyService {
     Map<String, Object>? attributes,
   }) async {
     try {
+      // For now, just identify the user without custom properties
+      // as the API has changed in v2
       final userProfile = UserProfile();
       
-      if (attributes != null) {
-        attributes.forEach((key, value) {
-          userProfile.properties.addStringProperty(key, value.toString());
-        });
-      }
-
-      await Amplify.Analytics.updateUserProfile(
+      await Amplify.Analytics.identifyUser(
+        userId: userId,
         userProfile: userProfile,
       );
+      
+      // TODO: Implement custom properties when API documentation is available
+      if (attributes != null) {
+        safePrint('User attributes not yet implemented in v2: $attributes');
+      }
     } catch (e) {
       safePrint('Error updating user profile: $e');
     }
@@ -261,7 +255,9 @@ class AmplifyService {
   // Session Management
   Future<void> startSession() async {
     try {
-      await Amplify.Analytics.startSession();
+      // Session management is now automatic in Amplify v2
+      // Recording a session start event instead
+      await recordEvent(name: 'session_start');
     } catch (e) {
       safePrint('Error starting session: $e');
     }
@@ -269,7 +265,9 @@ class AmplifyService {
 
   Future<void> stopSession() async {
     try {
-      await Amplify.Analytics.stopSession();
+      // Session management is now automatic in Amplify v2
+      // Recording a session stop event instead
+      await recordEvent(name: 'session_stop');
     } catch (e) {
       safePrint('Error stopping session: $e');
     }
@@ -301,73 +299,31 @@ class AmplifyService {
   }
 
   // Hub Events
-  StreamSubscription<HubEvent> listenToAuthEvents(
+  StreamSubscription<AuthHubEvent> listenToAuthEvents(
     Function(AuthHubEvent) onEvent,
   ) {
     return Amplify.Hub.listen(
       HubChannel.Auth,
-      (hubEvent) {
-        switch (hubEvent.eventName) {
-          case 'SIGNED_IN':
-            onEvent(AuthHubEvent.signedIn);
-            break;
-          case 'SIGNED_OUT':
-            onEvent(AuthHubEvent.signedOut);
-            break;
-          case 'SESSION_EXPIRED':
-            onEvent(AuthHubEvent.sessionExpired);
-            break;
-          case 'USER_DELETED':
-            onEvent(AuthHubEvent.userDeleted);
-            break;
+      (event) {
+        if (event is AuthHubEvent) {
+          onEvent(event);
         }
       },
     );
   }
 
-  StreamSubscription<HubEvent> listenToDataStoreEvents(
+  StreamSubscription<DataStoreHubEvent> listenToDataStoreEvents(
     Function(DataStoreHubEvent) onEvent,
   ) {
     return Amplify.Hub.listen(
       HubChannel.DataStore,
-      (hubEvent) {
-        switch (hubEvent.eventName) {
-          case 'networkStatus':
-            final networkStatus = hubEvent.payload as NetworkStatusEvent?;
-            if (networkStatus?.active ?? false) {
-              onEvent(DataStoreHubEvent.networkStatusActive);
-            } else {
-              onEvent(DataStoreHubEvent.networkStatusInactive);
-            }
-            break;
-          case 'syncQueriesStarted':
-            onEvent(DataStoreHubEvent.syncQueriesStarted);
-            break;
-          case 'syncQueriesReady':
-            onEvent(DataStoreHubEvent.syncQueriesReady);
-            break;
-          case 'ready':
-            onEvent(DataStoreHubEvent.ready);
-            break;
+      (event) {
+        if (event is DataStoreHubEvent) {
+          onEvent(event);
         }
       },
     );
   }
 }
 
-// Hub Event Enums
-enum AuthHubEvent {
-  signedIn,
-  signedOut,
-  sessionExpired,
-  userDeleted,
-}
-
-enum DataStoreHubEvent {
-  networkStatusActive,
-  networkStatusInactive,
-  syncQueriesStarted,
-  syncQueriesReady,
-  ready,
-}
 

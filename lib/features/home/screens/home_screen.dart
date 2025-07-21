@@ -27,13 +27,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   final List<Widget> _pages = [
     const IntegratedDashboard(),
-    const ScheduleScreen(),
     const TodoScreenWithCategories(),
     const TimerScreenEnhanced(),
-    const NotesScreenEnhanced(),
-    const FlashcardsScreen(),
-    const AIAssistantScreen(),
-    const ProfileScreenImproved(),
+    const _MorePage(),
   ];
 
   @override
@@ -51,42 +47,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           NavigationDestination(
             icon: Icon(Icons.dashboard_outlined),
             selectedIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_today_outlined),
-            selectedIcon: Icon(Icons.calendar_today),
-            label: 'Schedule',
+            label: '대시보드',
           ),
           NavigationDestination(
             icon: Icon(Icons.task_outlined),
             selectedIcon: Icon(Icons.task),
-            label: 'Todo',
+            label: '투두',
           ),
           NavigationDestination(
             icon: Icon(Icons.timer_outlined),
             selectedIcon: Icon(Icons.timer),
-            label: 'Timer',
+            label: '타이머',
           ),
           NavigationDestination(
-            icon: Icon(Icons.note_outlined),
-            selectedIcon: Icon(Icons.note),
-            label: 'Notes',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.quiz_outlined),
-            selectedIcon: Icon(Icons.quiz),
-            label: 'Cards',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.psychology_outlined),
-            selectedIcon: Icon(Icons.psychology),
-            label: 'AI',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
+            icon: Icon(Icons.more_horiz),
+            selectedIcon: Icon(Icons.more_horiz),
+            label: '더보기',
           ),
         ],
       ),
@@ -593,6 +569,134 @@ class _StatDetailSheet extends ConsumerWidget {
       case 'History': return Colors.orange;
       default: return Colors.grey;
     }
+  }
+}
+
+// More Page
+class _MorePage extends StatelessWidget {
+  const _MorePage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('더보기'),
+        centerTitle: true,
+      ),
+      body: ListView(
+        padding: AppSpacing.paddingMD,
+        children: [
+          _buildMenuItem(
+            context,
+            icon: Icons.calendar_today,
+            title: '스케줄',
+            subtitle: '일정 관리',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ScheduleScreen()),
+              );
+            },
+          ),
+          _buildMenuItem(
+            context,
+            icon: Icons.note,
+            title: '노트',
+            subtitle: '학습 노트 작성',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NotesScreenEnhanced()),
+              );
+            },
+          ),
+          _buildMenuItem(
+            context,
+            icon: Icons.quiz,
+            title: '플래시카드',
+            subtitle: '암기 학습',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FlashcardsScreen()),
+              );
+            },
+          ),
+          _buildMenuItem(
+            context,
+            icon: Icons.psychology,
+            title: 'AI 어시스턴트',
+            subtitle: 'AI 학습 도우미',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AIAssistantScreen()),
+              );
+            },
+          ),
+          const Divider(height: 32),
+          _buildMenuItem(
+            context,
+            icon: Icons.person,
+            title: '프로필',
+            subtitle: '내 정보 관리',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreenImproved()),
+              );
+            },
+          ),
+          _buildMenuItem(
+            context,
+            icon: Icons.school,
+            title: '학습 유형 테스트',
+            subtitle: '나의 학습 스타일 찾기',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const LearningTypeTestScreen()),
+              );
+            },
+          ),
+          _buildMenuItem(
+            context,
+            icon: Icons.settings,
+            title: '설정',
+            subtitle: '앱 설정',
+            onTap: () {
+              // TODO: Navigate to settings
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: Theme.of(context).primaryColor),
+        ),
+        title: Text(title, style: AppTypography.titleSmall),
+        subtitle: Text(subtitle, style: AppTypography.caption),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        onTap: onTap,
+      ),
+    );
   }
 }
 

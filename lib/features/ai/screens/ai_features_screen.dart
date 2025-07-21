@@ -65,7 +65,7 @@ class _AIFeaturesScreenState extends ConsumerState<AIFeaturesScreen> {
 
     try {
       final aiService = ref.read(aiServiceProvider);
-      final user = ref.read(authStateProvider).value;
+      final user = ref.read(authStateProvider).user;
       
       if (user == null) {
         throw Exception('로그인이 필요합니다');
@@ -110,21 +110,21 @@ AI 테스트 성공!
         title: const Text('AI 기능 베타 테스트'),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(AppSpacing.medium),
+        padding: EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildStatusCard(),
-            Gap.medium(),
+            Gap.md,
             _buildFeaturesList(),
-            Gap.medium(),
+            Gap.md,
             _buildActionButtons(),
             if (_errorMessage != null) ...[
-              Gap.medium(),
+              Gap.md,
               _buildErrorMessage(),
             ],
             if (_successMessage != null) ...[
-              Gap.medium(),
+              Gap.md,
               _buildSuccessMessage(),
             ],
           ],
@@ -136,7 +136,7 @@ AI 테스트 성공!
   Widget _buildStatusCard() {
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(AppSpacing.medium),
+        padding: EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -146,14 +146,14 @@ AI 테스트 성공!
                   _isAmplifyConfigured ? Icons.check_circle : Icons.warning,
                   color: _isAmplifyConfigured ? Colors.green : Colors.orange,
                 ),
-                Gap.small(),
+                Gap.sm,
                 Text(
                   'Amplify 상태',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ],
             ),
-            Gap.small(),
+            Gap.sm,
             Text(
               _isAmplifyConfigured
                   ? 'Amplify가 구성되어 AI 기능을 사용할 준비가 되었습니다.'
@@ -169,7 +169,7 @@ AI 테스트 성공!
   Widget _buildFeaturesList() {
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(AppSpacing.medium),
+        padding: EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -177,7 +177,7 @@ AI 테스트 성공!
               '사용 가능한 AI 기능',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            Gap.medium(),
+            Gap.md,
             _buildFeatureItem(
               icon: Icons.calendar_today,
               title: 'AI 학습 계획 생성',
@@ -215,12 +215,12 @@ AI 테스트 성공!
     required String description,
   }) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: AppSpacing.small),
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: AppColors.primary, size: 24),
-          Gap.small(),
+          Gap.sm,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,7 +273,7 @@ AI 테스트 성공!
                   )
                 : const Text('AI 기능 테스트'),
           ),
-          Gap.small(),
+          Gap.sm,
           OutlinedButton(
             onPressed: () {
               Navigator.pushNamed(context, '/ai-planner');
@@ -287,7 +287,7 @@ AI 테스트 성공!
 
   Widget _buildErrorMessage() {
     return Container(
-      padding: EdgeInsets.all(AppSpacing.medium),
+      padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: Colors.red.shade50,
         borderRadius: BorderRadius.circular(8),
@@ -296,7 +296,7 @@ AI 테스트 성공!
       child: Row(
         children: [
           Icon(Icons.error_outline, color: Colors.red.shade700),
-          Gap.small(),
+          Gap.sm,
           Expanded(
             child: Text(
               _errorMessage!,
@@ -310,7 +310,7 @@ AI 테스트 성공!
 
   Widget _buildSuccessMessage() {
     return Container(
-      padding: EdgeInsets.all(AppSpacing.medium),
+      padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: Colors.green.shade50,
         borderRadius: BorderRadius.circular(8),
@@ -320,7 +320,7 @@ AI 테스트 성공!
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.check_circle_outline, color: Colors.green.shade700),
-          Gap.small(),
+          Gap.sm,
           Expanded(
             child: Text(
               _successMessage!,

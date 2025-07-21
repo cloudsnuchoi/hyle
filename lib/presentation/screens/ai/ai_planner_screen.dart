@@ -321,16 +321,8 @@ class _PromptView extends StatelessWidget {
             width: double.infinity,
             child: CustomButton(
               onPressed: isLoading ? null : onSubmit,
-              child: isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : const Text('Generate Study Plan'),
+              text: 'Generate Study Plan',
+              isLoading: isLoading,
             ),
           ),
           
@@ -547,8 +539,8 @@ class _PlanView extends ConsumerWidget {
                   onPressed: () {
                     // TODO: Add all tasks to todo list
                   },
-                  variant: ButtonVariant.outline,
-                  child: const Text('Add to Todo List'),
+                  isOutlined: true,
+                  text: 'Add to Todo List',
                 ),
               ),
               AppSpacing.horizontalGapMD,
@@ -557,7 +549,7 @@ class _PlanView extends ConsumerWidget {
                   onPressed: () {
                     // TODO: Start first task
                   },
-                  child: const Text('Start Now'),
+                  text: 'Start Now',
                 ),
               ),
             ],

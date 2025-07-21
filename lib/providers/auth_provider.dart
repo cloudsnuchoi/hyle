@@ -31,7 +31,7 @@ class AuthState extends ChangeNotifier {
         final name = attributes.firstWhere(
           (attr) => attr.userAttributeKey.key == 'name',
           orElse: () => const AuthUserAttribute(
-            userAttributeKey: CognitoUserAttributeKey.custom('name'),
+            userAttributeKey: AuthUserAttributeKey.preferredUsername,
             value: 'User',
           ),
         ).value;
@@ -91,8 +91,8 @@ class AuthState extends ChangeNotifier {
         password: password,
         options: SignUpOptions(
           userAttributes: {
-            CognitoUserAttributeKey.email: email,
-            CognitoUserAttributeKey.name: name,
+            AuthUserAttributeKey.email: email,
+            CognitoUserAttributeKey.preferredUsername: name,
           },
         ),
       );

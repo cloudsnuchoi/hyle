@@ -1,0 +1,36 @@
+{
+  "name": "hyle",
+  "version": "1.0.0",
+  "description": "AI 기반 학습 동반자 플랫폼으로, 학습을 게임처럼 재미있고 개인 과외처럼 맞춤형으로 만들어줍니다.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "aws-amplify": "^6.15.3",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@aws-amplify/backend": "^1.16.1",
+    "@aws-amplify/backend-cli": "^1.8.0",
+    "aws-cdk-lib": "^2.204.0",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.25.8",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cloudsnuchoi/hyle.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cloudsnuchoi/hyle/issues"
+  },
+  "homepage": "https://github.com/cloudsnuchoi/hyle#readme"
+}

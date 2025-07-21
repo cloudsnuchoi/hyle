@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../providers/learning_type_provider.dart';
 import '../../../providers/user_stats_provider.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../models/learning_type_models.dart';
 
 class LearningTypeTestScreen extends ConsumerWidget {
@@ -41,6 +43,47 @@ class _TestScreen extends ConsumerWidget {
               onPressed: testNotifier.previousQuestion,
             )
           : null,
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Show confirmation dialog for skipping
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('테스트 건너뛰기'),
+                  content: const Text('학습 유형 테스트를 건너뛰시겠습니까?\n나중에 프로필에서 다시 테스트할 수 있습니다.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('취소'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Update user with skipped learning type
+                        final authState = ref.read(authStateProvider);
+                        if (authState.user != null) {
+                          final updatedUser = authState.user!.copyWith(
+                            learningType: 'SKIPPED', // Mark as skipped but not empty
+                            learningTypeDetails: {
+                              'skipped': true,
+                              'skippedAt': DateTime.now().toIso8601String(),
+                            },
+                          );
+                          ref.read(authStateProvider).updateUser(updatedUser);
+                        }
+                        
+                        Navigator.pop(context);
+                        context.go('/home');
+                      },
+                      child: const Text('건너뛰기'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            child: const Text('건너뛰기'),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -588,11 +631,29 @@ class _ActionButtons extends ConsumerWidget {
               child: CustomButton(
                 text: '학습 시작하기',
                 onPressed: () {
+                  // Update user with learning type
+                  final authState = ref.read(authStateProvider);
+                  if (authState.user != null && result != null) {
+                    final updatedUser = authState.user!.copyWith(
+                      learningType: result.learningType.id,
+                      learningTypeDetails: {
+                        'typeCode': result.typeCode,
+                        'learningTypeName': result.learningType.name,
+                        'planning': result.planning.toString(),
+                        'social': result.social.toString(),
+                        'processing': result.processing.toString(),
+                        'approach': result.approach.toString(),
+                        'completedAt': result.completedAt.toIso8601String(),
+                      },
+                    );
+                    ref.read(authStateProvider).updateUser(updatedUser);
+                  }
+                  
                   // Add XP for completing the test
                   ref.read(userStatsProvider.notifier).addXP(100);
                   
-                  // Navigate back to home
-                  Navigator.of(context).pop();
+                  // Navigate to home screen
+                  context.go('/home');
                 },
               ),
             ),

@@ -185,6 +185,53 @@ class _MoreScreen extends StatelessWidget {
               );
             },
           ),
+          _buildMenuItem(
+            context,
+            icon: Icons.login,
+            label: 'AWS 로그인 테스트',
+            color: Colors.blue,
+            onTap: () {
+              // 새 창에서 회원가입 페이지 열기
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('AWS Cognito 테스트'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('새 브라우저 탭에서 회원가입 페이지를 열어주세요:'),
+                      const SizedBox(height: 16),
+                      SelectableText(
+                        'http://localhost:${Uri.base.port}/#/signup',
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 14,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text('또는 로그인 페이지:'),
+                      const SizedBox(height: 8),
+                      SelectableText(
+                        'http://localhost:${Uri.base.port}/#/login',
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 14,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('닫기'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
