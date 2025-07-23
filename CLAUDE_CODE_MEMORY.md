@@ -202,4 +202,4 @@ Set-Alias aws "C:\Program Files\Amazon\AWSCLIV2\aws.exe"
    - Comprehend - 텍스트 분석
 
 ---
-*마지막 업데이트: 2025-01-23 스케줄 시간 정렬 및 투두 날짜 관리 개선*
+*마지막 업데이트: 2025-07-24 Amplify Gen2 환경 공유 가이드 추가*
