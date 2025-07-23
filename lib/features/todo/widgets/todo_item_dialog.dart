@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../providers/todo_category_provider.dart';
 import '../../../models/todo_item.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -24,6 +25,7 @@ class _TodoItemDialogState extends ConsumerState<TodoItemDialog> {
   late TextEditingController _descriptionController;
   late TextEditingController _estimatedMinutesController;
   late String _selectedCategoryId;
+  DateTime? _selectedDueDate;
 
   @override
   void initState() {
@@ -38,6 +40,8 @@ class _TodoItemDialogState extends ConsumerState<TodoItemDialog> {
       text: widget.todoToEdit?.estimatedMinutes.toString() ?? '30',
     );
     _selectedCategoryId = widget.todoToEdit?.categoryId ?? widget.categoryId;
+    // Use existing due date if editing, otherwise default to today
+    _selectedDueDate = widget.todoToEdit?.dueDate ?? DateTime.now();
   }
 
   @override
@@ -46,6 +50,20 @@ class _TodoItemDialogState extends ConsumerState<TodoItemDialog> {
     _descriptionController.dispose();
     _estimatedMinutesController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDueDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+    );
+    if (picked != null && picked != _selectedDueDate) {
+      setState(() {
+        _selectedDueDate = picked;
+      });
+    }
   }
 
   void _saveTodo() {
@@ -68,6 +86,7 @@ class _TodoItemDialogState extends ConsumerState<TodoItemDialog> {
               : _descriptionController.text.trim(),
           categoryId: _selectedCategoryId,
           estimatedMinutes: estimatedMinutes,
+          dueDate: _selectedDueDate,
         ),
       );
     } else {
@@ -79,6 +98,7 @@ class _TodoItemDialogState extends ConsumerState<TodoItemDialog> {
             : _descriptionController.text.trim(),
         categoryId: _selectedCategoryId,
         estimatedMinutes: estimatedMinutes,
+        dueDate: _selectedDueDate,
       );
     }
 
@@ -185,6 +205,42 @@ class _TodoItemDialogState extends ConsumerState<TodoItemDialog> {
                   },
                 );
               }).toList(),
+            ),
+            const SizedBox(height: 16),
+
+            // 마감일 선택
+            InkWell(
+              onTap: () => _selectDate(context),
+              child: InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: '마감일',
+                  suffixIcon: Icon(Icons.calendar_today),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _selectedDueDate != null
+                          ? DateFormat('yyyy년 M월 d일').format(_selectedDueDate!)
+                          : '날짜를 선택하세요',
+                      style: _selectedDueDate != null
+                          ? null
+                          : TextStyle(color: theme.hintColor),
+                    ),
+                    if (_selectedDueDate != null)
+                      IconButton(
+                        icon: const Icon(Icons.clear, size: 20),
+                        onPressed: () {
+                          setState(() {
+                            _selectedDueDate = null;
+                          });
+                        },
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 24),
 

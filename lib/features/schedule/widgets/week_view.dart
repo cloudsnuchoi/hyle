@@ -18,7 +18,7 @@ class WeekView extends ConsumerWidget {
     
     return SingleChildScrollView(
       child: SizedBox(
-        height: 24 * 60.0, // 24시간 * 60픽셀
+        height: 24 * 60.0 + 60, // 24시간 * 60픽셀 + 헤더
         child: Row(
           children: [
             // 시간 축
@@ -45,16 +45,19 @@ class WeekView extends ConsumerWidget {
     return Container(
       width: 60,
       child: Column(
-        children: List.generate(24, (hour) {
-          return Container(
-            height: 60,
-            alignment: Alignment.topCenter,
-            child: Text(
-              '${hour.toString().padLeft(2, '0')}:00',
-              style: AppTypography.caption,
-            ),
-          );
-        }),
+        children: [
+          Container(height: 60), // 헤더 공간
+          ...List.generate(24, (hour) {
+            return Container(
+              height: 60,
+              alignment: Alignment.topCenter,
+              child: Text(
+                '${hour.toString().padLeft(2, '0')}:00',
+                style: AppTypography.caption,
+              ),
+            );
+          }),
+        ],
       ),
     );
   }
@@ -188,27 +191,34 @@ class _EventCard extends ConsumerWidget {
             width: 1,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              event.title,
-              style: AppTypography.caption.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (event.duration.inMinutes > 30)
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Text(
-                '${DateFormat('HH:mm').format(event.startTime)} - ${DateFormat('HH:mm').format(event.endTime)}',
+                event.title,
                 style: AppTypography.caption.copyWith(
-                  color: Colors.white70,
-                  fontSize: 10,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-          ],
+              if (event.duration.inMinutes >= 60)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    '${DateFormat('HH:mm').format(event.startTime)}',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

@@ -5,6 +5,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../models/schedule_models.dart';
 import '../providers/schedule_provider.dart';
+import '../widgets/event_detail_sheet.dart';
 
 class DayView extends ConsumerWidget {
   final Function(StudyEvent)? onEventTap;
@@ -16,182 +17,213 @@ class DayView extends ConsumerWidget {
     final selectedDate = ref.watch(selectedDateProvider);
     final allEvents = ref.watch(scheduleProvider);
     final events = ref.read(scheduleProvider.notifier).getEventsForDay(selectedDate);
+    final isToday = DateUtils.isSameDay(selectedDate, DateTime.now());
     
     return SingleChildScrollView(
-      padding: AppSpacing.paddingMD,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 날짜 헤더
-          Container(
-            padding: AppSpacing.paddingMD,
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.calendar_today,
-                  color: Theme.of(context).primaryColor,
-                ),
-                AppSpacing.horizontalGapMD,
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      DateFormat('yyyy년 M월 d일').format(selectedDate),
-                      style: AppTypography.titleMedium,
-                    ),
-                    Text(
-                      DateFormat('EEEE', 'ko').format(selectedDate),
-                      style: AppTypography.caption.copyWith(
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          
-          AppSpacing.verticalGapLG,
-          
-          // 시간대별 일정
-          if (events.isEmpty)
-            Center(
+      child: SizedBox(
+        height: 24 * 60.0 + 80, // 24시간 * 60픽셀 + 헤더
+        child: Row(
+          children: [
+            // 시간 축
+            _buildTimeAxis(),
+            
+            // 일정 컬럼
+            Expanded(
               child: Column(
                 children: [
-                  Icon(
-                    Icons.event_available,
-                    size: 64,
-                    color: Colors.grey[300],
+                  // 날짜 헤더
+                  Container(
+                    height: 80,
+                    padding: AppSpacing.paddingMD,
+                    decoration: BoxDecoration(
+                      color: isToday ? Theme.of(context).primaryColor.withOpacity(0.1) : null,
+                      border: Border(
+                        bottom: BorderSide(color: Colors.grey.shade300),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today,
+                          color: isToday ? Theme.of(context).primaryColor : null,
+                        ),
+                        AppSpacing.horizontalGapMD,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              DateFormat('yyyy년 M월 d일').format(selectedDate),
+                              style: AppTypography.titleMedium.copyWith(
+                                color: isToday ? Theme.of(context).primaryColor : null,
+                              ),
+                            ),
+                            Text(
+                              DateFormat('EEEE', 'ko').format(selectedDate),
+                              style: AppTypography.caption.copyWith(
+                                color: isToday ? Theme.of(context).primaryColor : Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  AppSpacing.verticalGapMD,
-                  Text(
-                    '오늘은 일정이 없습니다',
-                    style: AppTypography.body.copyWith(color: Colors.grey),
+                  
+                  // 타임테이블 영역
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        // 시간 그리드
+                        ...List.generate(24, (hour) {
+                          return Positioned(
+                            top: hour * 60.0,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: 60,
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey.shade200,
+                                    width: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                        
+                        // 현재 시간 표시 (오늘인 경우)
+                        if (isToday)
+                          Positioned(
+                            top: (DateTime.now().hour + DateTime.now().minute / 60) * 60,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: 2,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        
+                        // 이벤트들
+                        ...events.map((event) {
+                          final startHour = event.startTime.hour + event.startTime.minute / 60;
+                          final duration = event.duration.inMinutes / 60;
+                          
+                          return Positioned(
+                            top: startHour * 60,
+                            left: 8,
+                            right: 8,
+                            height: duration * 60 - 4,
+                            child: _buildTimeTableEvent(context, ref, event, onEventTap),
+                          );
+                        }).toList(),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            )
-          else
-            ...events.map((event) => _buildEventCard(context, ref, event, onEventTap)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildTimeAxis() {
+    return Container(
+      width: 60,
+      child: Column(
+        children: [
+          Container(height: 80), // 헤더 공간
+          ...List.generate(24, (hour) {
+            return Container(
+              height: 60,
+              alignment: Alignment.topCenter,
+              child: Text(
+                '${hour.toString().padLeft(2, '0')}:00',
+                style: AppTypography.caption,
+              ),
+            );
+          }),
         ],
       ),
     );
   }
   
-  Widget _buildEventCard(BuildContext context, WidgetRef ref, StudyEvent event, Function(StudyEvent)? onEventTap) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () => onEventTap?.call(event),
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: AppSpacing.paddingMD,
-          decoration: BoxDecoration(
-            border: Border(
-              left: BorderSide(
-                color: event.color,
-                width: 4,
+  Widget _buildTimeTableEvent(BuildContext context, WidgetRef ref, StudyEvent event, Function(StudyEvent)? onEventTap) {
+    return GestureDetector(
+      onTap: () {
+        if (onEventTap != null) {
+          onEventTap(event);
+        } else {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            builder: (context) => EventDetailSheet(event: event),
+          );
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: event.color.withOpacity(event.isCompleted ? 0.5 : 0.9),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: event.color,
+            width: 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    event.title,
+                    style: AppTypography.caption.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (event.isCompleted)
+                  const Icon(Icons.check_circle, color: Colors.white, size: 14),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '${DateFormat('HH:mm').format(event.startTime)} - ${DateFormat('HH:mm').format(event.endTime)}',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 11,
               ),
             ),
-          ),
-          child: Row(
-            children: [
-              // 시간
+            if (event.duration.inMinutes >= 60) ...[
+              const SizedBox(height: 4),
               Container(
-                width: 80,
-                child: Column(
-                  children: [
-                    Text(
-                      DateFormat('HH:mm').format(event.startTime),
-                      style: AppTypography.titleSmall,
-                    ),
-                    Text(
-                      '-',
-                      style: AppTypography.caption,
-                    ),
-                    Text(
-                      DateFormat('HH:mm').format(event.endTime),
-                      style: AppTypography.titleSmall,
-                    ),
-                  ],
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ),
-              
-              AppSpacing.horizontalGapMD,
-              
-              // 내용
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            event.title,
-                            style: AppTypography.titleMedium,
-                          ),
-                        ),
-                        if (event.isCompleted)
-                          Icon(Icons.check_circle, color: Colors.green, size: 20),
-                      ],
-                    ),
-                    AppSpacing.verticalGapSM,
-                    Row(
-                      children: [
-                        Chip(
-                          label: Text(event.subject),
-                          backgroundColor: event.color.withOpacity(0.2),
-                          labelStyle: TextStyle(
-                            color: event.color,
-                            fontSize: 12,
-                          ),
-                          padding: EdgeInsets.zero,
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        AppSpacing.horizontalGapSM,
-                        Text(
-                          '${event.duration.inMinutes}분',
-                          style: AppTypography.caption,
-                        ),
-                      ],
-                    ),
-                    if (event.description != null) ...[
-                      AppSpacing.verticalGapSM,
-                      Text(
-                        event.description!,
-                        style: AppTypography.body,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ],
+                child: Text(
+                  event.subject,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                  ),
                 ),
-              ),
-              
-              // 액션 버튼
-              IconButton(
-                icon: Icon(
-                  event.isCompleted ? Icons.undo : Icons.play_arrow,
-                  color: Theme.of(context).primaryColor,
-                ),
-                onPressed: () {
-                  if (event.isCompleted) {
-                    ref.read(scheduleProvider.notifier).toggleComplete(event.id);
-                  } else {
-                    // 타이머 시작
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('타이머가 시작되었습니다')),
-                    );
-                  }
-                },
               ),
             ],
-          ),
+          ],
         ),
       ),
     );

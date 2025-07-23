@@ -157,16 +157,22 @@ class ScheduleScreen extends ConsumerWidget {
   Widget _buildCalendarView(CalendarView view, WidgetRef ref) {
     switch (view) {
       case CalendarView.week:
-        return WeekView(
-          onEventTap: (event) => _showEventDetail(context, event),
+        return Builder(
+          builder: (context) => WeekView(
+            onEventTap: (event) => _showEventDetail(context, event),
+          ),
         );
       case CalendarView.threeDay:
-        return ThreeDayView(
-          onEventTap: (event) => _showEventDetail(context, event),
+        return Builder(
+          builder: (context) => ThreeDayView(
+            onEventTap: (event) => _showEventDetail(context, event),
+          ),
         );
       case CalendarView.day:
-        return DayView(
-          onEventTap: (event) => _showEventDetail(context, event),
+        return Builder(
+          builder: (context) => DayView(
+            onEventTap: (event) => _showEventDetail(context, event),
+          ),
         );
       case CalendarView.month:
         return _buildMonthView(ref);

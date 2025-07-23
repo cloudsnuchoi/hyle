@@ -144,6 +144,7 @@ class TodoItemsNotifier extends StateNotifier<List<TodoItem>> {
     String? description,
     required String categoryId,
     int estimatedMinutes = 30,
+    DateTime? dueDate,
   }) async {
     final newTodo = TodoItem(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -153,6 +154,7 @@ class TodoItemsNotifier extends StateNotifier<List<TodoItem>> {
       orderIndex: state.length,
       createdAt: DateTime.now(),
       estimatedMinutes: estimatedMinutes,
+      dueDate: dueDate,
     );
     
     state = [...state, newTodo];

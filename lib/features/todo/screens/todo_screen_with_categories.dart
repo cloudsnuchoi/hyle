@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../providers/todo_category_provider.dart';
 import '../../../models/todo_category.dart';
 import '../../../models/todo_item.dart';
@@ -20,11 +21,13 @@ class TodoScreenWithCategories extends ConsumerStatefulWidget {
 
 class _TodoScreenWithCategoriesState extends ConsumerState<TodoScreenWithCategories> {
   final Map<String, bool> _expandedCategories = {};
+  DateTime _selectedDate = DateTime.now();
+  bool _showAllDates = false;
 
   @override
   void initState() {
     super.initState();
-    // 모든 카테고리를 기본적으로 펼침
+    // 모든 카테고리를 기본적으로 폼침
     final categories = ref.read(todoCategoryProvider);
     for (final category in categories) {
       _expandedCategories[category.id] = true;
@@ -64,8 +67,19 @@ class _TodoScreenWithCategoriesState extends ConsumerState<TodoScreenWithCategor
   @override
   Widget build(BuildContext context) {
     final categories = ref.watch(todoCategoryProvider);
-    final todos = ref.watch(todoItemsProvider);
+    final allTodos = ref.watch(todoItemsProvider);
     final theme = Theme.of(context);
+    
+    // 선택된 날짜 또는 전체 투두 필터링
+    final todos = _showAllDates 
+        ? allTodos 
+        : allTodos.where((todo) {
+            // 날짜가 없는 투두는 오늘 날짜에 표시
+            if (todo.dueDate == null) {
+              return DateUtils.isSameDay(DateTime.now(), _selectedDate);
+            }
+            return DateUtils.isSameDay(todo.dueDate, _selectedDate);
+          }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -79,17 +93,21 @@ class _TodoScreenWithCategoriesState extends ConsumerState<TodoScreenWithCategor
           ),
         ],
       ),
-      body: categories.isEmpty
-          ? _buildEmptyState()
-          : ListView.builder(
-              padding: const EdgeInsets.only(bottom: 88),
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final category = categories[index];
-                final categoryTodos = todos
-                    .where((todo) => todo.categoryId == category.id)
-                    .toList()
-                  ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+      body: Column(
+        children: [
+          _buildDateSelector(),
+          Expanded(
+            child: categories.isEmpty
+                ? _buildEmptyState()
+                : ListView.builder(
+                    padding: const EdgeInsets.only(bottom: 88),
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      final categoryTodos = todos
+                          .where((todo) => todo.categoryId == category.id)
+                          .toList()
+                        ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
                 
                 final incompleteTodos = categoryTodos.where((t) => !t.isCompleted).toList();
                 final completedTodos = categoryTodos.where((t) => t.isCompleted).toList();
@@ -251,8 +269,11 @@ class _TodoScreenWithCategoriesState extends ConsumerState<TodoScreenWithCategor
                     ],
                   ),
                 );
-              },
-            ),
+                  },
+                ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -442,6 +463,27 @@ class _TodoScreenWithCategoriesState extends ConsumerState<TodoScreenWithCategor
                       const SizedBox(height: 4),
                       Row(
                         children: [
+                          // 날짜 표시 (전체 보기에서는 항상 표시)
+                          if (todo.dueDate != null || _showAllDates) ...[
+                            Icon(
+                              Icons.calendar_today,
+                              size: 14,
+                              color: Colors.grey[500],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              todo.dueDate != null 
+                                  ? DateFormat(_showAllDates ? 'M/d (E)' : 'M/d').format(todo.dueDate!)
+                                  : '날짜 없음',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: todo.dueDate != null 
+                                    ? Colors.grey[500]
+                                    : Colors.orange[400],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                          ],
+                          
                           // 예상 시간
                           Icon(
                             Icons.timer_outlined,
@@ -508,6 +550,139 @@ class _TodoScreenWithCategoriesState extends ConsumerState<TodoScreenWithCategor
             ),
           ),
         ),
+    );
+  }
+  
+  Widget _buildDateSelector() {
+    final today = DateTime.now();
+    final dateFormat = DateFormat('M월 d일');
+    
+    return Container(
+      height: 120,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // 월 표시 및 전체 보기 토글
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  DateFormat('yyyy년 M월').format(_selectedDate),
+                  style: AppTypography.titleMedium,
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _showAllDates = !_showAllDates;
+                    });
+                  },
+                  icon: Icon(
+                    _showAllDates ? Icons.calendar_today : Icons.calendar_view_day,
+                    size: 18,
+                  ),
+                  label: Text(_showAllDates ? '날짜별 보기' : '전체 보기'),
+                ),
+              ],
+            ),
+          ),
+          // 날짜 선택 리스트
+          if (!_showAllDates)
+            Expanded(
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                itemCount: 30, // 30일간 표시
+                itemBuilder: (context, index) {
+                  final date = today.add(Duration(days: index - 7)); // 일주일 전부터 표시
+                  final isSelected = DateUtils.isSameDay(date, _selectedDate);
+                  final isToday = DateUtils.isSameDay(date, today);
+                  
+                  // 해당 날짜의 투두 개수
+                  final todosCount = ref.watch(todoItemsProvider)
+                      .where((todo) => todo.dueDate != null && DateUtils.isSameDay(todo.dueDate!, date))
+                      .length;
+                  
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedDate = date;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        width: 60,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: isSelected 
+                              ? Theme.of(context).primaryColor 
+                              : isToday 
+                                  ? Theme.of(context).primaryColor.withOpacity(0.1)
+                                  : null,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isToday && !isSelected
+                                ? Theme.of(context).primaryColor
+                                : Colors.transparent,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              DateFormat('E', 'ko').format(date),
+                              style: AppTypography.caption.copyWith(
+                                color: isSelected 
+                                    ? Colors.white 
+                                    : isToday 
+                                        ? Theme.of(context).primaryColor
+                                        : Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              date.day.toString(),
+                              style: AppTypography.titleMedium.copyWith(
+                                color: isSelected ? Colors.white : null,
+                                fontWeight: isSelected || isToday ? FontWeight.bold : null,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            if (todosCount > 0)
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: isSelected 
+                                      ? Colors.white 
+                                      : Theme.of(context).primaryColor,
+                                  shape: BoxShape.circle,
+                                ),
+                              )
+                            else
+                              const SizedBox(height: 6),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
