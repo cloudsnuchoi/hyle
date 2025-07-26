@@ -10,6 +10,9 @@
 - [AWS 빠른 시작 가이드](./aws/QUICK_START.md) - AWS Amplify 설정 요약
 - [AWS 상세 설정 가이드](./aws/DETAILED_SETUP.md) - 단계별 상세 가이드
 - [Amazon Q 활용 가이드](./aws/AMAZON_Q_GUIDE.md) - Amazon Q로 설정 가속화
+- [AWS 아키텍처](./aws/AWS_ARCHITECTURE.md) - 백엔드 아키텍처 설계
+- [Amplify Gen2 환경 공유](./aws/AMPLIFY_GEN2_SHARING.md) - 팀 협업 설정
+- [Amplify 멀티 환경 설정](./aws/AMPLIFY_MULTI_ENV_SETUP.md) - 개발/운영 환경 분리
 
 ### 3. 개발 가이드
 - [프로젝트 구조](./development/ARCHITECTURE.md) - 앱 아키텍처 및 구조
