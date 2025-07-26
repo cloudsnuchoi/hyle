@@ -75,3 +75,23 @@ amplify sandbox  # Start development environment
 - Test entry points in root: `main_test.dart`, `main_test_local.dart`
 - Use `flutter analyze` or `./analyze.sh` for linting
 - Manual testing through different entry points recommended
+
+## Recent Updates (2025-01-26)
+
+### 문서 구조 개선 완료
+- 모든 문서가 `docs/` 폴더로 체계적으로 재구성됨
+- Amazon Q 개발 가이드 추가 (AWS 설정 시간 70% 단축)
+- 크로스 플랫폼 개발 가이드 추가 (Windows/macOS)
+- 20개 이상의 중복 문서 정리 및 통합
+
+### 현재 작업 상태
+- AWS Amplify 백엔드 연동 대기 중
+- Flutter analyze 에러 약 100개 미만
+- 로컬 테스트 모드로 개발 진행 중
+- 문서 구조 정리 완료 (docs/ 폴더)
+
+### 다음 작업 계획
+1. Amazon Q 설치 및 AWS Amplify 백엔드 연동
+2. 학습자 유형 테스트 (16가지 타입) 구현
+3. AI 튜터 실제 작동 연결
+4. Flutter analyze 에러 수정
