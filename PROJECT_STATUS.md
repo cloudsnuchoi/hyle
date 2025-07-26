@@ -234,4 +234,4 @@ flutter run -d chrome -t lib/main.dart
 - Amplify 백엔드 연결 전 로컬 빌드 가능한 상태
 
 ---
-*Last Updated: 2025-01-17*
+*Last Updated: 2025-07-26*

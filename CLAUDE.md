@@ -76,7 +76,7 @@ amplify sandbox  # Start development environment
 - Use `flutter analyze` or `./analyze.sh` for linting
 - Manual testing through different entry points recommended
 
-## Recent Updates (2025-01-26)
+## Recent Updates (2025-07-26)
 
 ### 문서 구조 개선 완료
 - 모든 문서가 `docs/` 폴더로 체계적으로 재구성됨
