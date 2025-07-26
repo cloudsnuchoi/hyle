@@ -2,6 +2,13 @@
 
 AI 기반 학습 동반자 플랫폼으로, 학습을 게임처럼 재미있고 개인 과외처럼 맞춤형으로 만들어줍니다.
 
+## 📚 Documentation
+
+모든 문서가 체계적으로 정리되었습니다:
+- [📖 문서 인덱스](docs/README.md) - 여기서 시작하세요!
+- [📊 프로젝트 현황](PROJECT_STATUS.md) - 현재 개발 진행 상황
+- [🤖 Claude Code 지침](CLAUDE.md) - Claude Code 사용자용
+
 ## 🚀 시작하기
 
 ### 필수 요구사항

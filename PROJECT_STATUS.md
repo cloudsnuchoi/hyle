@@ -127,6 +127,8 @@
 - **Backend**: AWS Amplify (예정)
 - **Database**: Local → AWS DynamoDB (예정)
 - **Authentication**: Local → AWS Cognito (예정)
+- **AI Assistant**: Amazon Q (AWS 백엔드 설정 가속화)
+- **AI Services**: Amazon Bedrock, Neptune, Pinecone
 
 ## 📱 실행 방법
 ```bash
@@ -141,16 +143,20 @@ flutter run -d chrome -t lib/main.dart
 ```
 
 ## 🎯 다음 단계
-1. 투두 시스템 구현
-2. 게이미피케이션 시스템 구현
-3. 학습자 유형 테스트 구현
-4. 로컬 데이터 저장 (SharedPreferences)
-5. 모든 기능 완성 후 AWS 연동
+1. Amazon Q 설치 및 활용 (AWS 백엔드 설정 가속화)
+2. AWS Amplify 백엔드 연동 (Amazon Q 활용)
+3. 투두 시스템 구현
+4. 게이미피케이션 시스템 구현
+5. 학습자 유형 테스트 구현
+6. AI 튜터 실제 작동 구현
 
 ## 📌 주의사항
 - AWS Amplify는 모든 기능이 로컬에서 완성된 후 마지막에 연동
 - 현재는 모든 데이터를 로컬 메모리/SharedPreferences에 저장
 - UI/UX 우선으로 개발 진행
+- **개발 환경**: Windows(메인) + macOS(보조) 크로스 플랫폼
+- **Claude Code 제한**: WSL에서 실행되므로 별도 PowerShell 터미널 필요
+- 자세한 내용은 [CROSS_PLATFORM_DEVELOPMENT_GUIDE.md](./CROSS_PLATFORM_DEVELOPMENT_GUIDE.md) 참조
 
 ## 🐛 알려진 이슈
 - drift 패키지 관련 컴파일 에러 (amplify_datastore 제거로 해결)

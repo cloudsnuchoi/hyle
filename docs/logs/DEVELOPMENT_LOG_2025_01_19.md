@@ -63,6 +63,8 @@ AWS Amplify 연결 및 베타테스트 환경 구축
 - 실행 명령어: `flutter run -d chrome -t lib/main_test_local.dart`
 - AWS CLI 경로 (WSL): `/mnt/c/Program\ Files/Amazon/AWSCLIV2/aws.exe`
 - 프리 티어 한도 내에서 모든 기능 구현 가능
+- Amazon Q 활용으로 AWS 백엔드 설정 시간 70% 단축 가능
+- Amazon Q를 통한 자동 코드 생성 및 보안 설정 최적화
 
 ---
 *마지막 업데이트: 2025-01-19 진행 중*
