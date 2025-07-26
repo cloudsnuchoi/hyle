@@ -83,15 +83,30 @@ amplify sandbox  # Start development environment
 - Amazon Q 개발 가이드 추가 (AWS 설정 시간 70% 단축)
 - 크로스 플랫폼 개발 가이드 추가 (Windows/macOS)
 - 20개 이상의 중복 문서 정리 및 통합
+- `HYLE_PROJECT_OVERVIEW.md` - 통합 프로젝트 현황 문서 생성
+- `QUICK_COMMANDS.md` - PowerShell 빠른 명령어 가이드 추가
+
+### 개발 환경 결정
+- WSL에서 코드 편집 (Claude Code)
+- PowerShell에서 명령어 실행 (Flutter, AWS, Amplify)
+- WSL 내 도구 설정 시도했으나 PowerShell 사용이 더 안정적
+- Claude Desktop Windows 네이티브 버전 출시됨 (전환 가능)
 
 ### 현재 작업 상태
 - AWS Amplify 백엔드 연동 대기 중
 - Flutter analyze 에러 약 100개 미만
 - 로컬 테스트 모드로 개발 진행 중
 - 문서 구조 정리 완료 (docs/ 폴더)
+- Amplify CLI v14.0.0 WSL에 설치됨 (하지만 PowerShell 사용 권장)
 
 ### 다음 작업 계획
 1. Amazon Q 설치 및 AWS Amplify 백엔드 연동
 2. 학습자 유형 테스트 (16가지 타입) 구현
 3. AI 튜터 실제 작동 연결
 4. Flutter analyze 에러 수정
+
+### 주요 파일 위치
+- 통합 현황: `HYLE_PROJECT_OVERVIEW.md`
+- 빠른 명령어: `QUICK_COMMANDS.md`
+- AWS 가이드: `docs/aws/`
+- 개발 로그: `docs/logs/DEVELOPMENT_LOG_2025_07_26.md`

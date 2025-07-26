@@ -268,3 +268,22 @@ flutter run -d chrome -t lib/main_test_local.dart
 
 **마지막 업데이트**: 2025년 7월 26일
 **다음 액션**: AWS Amplify 연동 시작 (Amazon Q 활용)
+
+## 🔄 최근 변경사항 (2025-07-26)
+
+1. **문서 재구성 완료**
+   - 20개+ MD 파일을 docs/ 폴더로 체계화
+   - 중복 제거 및 통합
+
+2. **개발 환경 정리**
+   - Claude Code (WSL): 코드 편집
+   - PowerShell: 명령어 실행
+   - `QUICK_COMMANDS.md` 생성
+
+3. **도구 설정**
+   - Amplify CLI v14.0.0 설치 (WSL)
+   - 하지만 PowerShell 사용 권장
+
+4. **Claude Desktop**
+   - Windows 네이티브 버전 출시
+   - WSL 대신 직접 사용 가능
