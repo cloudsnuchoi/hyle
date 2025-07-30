@@ -4,6 +4,9 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Import models
+import '../../models/ModelProvider.dart';
+
 // Import monitoring and intervention services
 import 'cognitive_load_monitor.dart';
 import 'attention_tracking_service.dart';

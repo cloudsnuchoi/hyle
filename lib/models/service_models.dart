@@ -382,3 +382,157 @@ class EffectivenessScore {
     required this.breakdown,
   });
 }
+
+// Missing models for todo_repository_enhanced.dart
+class CurriculumMapping {
+  final double confidence;
+  final List<MappedTopic> mappedTopics;
+  final Map<String, dynamic>? metadata;
+
+  const CurriculumMapping({
+    required this.confidence,
+    required this.mappedTopics,
+    this.metadata,
+  });
+}
+
+class MappedTopic {
+  final String id;
+  final String name;
+  final double relevance;
+
+  const MappedTopic({
+    required this.id,
+    required this.name,
+    required this.relevance,
+  });
+}
+
+class IntegratedStudyPath {
+  final String id;
+  final String title;
+  final List<StudyPathStep> steps;
+  final Duration estimatedDuration;
+  final Map<String, dynamic>? metadata;
+
+  const IntegratedStudyPath({
+    required this.id,
+    required this.title,
+    required this.steps,
+    required this.estimatedDuration,
+    this.metadata,
+  });
+}
+
+class StudyPathStep {
+  final String id;
+  final String subject;
+  final String topic;
+  final Duration duration;
+  final int order;
+
+  const StudyPathStep({
+    required this.id,
+    required this.subject,
+    required this.topic,
+    required this.duration,
+    required this.order,
+  });
+}
+
+// Missing models for ai_tutor_orchestrator.dart
+class OptimalTiming {
+  final DateTime recommendedTime;
+  final String reason;
+  final double confidenceScore;
+  final Map<String, dynamic>? factors;
+
+  const OptimalTiming({
+    required this.recommendedTime,
+    required this.reason,
+    required this.confidenceScore,
+    this.factors,
+  });
+}
+
+class ProgressDashboard {
+  final String userId;
+  final DateTime lastUpdated;
+  final Map<String, SubjectProgress> subjectProgress;
+  final OverallMetrics overallMetrics;
+  final List<DashboardAchievement> recentAchievements;
+  final List<InsightCard> insights;
+
+  const ProgressDashboard({
+    required this.userId,
+    required this.lastUpdated,
+    required this.subjectProgress,
+    required this.overallMetrics,
+    required this.recentAchievements,
+    required this.insights,
+  });
+}
+
+class SubjectProgress {
+  final String subject;
+  final double completionRate;
+  final int totalHours;
+  final double averageScore;
+  final String trend; // 'up', 'down', 'stable'
+
+  const SubjectProgress({
+    required this.subject,
+    required this.completionRate,
+    required this.totalHours,
+    required this.averageScore,
+    required this.trend,
+  });
+}
+
+class OverallMetrics {
+  final int totalStudyHours;
+  final int currentStreak;
+  final double weeklyImprovement;
+  final int completedGoals;
+
+  const OverallMetrics({
+    required this.totalStudyHours,
+    required this.currentStreak,
+    required this.weeklyImprovement,
+    required this.completedGoals,
+  });
+}
+
+class DashboardAchievement {
+  final String id;
+  final String title;
+  final String description;
+  final DateTime unlockedAt;
+  final String iconUrl;
+
+  const DashboardAchievement({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.unlockedAt,
+    required this.iconUrl,
+  });
+}
+
+class InsightCard {
+  final String id;
+  final String type;
+  final String title;
+  final String message;
+  final String? actionUrl;
+  final String? actionLabel;
+
+  const InsightCard({
+    required this.id,
+    required this.type,
+    required this.title,
+    required this.message,
+    this.actionUrl,
+    this.actionLabel,
+  });
+}

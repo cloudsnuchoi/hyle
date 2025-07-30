@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/ModelProvider.dart';
+import '../../models/service_models.dart';
 import '../services/ai_service.dart';
 import '../services/curriculum_service.dart';
 import '../services/educational_content_service.dart';

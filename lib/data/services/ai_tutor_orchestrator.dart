@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../models/ModelProvider.dart';
+import '../../models/service_models.dart';
 
 // Import all services
 import 'predictive_analytics_service.dart' as predictive;
