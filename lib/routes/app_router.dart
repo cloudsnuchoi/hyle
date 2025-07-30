@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../features/auth/screens/login_screen.dart';
+import '../features/auth/screens/login_screen_minimal.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/auth/screens/beta_signup_screen.dart';
 import '../features/auth/screens/beta_reset_password_screen.dart';
@@ -9,6 +10,7 @@ import '../features/auth/screens/splash_screen.dart';
 import '../features/auth/screens/confirmation_screen.dart';
 import '../features/auth/screens/forgot_password_screen.dart';
 import '../features/home/screens/home_screen.dart';
+import '../features/home/screens/home_screen_minimal.dart';
 import '../features/learning_type/screens/learning_type_test_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../providers/auth_provider.dart';
@@ -31,7 +33,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/login',
         name: 'login',
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) => const LoginScreenMinimal(),
       ),
       GoRoute(
         path: '/signup',
@@ -69,7 +71,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home',
         name: 'home',
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const HomeScreenMinimal(),
         routes: [
           GoRoute(
             path: 'profile',
