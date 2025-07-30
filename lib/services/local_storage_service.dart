@@ -186,6 +186,15 @@ class LocalStorageService {
     return false;
   }
   
+  // Generic methods for int values
+  static int? getInt(String key) {
+    return prefs.getInt(key);
+  }
+  
+  static Future<bool> setInt(String key, int value) async {
+    return await prefs.setInt(key, value);
+  }
+  
   // Clear all data
   static Future<void> clearAllData() async {
     await prefs.remove(_userStatsKey);

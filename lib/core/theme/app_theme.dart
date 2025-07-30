@@ -44,12 +44,11 @@ class AppTheme {
         secondary: themePreset.secondary,
         tertiary: themePreset.accent,
         surface: AppColors.surfaceLight,
-        background: AppColors.backgroundLight,
+        surfaceContainer: AppColors.backgroundLight,
         error: AppColors.error,
         onPrimary: AppColors.white,
         onSecondary: AppColors.white,
         onSurface: AppColors.textPrimary,
-        onBackground: AppColors.textPrimary,
         onError: AppColors.white,
       ),
       
@@ -163,7 +162,7 @@ class AppTheme {
         deleteIconColor: AppColors.textSecondary,
         disabledColor: AppColors.gray200,
         selectedColor: themePreset.primary,
-        secondarySelectedColor: themePreset.primary.withOpacity(0.1),
+        secondarySelectedColor: themePreset.primary.withValues(alpha: 0.1),
         padding: AppSpacing.paddingHorizontalSm,
         labelStyle: AppTypography.labelMedium,
         secondaryLabelStyle: AppTypography.labelMedium,
@@ -201,7 +200,7 @@ class AppTheme {
       // Navigation Bar
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.white,
-        indicatorColor: themePreset.primary.withOpacity(0.1),
+        indicatorColor: themePreset.primary.withValues(alpha: 0.1),
         elevation: 0,
         height: 80,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
@@ -237,12 +236,11 @@ class AppTheme {
         secondary: themePreset.secondary,
         tertiary: themePreset.accent,
         surface: AppColors.surfaceDark,
-        background: AppColors.backgroundDark,
+        surfaceContainer: AppColors.backgroundDark,
         error: AppColors.errorLight,
         onPrimary: AppColors.white,
         onSecondary: AppColors.white,
         onSurface: AppColors.textPrimaryDark,
-        onBackground: AppColors.textPrimaryDark,
         onError: AppColors.white,
       ),
       
@@ -355,7 +353,7 @@ class AppTheme {
         deleteIconColor: AppColors.textSecondaryDark,
         disabledColor: AppColors.gray800,
         selectedColor: themePreset.primary,
-        secondarySelectedColor: themePreset.primary.withOpacity(0.2),
+        secondarySelectedColor: themePreset.primary.withValues(alpha: 0.2),
         padding: AppSpacing.paddingHorizontalSm,
         labelStyle: AppTypography.labelMedium,
         secondaryLabelStyle: AppTypography.labelMedium,
@@ -393,7 +391,7 @@ class AppTheme {
       // Navigation Bar
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surfaceDark,
-        indicatorColor: themePreset.primary.withOpacity(0.2),
+        indicatorColor: themePreset.primary.withValues(alpha: 0.2),
         elevation: 0,
         height: 80,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,

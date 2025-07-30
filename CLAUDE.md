@@ -29,15 +29,15 @@ amplify sandbox  # Start development environment
 
 ## Development Environment Notes
 
-### WSL/Claude Code Limitations
-- Claude Code runs in WSL and may not execute Flutter/Amplify commands properly
-- **Solution**: Open a separate PowerShell terminal for command execution
-- See [CROSS_PLATFORM_DEVELOPMENT_GUIDE.md](./CROSS_PLATFORM_DEVELOPMENT_GUIDE.md) for details
+### ~~WSL/Claude Code Limitations~~ (해결됨 2025-07-26)
+- ~~Claude Code runs in WSL and may not execute Flutter/Amplify commands properly~~
+- **해결**: Windows 네이티브 Claude Code 사용 시 모든 명령어 정상 작동
+- 참고: [CROSS_PLATFORM_DEVELOPMENT_GUIDE.md](./CROSS_PLATFORM_DEVELOPMENT_GUIDE.md)
 
 ### Cross-Platform Development
-- Primary: Windows (with WSL for Claude Code)
+- Primary: Windows (Claude Code Native)
 - Secondary: macOS (for mobile work)
-- Always use PowerShell on Windows for Flutter/AWS commands
+- Claude Code에서 모든 명령어 직접 실행 가능
 
 ## High-Level Architecture
 
@@ -78,6 +78,18 @@ amplify sandbox  # Start development environment
 
 ## Recent Updates (2025-07-26)
 
+### Windows 네이티브 Claude Code 전환 완료
+- Claude Desktop Windows 네이티브 버전 설치 및 전환
+- 모든 CLI 도구가 Claude Code 내에서 정상 작동 확인
+- 설치된 도구 버전:
+  - Flutter 3.32.7 (업데이트 가능)
+  - AWS CLI 2.27.55
+  - Amplify CLI 14.0.0 (새로 설치)
+  - Vercel CLI 44.6.3 (새로 설치)
+  - v0 CLI (새로 설치)
+  - Python 3.13.1 (최신 안정 버전: 3.13.5)
+- 더 이상 별도 PowerShell 터미널 불필요
+
 ### 문서 구조 개선 완료
 - 모든 문서가 `docs/` 폴더로 체계적으로 재구성됨
 - Amazon Q 개발 가이드 추가 (AWS 설정 시간 70% 단축)
@@ -87,17 +99,17 @@ amplify sandbox  # Start development environment
 - `QUICK_COMMANDS.md` - PowerShell 빠른 명령어 가이드 추가
 
 ### 개발 환경 결정
-- WSL에서 코드 편집 (Claude Code)
-- PowerShell에서 명령어 실행 (Flutter, AWS, Amplify)
-- WSL 내 도구 설정 시도했으나 PowerShell 사용이 더 안정적
-- Claude Desktop Windows 네이티브 버전 출시됨 (전환 가능)
+- ~~WSL에서 코드 편집 (Claude Code)~~ → Windows 네이티브 Claude Code로 전환 완료 (2025-07-26)
+- ~~PowerShell에서 명령어 실행~~ → Claude Code에서 직접 실행 가능
+- Claude Desktop Windows 네이티브 버전으로 전환 완료
+- 모든 CLI 도구가 Claude Code 내에서 정상 작동
 
 ### 현재 작업 상태
 - AWS Amplify 백엔드 연동 대기 중
 - Flutter analyze 에러 약 100개 미만
 - 로컬 테스트 모드로 개발 진행 중
 - 문서 구조 정리 완료 (docs/ 폴더)
-- Amplify CLI v14.0.0 WSL에 설치됨 (하지만 PowerShell 사용 권장)
+- Windows 네이티브 Claude Code 전환 완료
 
 ### 다음 작업 계획
 1. Amazon Q 설치 및 AWS Amplify 백엔드 연동

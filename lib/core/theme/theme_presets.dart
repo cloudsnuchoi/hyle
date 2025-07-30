@@ -146,8 +146,6 @@ class ThemePresets {
         onSecondary: data.onSecondary,
         error: data.errorColor,
         onError: Colors.white,
-        background: data.backgroundColor,
-        onBackground: data.onBackground,
         surface: data.surfaceColor,
         onSurface: data.onSurface,
       ),
@@ -170,26 +168,26 @@ class ThemePresets {
       ),
       
       // Card
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: data.surfaceColor,
         elevation: data.isDark ? 2 : 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: data.isDark 
             ? BorderSide.none 
-            : BorderSide(color: data.onBackground.withOpacity(0.08)),
+            : BorderSide(color: data.onBackground.withValues(alpha: 0.08)),
         ),
       ),
       
       // Navigation Bar
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: data.surfaceColor,
-        indicatorColor: data.primaryColor.withOpacity(0.1),
+        indicatorColor: data.primaryColor.withValues(alpha: 0.1),
         iconTheme: MaterialStateProperty.resolveWith((states) {
           if (states.contains(MaterialState.selected)) {
             return IconThemeData(color: data.primaryColor);
           }
-          return IconThemeData(color: data.onSurface.withOpacity(0.6));
+          return IconThemeData(color: data.onSurface.withValues(alpha: 0.6));
         }),
         labelTextStyle: MaterialStateProperty.resolveWith((states) {
           if (states.contains(MaterialState.selected)) {
