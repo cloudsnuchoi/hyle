@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../providers/quest_provider.dart';
+import '../../../models/quest.dart';
 
 class QuestPopup extends ConsumerStatefulWidget {
   const QuestPopup({super.key});
@@ -152,8 +153,8 @@ class _QuestPopupState extends ConsumerState<QuestPopup>
   
   Widget _buildQuestItem(BuildContext context, Quest quest) {
     final theme = Theme.of(context);
-    final progress = quest.currentProgress / quest.targetProgress;
-    final isCompleted = quest.isCompleted;
+    final progress = quest.progress;
+    final isCompleted = quest.status == QuestStatus.completed;
     
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -271,7 +272,7 @@ class _QuestPopupState extends ConsumerState<QuestPopup>
                           ),
                         ),
                         Text(
-                          '${quest.currentProgress} / ${quest.targetProgress}',
+                          '${quest.currentValue} / ${quest.targetValue}',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,

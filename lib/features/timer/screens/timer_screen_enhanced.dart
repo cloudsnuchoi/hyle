@@ -527,6 +527,11 @@ class _TodoSelector extends ConsumerWidget {
                       backgroundColor: Colors.purple.withOpacity(0.2),
                       labelStyle: const TextStyle(fontSize: 12),
                     ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => onTodoChanged(null),
+                    tooltip: '선택 해제',
+                  ),
                 ],
               ),
             ),

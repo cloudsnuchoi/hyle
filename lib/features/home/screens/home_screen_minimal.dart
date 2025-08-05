@@ -12,6 +12,11 @@ import '../../profile/screens/profile_screen_improved.dart';
 import '../widgets/minimal_dashboard.dart';
 import '../widgets/quest_popup.dart';
 import '../widgets/quick_action_dial.dart';
+import '../../schedule/screens/schedule_screen.dart';
+import '../../notes/screens/notes_screen_enhanced.dart';
+import '../../flashcards/screens/flashcards_screen.dart';
+import '../../ai/screens/ai_assistant_screen.dart';
+import '../../settings/screens/settings_screen.dart';
 
 class HomeScreenMinimal extends ConsumerStatefulWidget {
   const HomeScreenMinimal({super.key});
@@ -34,7 +39,9 @@ class _HomeScreenMinimalState extends ConsumerState<HomeScreenMinimal>
       case 1:
         return const TimerScreenEnhanced();
       case 2:
-        return const ProfileScreenImproved();
+        return const TodoScreenWithCategories();
+      case 3:
+        return _buildMorePage();
       default:
         return const MinimalDashboard();
     }
@@ -98,6 +105,10 @@ class _HomeScreenMinimalState extends ConsumerState<HomeScreenMinimal>
                 opacity: _pageTransitionController,
                 child: _getPage(2),
               ),
+              FadeTransition(
+                opacity: _pageTransitionController,
+                child: _getPage(3),
+              ),
             ],
           ),
           
@@ -122,7 +133,7 @@ class _HomeScreenMinimalState extends ConsumerState<HomeScreenMinimal>
   Widget _buildMinimalNavigation() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(3, (index) {
+      children: List.generate(4, (index) {
         final isSelected = index == _selectedIndex;
         return GestureDetector(
           onTap: () => _onPageChanged(index),
@@ -140,6 +151,138 @@ class _HomeScreenMinimalState extends ConsumerState<HomeScreenMinimal>
           ),
         );
       }),
+    );
+  }
+  
+  // 더보기 페이지
+  Widget _buildMorePage() {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('더보기'),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            _buildMenuGrid(),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildMenuGrid() {
+    final menuItems = [
+      _MenuItem(
+        icon: Icons.calendar_today,
+        label: '스케줄',
+        color: Colors.blue,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ScheduleScreen()),
+        ),
+      ),
+      _MenuItem(
+        icon: Icons.note,
+        label: '노트',
+        color: Colors.orange,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const NotesScreenEnhanced()),
+        ),
+      ),
+      _MenuItem(
+        icon: Icons.quiz,
+        label: '플래시카드',
+        color: Colors.purple,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const FlashcardsScreen()),
+        ),
+      ),
+      _MenuItem(
+        icon: Icons.psychology,
+        label: 'AI 어시스턴트',
+        color: Colors.green,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AIAssistantScreen()),
+        ),
+      ),
+      _MenuItem(
+        icon: Icons.person,
+        label: '프로필',
+        color: Colors.teal,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfileScreenImproved()),
+        ),
+      ),
+      _MenuItem(
+        icon: Icons.settings,
+        label: '설정',
+        color: Colors.grey,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const SettingsScreen()),
+        ),
+      ),
+    ];
+    
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 1.2,
+      ),
+      itemCount: menuItems.length,
+      itemBuilder: (context, index) {
+        final item = menuItems[index];
+        return _buildMenuCard(item);
+      },
+    );
+  }
+  
+  Widget _buildMenuCard(_MenuItem item) {
+    return Material(
+      color: item.color.withOpacity(0.1),
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          item.onTap();
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                item.icon,
+                size: 40,
+                color: item.color,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                item.label,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -327,4 +470,18 @@ class _QuickAction extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MenuItem {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  
+  const _MenuItem({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
 }

@@ -37,42 +37,40 @@ class _QuickActionDialState extends State<QuickActionDial> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
-    return Stack(
-      alignment: Alignment.bottomRight,
-      children: [
-        // 배경 (터치로 닫기)
-        if (_isOpen)
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: _toggle,
-              child: Container(
-                color: Colors.black.withOpacity(0.3),
+    return SizedBox(
+      width: 200,
+      height: 300,
+      child: Stack(
+        alignment: Alignment.bottomRight,
+        clipBehavior: Clip.none,
+        children: [
+          // 서브 액션 버튼들
+          ..._buildActionButtons(),
+          
+          // 메인 FAB
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: FloatingActionButton(
+              onPressed: _toggle,
+              backgroundColor: theme.primaryColor,
+              child: AnimatedBuilder(
+                animation: widget.animationController,
+                builder: (context, child) {
+                  return Transform.rotate(
+                    angle: widget.animationController.value * math.pi / 4,
+                    child: Icon(
+                      _isOpen ? Icons.close : Icons.add,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  );
+                },
               ),
             ),
           ),
-        
-        // 서브 액션 버튼들
-        ..._buildActionButtons(),
-        
-        // 메인 FAB
-        FloatingActionButton(
-          onPressed: _toggle,
-          backgroundColor: theme.primaryColor,
-          child: AnimatedBuilder(
-            animation: widget.animationController,
-            builder: (context, child) {
-              return Transform.rotate(
-                angle: widget.animationController.value * math.pi / 4,
-                child: Icon(
-                  _isOpen ? Icons.close : Icons.add,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
   

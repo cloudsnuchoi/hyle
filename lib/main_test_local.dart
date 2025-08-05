@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'features/home/screens/home_screen_mobile.dart';
+import 'features/home/screens/home_screen_minimal.dart';
 import 'services/local_storage_service.dart';
 import 'services/notification_service.dart';
 import 'services/web_notification_service.dart';
@@ -55,7 +55,7 @@ class MyApp extends ConsumerWidget {
         Locale('ko'),
         Locale('en'),
       ],
-      home: const HomeScreenMobile(),
+      home: const HomeScreenMinimal(),
       debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: WebNotificationService.scaffoldMessengerKey,
     );

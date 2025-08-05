@@ -276,8 +276,8 @@ class _MinimalDashboardState extends ConsumerState<MinimalDashboard>
     );
   }
   
-  Widget _buildProgressItem({
-    required BuildContext context,
+  Widget _buildProgressItem(
+    BuildContext context, {
     required IconData icon,
     required String label,
     required int current,
@@ -371,8 +371,8 @@ class _MinimalDashboardState extends ConsumerState<MinimalDashboard>
     );
   }
   
-  Widget _buildActionButton({
-    required BuildContext context,
+  Widget _buildActionButton(
+    BuildContext context, {
     required IconData icon,
     required String label,
     required Color color,

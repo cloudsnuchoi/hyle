@@ -299,6 +299,10 @@ class QuestNotifier extends StateNotifier<List<Quest>> {
     return true;
   }
   
+  void completeQuest(String questId) {
+    claimReward(questId);
+  }
+  
   void claimReward(String questId) {
     final questIndex = state.indexWhere((q) => q.id == questId);
     if (questIndex == -1) return;
