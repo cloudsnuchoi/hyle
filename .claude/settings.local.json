@@ -1,8 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(flutter:*)"
+      "Bash(flutter:*)",
+      "Bash(npm run build:*)",
+      "Bash(grep:*)",
+      "Bash(npm install:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "C:\\dev\\git\\hyle-admin"
+    ]
   }
 }

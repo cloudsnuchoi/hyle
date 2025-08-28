@@ -1,14 +1,9 @@
-import 'package:amplify_api/amplify_api.dart';
-import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
-import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:amplify_storage_s3/amplify_storage_s3.dart';
-import 'package:amplify_analytics_pinpoint/amplify_analytics_pinpoint.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'services/amplify_service.dart';
 import 'services/local_storage_service.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/theme_provider.dart';
@@ -23,11 +18,11 @@ void main() async {
   // Initialize LocalStorageService first
   await LocalStorageService.init();
   
-  try {
-    await AmplifyService().configureAmplify();
-  } catch (e) {
-    print('Amplify configuration error: $e');
-  }
+  // TODO: Initialize Supabase here when we have the project URL and anon key
+  // await Supabase.initialize(
+  //   url: 'YOUR_SUPABASE_URL',
+  //   anonKey: 'YOUR_SUPABASE_ANON_KEY',
+  // );
   
   runApp(const ProviderScope(child: HyleApp()));
 }

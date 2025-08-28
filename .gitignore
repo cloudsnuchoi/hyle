@@ -73,3 +73,7 @@ amplifytools.xcconfig
 .amplify
 amplify_outputs*
 amplifyconfiguration*
+
+# Environment variables
+.env
+.env.local

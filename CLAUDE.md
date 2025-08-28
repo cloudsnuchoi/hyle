@@ -22,9 +22,10 @@ flutter analyze
 # Install dependencies
 flutter pub get
 
-# AWS Amplify backend (from project root)
-npm install
-amplify sandbox  # Start development environment
+# Supabase backend setup (NEW - 2025-08-23)
+# 1. Create project at supabase.com
+# 2. Copy .env.example to .env and add your credentials
+# 3. Apply database schema: supabase/schema.sql
 ```
 
 ## Development Environment Notes
@@ -45,17 +46,19 @@ amplify sandbox  # Start development environment
 - **State Management**: Riverpod + Provider pattern
 - **Navigation**: go_router with authentication guards
 - **Entry Points**: 
-  - `main.dart` - Production with AWS Amplify
+  - `main.dart` - Production with Supabase
   - `main_dev.dart` - Development mode
   - `main_test.dart` - Test mode with mock data
   - `main_test_local.dart` - Test mode with local storage
 
-### Backend (AWS Amplify Gen2)
-- **Authentication**: AWS Cognito with email verification
-- **Data API**: AppSync GraphQL with DynamoDB
-- **Storage**: S3 for file uploads
-- **Configuration**: `amplify/backend.ts` defines all resources
-- **Output**: `amplify_outputs.json` contains runtime configuration
+### Backend (Supabase) - 100% Supabase 전환 완료
+- **Authentication**: Supabase Auth (이메일, 소셜 로그인)
+- **Database**: PostgreSQL with real-time subscriptions
+- **Storage**: Supabase Storage for file uploads
+- **AI Features**: OpenAI API integration (planned)
+- **Configuration**: `.env` file for credentials
+- **Schema**: `supabase/schema.sql` defines database structure
+- **Admin**: HYLE Admin Dashboard로 모든 데이터 관리
 
 ### Key Architectural Patterns
 1. **Feature-based structure**: Each feature in `/lib/features/` has its own screens, widgets, and logic
@@ -65,9 +68,9 @@ amplify sandbox  # Start development environment
 
 ### Critical Files for Understanding
 - `lib/routes/app_router.dart` - Navigation structure and guards
-- `lib/services/amplify_service.dart` - AWS Amplify integration
+- `lib/services/supabase_service.dart` - Supabase integration (NEW)
 - `lib/providers/auth_provider.dart` - Authentication state management
-- `amplify/backend.ts` - Backend resource definitions
+- `supabase/schema.sql` - Database schema definition (NEW)
 - `lib/core/theme/app_theme.dart` - Design system implementation
 
 ### Testing Approach
@@ -75,6 +78,26 @@ amplify sandbox  # Start development environment
 - Test entry points in root: `main_test.dart`, `main_test_local.dart`
 - Use `flutter analyze` or `./analyze.sh` for linting
 - Manual testing through different entry points recommended
+
+## Recent Updates (2025-08-23)
+
+### 2025-08-23 Supabase 마이그레이션 완료
+- **백엔드 완전 전환**
+  - AWS Amplify → Supabase로 전환
+  - PostgreSQL + 실시간 기능 사용
+  - 설정 시간: AWS 1-2시간 → Supabase 5분
+- **요금제 전략 수립**
+  - 무료: 기본 기능 (학습 로그, 투두, 타이머 무제한)
+  - 프리미엄: AI 기능 (대화 메모리, 패턴 분석, 개인화)
+- **온톨로지 구조 설계**
+  - 지식 그래프 (knowledge_nodes)
+  - 사용자 패턴 분석 (user_patterns)
+  - AI 대화 메모리 (ai_conversations)
+  - pgvector로 임베딩 저장
+- **파일 정리**
+  - AWS 관련 파일 모두 삭제
+  - Supabase 서비스 클래스 생성
+  - 에러 대폭 감소 (1500개 → 수백개)
 
 ## Recent Updates (2025-08-05)
 
@@ -122,18 +145,19 @@ amplify sandbox  # Start development environment
 ### 현재 작업 상태
 - Flutter 로컬 테스트 모드 정상 실행 중
 - Flutter analyze 에러 약 400개 (타입 관련)
-- AWS Amplify 백엔드 연동 대기 중
+- Supabase 백엔드 연동 진행 중
 - 문서 구조 정리 완료 (docs/ 폴더)
 - Windows 네이티브 Claude Code 사용 중
 
-### 다음 작업 계획
-1. Flutter 타입 에러 우선 수정
-2. Amazon Q 설치 및 AWS Amplify 백엔드 연동
-3. 학습자 유형 테스트 (16가지 타입) 구현
-4. AI 튜터 실제 작동 연결
+### 다음 작업 계획 (24시간 내 출시)
+1. Supabase 프로젝트 생성 및 설정
+2. Flutter 타입 에러 수정 + Supabase 연동
+3. HYLE Admin Dashboard 배포 (Vercel)
+4. 학습자 유형 테스트 (16가지 타입) 구현
+5. AI 튜터 실제 작동 연결
 
 ### 주요 파일 위치
 - 통합 현황: `HYLE_PROJECT_OVERVIEW.md`
 - 빠른 명령어: `QUICK_COMMANDS.md`
-- AWS 가이드: `docs/aws/`
+- Supabase 가이드: `SUPABASE_QUICKSTART.md`
 - 개발 로그: `docs/logs/DEVELOPMENT_LOG_2025_08_05.md`

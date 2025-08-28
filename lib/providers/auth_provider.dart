@@ -1,7 +1,6 @@
-import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
-import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 import '../models/user_model.dart';
 
 final authStateProvider = ChangeNotifierProvider<AuthState>((ref) {
@@ -24,28 +23,19 @@ class AuthState extends ChangeNotifier {
   
   Future<void> _checkAuthStatus() async {
     try {
-      final session = await Amplify.Auth.fetchAuthSession();
-      if (session.isSignedIn) {
-        final attributes = await Amplify.Auth.fetchUserAttributes();
-        final email = attributes.firstWhere((attr) => attr.userAttributeKey.key == 'email').value;
-        final name = attributes.firstWhere(
-          (attr) => attr.userAttributeKey.key == 'name',
-          orElse: () => const AuthUserAttribute(
-            userAttributeKey: AuthUserAttributeKey.preferredUsername,
-            value: 'User',
-          ),
-        ).value;
-        
-        // Get user ID from current user
-        final currentUser = await Amplify.Auth.getCurrentUser();
-        
-        // TODO: Fetch full user data from API
-        _user = User(
-          id: currentUser.userId,
-          email: email,
-          name: name,
-        );
-      }
+      // TODO: Implement Supabase auth check when initialized
+      // final supabase = sb.Supabase.instance.client;
+      // final session = supabase.auth.currentSession;
+      // if (session != null) {
+      //   final user = supabase.auth.currentUser;
+      //   if (user != null) {
+      //     _user = User(
+      //       id: user.id,
+      //       email: user.email ?? '',
+      //       name: user.userMetadata?['name'] ?? 'User',
+      //     );
+      //   }
+      // }
     } catch (e) {
       print('Error checking auth status: $e');
     } finally {
@@ -54,74 +44,59 @@ class AuthState extends ChangeNotifier {
     }
   }
   
-  Future<bool> signIn(String email, String password) async {
+  Future<void> signIn(String email, String password) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    
     try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
+      // TODO: Implement Supabase sign in
+      // final supabase = sb.Supabase.instance.client;
+      // final response = await supabase.auth.signInWithPassword(
+      //   email: email,
+      //   password: password,
+      // );
       
-      final result = await Amplify.Auth.signIn(
-        username: email,
-        password: password,
+      // For now, use mock authentication
+      _user = User(
+        id: 'mock-user-id',
+        email: email,
+        name: 'Test User',
       );
-      
-      if (result.isSignedIn) {
-        await _checkAuthStatus();
-        return true;
-      }
-      
-      return false;
-    } on AuthException catch (e) {
-      _error = e.message;
-      return false;
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+      _user = null;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
   
-  Future<bool> signUp(String email, String password, String name) async {
+  Future<void> signUp(String email, String password, String name) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    
     try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
+      // TODO: Implement Supabase sign up
+      // final supabase = sb.Supabase.instance.client;
+      // final response = await supabase.auth.signUp(
+      //   email: email,
+      //   password: password,
+      //   data: {'name': name},
+      // );
       
-      await Amplify.Auth.signUp(
-        username: email,
-        password: password,
-        options: SignUpOptions(
-          userAttributes: {
-            AuthUserAttributeKey.email: email,
-            CognitoUserAttributeKey.preferredUsername: name,
-          },
-        ),
+      // For now, use mock authentication
+      _user = User(
+        id: 'mock-user-id',
+        email: email,
+        name: name,
       );
-      
-      return true;
-    } on AuthException catch (e) {
-      _error = e.message;
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-  
-  Future<bool> confirmSignUp(String email, String confirmationCode) async {
-    try {
-      _isLoading = true;
       _error = null;
-      notifyListeners();
-      
-      final result = await Amplify.Auth.confirmSignUp(
-        username: email,
-        confirmationCode: confirmationCode,
-      );
-      
-      return result.isSignUpComplete;
-    } on AuthException catch (e) {
-      _error = e.message;
-      return false;
+    } catch (e) {
+      _error = e.toString();
+      _user = null;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -130,21 +105,37 @@ class AuthState extends ChangeNotifier {
   
   Future<void> signOut() async {
     try {
-      await Amplify.Auth.signOut();
+      // TODO: Implement Supabase sign out
+      // final supabase = sb.Supabase.instance.client;
+      // await supabase.auth.signOut();
+      
       _user = null;
-      notifyListeners();
+      _error = null;
     } catch (e) {
-      print('Error signing out: $e');
+      _error = e.toString();
+    } finally {
+      notifyListeners();
     }
   }
   
-  void updateUser(User user) {
-    _user = user;
-    notifyListeners();
+  Future<void> resetPassword(String email) async {
+    try {
+      // TODO: Implement Supabase password reset
+      // final supabase = sb.Supabase.instance.client;
+      // await supabase.auth.resetPasswordForEmail(email);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
   }
   
   void clearError() {
     _error = null;
+    notifyListeners();
+  }
+  
+  void updateUser(User updatedUser) {
+    _user = updatedUser;
     notifyListeners();
   }
 }
