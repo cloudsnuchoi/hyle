@@ -1,4 +1,4 @@
-# HYLE 프로젝트 현황 (2025-08-27 업데이트)
+# HYLE 프로젝트 현황 (2025-08-28 업데이트)
 
 ## 🚀 최신 진행 상황
 
@@ -96,12 +96,10 @@ GitHub Repositories:
 - ai_conversations (AI 대화 기록 - 예정)
 
 ## 🎯 즉시 필요한 작업
-1. **Vercel 환경 변수 설정** (가장 급함!)
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-   SUPABASE_SERVICE_KEY=your_service_key
-   ```
+1. **Vercel 환경 변수 설정** ✅ (가이드 작성 완료!)
+   - `VERCEL_ENV_SETUP.md` 파일 참조
+   - Vercel Dashboard에서 직접 설정 필요
+   - 설정 후 자동 재배포됨
 
 2. Admin Dashboard 배포 확인
 3. Flutter 앱 Supabase 실제 연동
