@@ -1,0 +1,710 @@
+좋아, 바로 개발 착수 가능한 수준으로 **온톨로지+RAG 기반 인문논술
+채점·피드백 플랫폼 PRD**와 **설계/스키마/스택**을 한 번에 정리해줄게.
+
+(웹: Next.js, DB: Supabase(Postgres+pgvector), 이후 Flutter 연동 전제)
+
+**1) 제품 개요 (PRD)**
+
+**1.1 목표**
+
+-   한국 대학교 **인문논술 기출/해설**을 온톨로지화 → \*\*정답
+    그래프(Normative Answer Graph; NAG)\*\*로 표준화.
+
+-   학생 답안을 **규칙+분류기+LLM 합성**으로 채점, 스팬 단위 근거
+    하이라이트와 **행동 가능한 코칭 피드백** 제공.
+
+-   대학·년도별 **출제 경향 온톨로지** 축적 → 개인화된 모의문항
+    생성/추천.
+
+**1.2 핵심 사용자 여정**
+
+1.  문제 선택 → 2) 답안 작성(실시간 프리체크) → 3) 제출/채점(LLM 합의)
+    → 4) 기준별 점수·근거 하이라이트·미션 → 5) 리비전 제출 & 성장
+    대시보드.
+
+> 관리자/강사: 기출 분석 입력, NAG 작성, 경향 리포트, 모의문항
+> 제작/검수.
+
+**1.3 핵심 KPI**
+
+-   채점 재현성(QWK) ≥ 0.75 (휴먼 대비)
+
+-   피드백 수용성("도움이 됨") ≥ 80%
+
+-   2주 반복 사용률 ≥ 40%
+
+-   리비전 1회 후 평균 점수 상승폭 ≥ +15%
+
+**2) 기능 요구사항**
+
+**2.1 학생**
+
+-   기출/모의문항 풀이, 글자수·문단수·금칙어 등 **프리체크 실시간** 안내
+
+-   제출 즉시 **기준별 점수** + **근거 하이라이트** + **누락 노드** +
+    **코칭 미션**
+
+-   리비전 이력 비교, 약점 히트맵, 대학별 경향 맞춤 추천
+
+**2.2 관리자/강사**
+
+-   기출 수집/정규화 입력 폼(문항 온톨로지 태깅)
+
+-   **정답 그래프(NAG)** 작성/검수(노드/엣지/가중)
+
+-   경향 리포트(대학/년도/주제/과제유형/자료형식/인지수준)
+
+-   모의문항 생성(템플릿+LLM) → 검수 → 배포
+
+**2.3 시스템**
+
+-   다단 채점(프리체크→정렬/NLI→가중합→LLM 합의→검증기/보정기)
+
+-   GraphRAG: 루브릭·핵심논점·오류사전·앵커스팬을 **노드 단위**로 주입
+
+-   QWK·편향 테스트·캘리브레이션 대시보드
+
+**3) 출제경향 온톨로지 스키마(분석 전용)**
+
+문항을 아래 축들에 태깅(다중 선택 허용):
+
+-   **주제(Theme/Domain)**:
+    철학/정치/사회/경제/역사/문학/과기윤리/법·판례/혼합
+
+-   **과제유형(Task Type)**: 비교·대조 / 비판·평가 / 적용 / 해석 / 종합
+    / 귀추 / 대안 제시
+
+-   **인지수준(Cognitive Demand)**: 이해/분석/평가/창출 (Bloom 축 매핑)
+
+-   **자료형식(Source Form)**:
+    논설문/원전/칼럼/도표·그래프/판례·법령/문학·이미지
+
+-   **평가중점(Rubric Focus)**: 논증/자료활용/구성/표현/창의성/시의성
+
+-   **난이도 지표**: 제시문 길이, 자료 수, 상충 정도, 요구 글자수
+
+-   **핵심 키워드**: (토픽 키워드 리스트)
+
+-   **출제 철학 신호어**: 공동체vs개인, 자유vs평등, 기술vs윤리, 역사
+    맥락 등
+
+이 태깅으로 대학·연도별 트렌드(분포·추세)를 즉시 뽑을 수 있음.
+
+**4) 정답 그래프(NAG) 스키마**
+
+-   **노드 유형**:
+    claim(주장)/evidence(근거)/counter(반론)/assumption(전제)/constraint(조건)/example(예시)
+
+-   **엣지 관계**: supports/rebuts/conditions/elaborates
+
+-   **노드 속성**: 필수/선택, 가중치(0\~1), 수준기술, 대표 문장(앵커),
+    흔한 오해 연결(error_tag)
+
+학생 답안을 **스팬 단위**로 노드에 정렬(alignment) → 기준 점수 산출,
+누락 노드 = 결손.
+
+**5) 데이터 모델 (Supabase/Postgres + pgvector)**
+
+**5.1 핵심 테이블**
+
+\-- 확장
+
+create extension if not exists vector;
+
+\-- 조직
+
+create table universities(
+
+id uuid primary key default gen_random_uuid(),
+
+name text not null,
+
+policy_notes text
+
+);
+
+create table exams(
+
+id uuid primary key default gen_random_uuid(),
+
+university_id uuid references universities(id) on delete cascade,
+
+year int not null,
+
+round text, \-- 수시/논술 등
+
+track text, \-- 인문/사회 등
+
+time_limit_min int,
+
+word_limit int,
+
+source_urls text\[\] default \'{}\'
+
+);
+
+create table questions(
+
+id uuid primary key default gen_random_uuid(),
+
+exam_id uuid references exams(id) on delete cascade,
+
+q_no int not null,
+
+prompt text not null,
+
+type text, \-- 비교/비판/적용\...
+
+skills text\[\], \-- \[\"논증\",\"자료활용\",\...\]
+
+difficulty int check (difficulty between 1 and 5),
+
+meta jsonb default \'{}\'
+
+);
+
+create table passages(
+
+id uuid primary key default gen_random_uuid(),
+
+question_id uuid references questions(id) on delete cascade,
+
+label text, \-- A/B/표1\...
+
+source_url text,
+
+summary text \-- 원문 전체 저장 대신 요약(저작권 고려)
+
+);
+
+\-- 루브릭
+
+create table rubrics(
+
+id uuid primary key default gen_random_uuid(),
+
+question_id uuid references questions(id) on delete cascade,
+
+version int default 1,
+
+total_points int default 100,
+
+scoring_type text default \'analytic\' \-- 분석적
+
+);
+
+create table rubric_criteria(
+
+id uuid primary key default gen_random_uuid(),
+
+rubric_id uuid references rubrics(id) on delete cascade,
+
+criterion text, \--
+thesis/evidence/source_use/organization/style/compliance
+
+weight numeric check (weight\>=0),
+
+descriptors jsonb \-- {0:\"부재\",1:\"피상\",2:\"충분\",3:\"탁월\"}
+
+);
+
+\-- 출제경향 온톨로지
+
+create table themes(id serial primary key, name text unique);
+
+create table task_types(id serial primary key, code text unique, name
+text);
+
+create table cognitive_levels(id serial primary key, name text, bloom
+int);
+
+create table source_forms(id serial primary key, name text);
+
+create table rubric_focuses(id serial primary key, name text);
+
+create table question_ontology_map(
+
+question_id uuid primary key references questions(id) on delete cascade,
+
+theme_ids int\[\] default \'{}\',
+
+task_type_ids int\[\] default \'{}\',
+
+cognitive_level_ids int\[\] default \'{}\',
+
+source_form_ids int\[\] default \'{}\',
+
+rubric_focus_ids int\[\] default \'{}\',
+
+keywords text\[\] default \'{}\',
+
+difficulty_signals jsonb default \'{}\'
+
+);
+
+\-- 정답 그래프 NAG
+
+create table nag_nodes(
+
+id uuid primary key default gen_random_uuid(),
+
+question_id uuid references questions(id) on delete cascade,
+
+node_type text check (node_type in
+(\'claim\',\'evidence\',\'counter\',\'assumption\',\'constraint\',\'example\')),
+
+label text,
+
+description text,
+
+weight numeric default 1.0,
+
+required boolean default false,
+
+descriptors jsonb default \'{}\'
+
+);
+
+create table nag_edges(
+
+id uuid primary key default gen_random_uuid(),
+
+question_id uuid references questions(id) on delete cascade,
+
+from_node uuid references nag_nodes(id) on delete cascade,
+
+to_node uuid references nag_nodes(id) on delete cascade,
+
+relation text check (relation in
+(\'supports\',\'rebuts\',\'conditions\',\'elaborates\'))
+
+);
+
+\-- 오류 사전 & 앵커 예시
+
+create table error_catalog(
+
+id uuid primary key default gen_random_uuid(),
+
+tag text unique,
+
+description text,
+
+fix_tip text
+
+);
+
+create table exemplars(
+
+id uuid primary key default gen_random_uuid(),
+
+question_id uuid references questions(id) on delete cascade,
+
+level text, \-- high/mid/low
+
+outline jsonb, \-- 논증 골격
+
+key_moves text\[\] \-- 핵심 전개
+
+);
+
+\-- 벡터 인덱스 (GraphRAG 공급)
+
+create table index_items(
+
+id uuid primary key default gen_random_uuid(),
+
+ref_type text, \--
+\'rubric\'\|\'node\'\|\'exemplar\'\|\'error\'\|\'question\'
+
+question_id uuid references questions(id) on delete cascade,
+
+content text not null,
+
+meta jsonb default \'{}\',
+
+embedding vector(1536)
+
+);
+
+create index on index_items using ivfflat (embedding vector_cosine_ops);
+
+\-- 학생 제출/정렬/채점
+
+create table student_submissions(
+
+id uuid primary key default gen_random_uuid(),
+
+user_id uuid not null,
+
+question_id uuid references questions(id) on delete cascade,
+
+text text not null,
+
+created_at timestamptz default now()
+
+);
+
+create table submission_spans(
+
+id uuid primary key default gen_random_uuid(),
+
+submission_id uuid references student_submissions(id) on delete cascade,
+
+start_idx int, end_idx int, text_snippet text
+
+);
+
+create table span_alignment(
+
+id uuid primary key default gen_random_uuid(),
+
+submission_id uuid references student_submissions(id) on delete cascade,
+
+span_id uuid references submission_spans(id) on delete cascade,
+
+node_id uuid references nag_nodes(id) on delete cascade,
+
+entailment text, \-- entail/contradict/neutral
+
+score numeric \-- 0\~1 정합도
+
+);
+
+create table scores(
+
+id uuid primary key default gen_random_uuid(),
+
+submission_id uuid references student_submissions(id) on delete cascade,
+
+rubric_id uuid references rubrics(id),
+
+criterion text,
+
+points numeric,
+
+confidence numeric,
+
+grader_type text, \-- rule\|clf\|llm
+
+rationale jsonb
+
+);
+
+create table feedback(
+
+id uuid primary key default gen_random_uuid(),
+
+submission_id uuid references student_submissions(id) on delete cascade,
+
+summary text,
+
+strengths text\[\],
+
+weaknesses text\[\],
+
+next_tasks text\[\],
+
+examples text\[\],
+
+missing_node_ids uuid\[\]
+
+);
+
+**5.2 RLS(예시)**
+
+\-- 학생은 자기 제출만 조회
+
+alter table student_submissions enable row level security;
+
+create policy \"own submissions\" on student_submissions
+
+for select using (auth.uid() = user_id)
+
+with check (auth.uid() = user_id);
+
+\-- 관리자 role은 별도 정책으로 허용
+
+**6) 채점 파이프라인 (서빙)**
+
+1.  **프리체크(규칙)**: 글자수/문단수/금칙어/요건 준수 → 즉시 감점/경고
+
+2.  **세분화/태깅**: 문장/문단 분할, 담화
+    역할(Thesis/Reason/Counter/Conclusion)
+
+3.  **정렬(Aligner)**: 스팬 ↔ NAG 노드 NLI + 임베딩 유사도 → coverage
+    score
+
+4.  **기준별 점수**: (루브릭 가중치 × 정합도 × 품질 피처) 가중합
+
+5.  **LLM 합의 채점**: 서로 다른 프롬프트/샘플 3회 → 중위수, 편차↑ 시
+    상위모델 재평가
+
+6.  **검증기**: 제시문 근거 하이라이트, 상관↔인과 등 오독 탐지, 일관성
+    검사
+
+7.  **코치 피드백**: 잘한 점/결손/미션/예시문장 생성(JSON 스키마 고정)
+
+**7) GraphRAG 컨텍스트 전략**
+
+-   Retrieval 대상: rubric_criteria, **핵심 NAG 노드(필수/가중치↑)**,
+    exemplars의 앵커스팬, error_catalog
+
+-   쿼리 구성: 질문ID + 현재 스팬의 키프레이즈/요약 → **노드 단위 소량
+    주입**(할루시네이션 억제)
+
+-   프롬프트는 **JSON Schema 강제**(criteria_scores, evidence_spans,
+    missing_nodes...)
+
+**채점 프롬프트 스켈레톤**
+
+{
+
+\"task\":\"grade_humanities_essay\",
+
+\"question_id\":\"{uuid}\",
+
+\"rubric\": {\...},
+
+\"nag\": {\"nodes\":\[\...\],\"edges\":\[\...\]},
+
+\"required_sources\":\[\"A\",\"B\",\"표1\"\],
+
+\"student_essay\":\"{text}\",
+
+\"must_return\":{
+
+\"criteria_scores\":{\"thesis\":0-3,\"evidence\":0-3,\"source_use\":0-3,\"organization\":0-3,\"style\":0-3,\"compliance\":0-1},
+
+\"evidence_spans\":\[{\"criterion\":\"evidence\",\"student_quote\":\"\...\",\"node_id\":\"\...\",\"rationale\":\"\...\"}\],
+
+\"missing_nodes\":\[\"\...\"\],
+
+\"common_error_tags\":\[\"\...\"\],
+
+\"total_score\":\"weighted_sum\",
+
+\"confidence\":0-1
+
+},
+
+\"constraints\":\[
+
+\"외부지식 평가 금지\",
+
+\"학생 원문 인용은 1\~2문장\",
+
+\"JSON만 반환\"
+
+\]
+
+}
+
+**8) 기술 스택 & 아키텍처**
+
+**8.1 프런트 (웹 우선)**
+
+-   **Next.js 14(App Router)**, React Server Components
+
+-   Tailwind CSS, shadcn/ui, Zustand/Recoil
+
+-   React Markdown/Slate(에디터), Prism(하이라이트)
+
+**8.2 백엔드**
+
+-   **Supabase(Postgres + pgvector)**, Supabase Auth & Storage
+
+-   Next.js **Route Handlers**(/app/api/\*) + Edge Functions(경량)
+
+-   장기 작업(대량 채점)은 **큐(Upstash QStash/Redis)** 선택지
+
+**8.3 AI/IR**
+
+-   Embeddings: OpenAI text-embedding-3-large (1536) →
+    index_items.embedding
+
+-   LLM: 채점용은 비용 절감 위해 **소형→상위 폴백**(합의 채점), 피드백
+    생성은 상위 모델
+
+-   NLI/문장역할 태깅: 경량 분류기(finetune) + LLM 보조
+
+**8.4 관측/보안**
+
+-   Sentry(Log/Trace), Supabase Row Level Security, Rate Limit(Upstash)
+
+-   PII 최소화: 학생 텍스트 외 불필요 식별정보 저장 금지
+
+-   저작권: 원문 링크/요약, 전체 본문 저장 지양(학생 업로드는 캐시 후
+    파기)
+
+**8.5 구조(개략)**
+
+Next.js (UI)
+
+└─ /api/grade → Orchestrator
+
+├─ Precheck (rules)
+
+├─ Split/Tag → NLI/Emb
+
+├─ GraphRAG retrieve (Supabase pgvector)
+
+├─ LLM judge x3 → median
+
+├─ Verifier → Highlights/Consistency
+
+└─ Save Scores & Feedback (Supabase)
+
+Supabase(Postgres+pgvector) ── Storage(요약/이미지)
+
+**9) API 설계(요약)**
+
+-   GET /api/questions?univ=&year=: 목록/필터
+
+-   GET /api/questions/:id: 문항+온톨로지+NAG 요약
+
+-   POST /api/submit: {question_id, text} → {submission_id}
+
+-   POST /api/grade: {submission_id} → 채점 JSON(점수/하이라이트/미션)
+
+-   GET /api/submissions/:id: 제출+점수+피드백
+
+-   GET /api/trends?univ=&years=: 경향 통계
+
+-   POST /api/mock/generate: 온톨로지 조건→ 모의문항(초안)
+
+-   POST /api/mock/approve: 검수 승인/배포
+
+**10) Next.js 예시(핵심 핸들러 스켈레톤)**
+
+// app/api/grade/route.ts
+
+import { NextRequest, NextResponse } from \"next/server\";
+
+import { createClient } from \"@supabase/supabase-js\";
+
+import { openai } from \"@/lib/openai\"; // SDK 래퍼
+
+export async function POST(req: NextRequest) {
+
+const { submission_id } = await req.json();
+
+const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,
+process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
+// 1) 제출/문항/루브릭/NAG 로드
+
+const { data: sub } = await
+sb.from(\'student_submissions\').select(\'\*, questions!inner(\*),
+\...\').eq(\'id\', submission_id).single();
+
+// 2) 프리체크 → 규칙 점수/감점
+
+// 3) 문장 분할/태깅 → NLI/유사도 (생략)
+
+// 4) GraphRAG: index_items에서 k개 검색
+
+// 5) LLM 합의 채점
+
+const prompt = {/\* 위 JSON 스키마 \*/};
+
+const \[g1,g2,g3\] = await Promise.all(\[judge(prompt,0.2),
+judge(prompt,0.2), judge(prompt,0.2)\]);
+
+const final = medianMerge(\[g1,g2,g3\]);
+
+// 6) 검증기 → 하이라이트/일관성
+
+// 7) 저장
+
+await sb.from(\'scores\').insert(/\* criteria_scores \*/);
+
+await sb.from(\'feedback\').insert(/\* coach output \*/);
+
+return NextResponse.json(final);
+
+}
+
+**11) 모의문항 제작 워크플로우**
+
+1.  **조건 지정**: 대학=○○, 주제=사회윤리, 과제=비교+적용,
+    자료형식=도표+칼럼, 난도=3
+
+2.  **LLM 생성**: 문항 본문+제시문 초안
+
+3.  **NAG 반대로 작성**: 정답 그래프 초안 생성
+
+4.  **검수 UI**: 출제 근거/오류 체크 → 승인
+
+5.  배포 & 난이도/출제자유사도 피드백 수집 → 다음 버전 보정
+
+**12) Flutter 연동**
+
+-   **REST API 공용화**: Flutter는 /api/\* 호출로 동일 기능 사용
+
+-   또는 supabase-flutter로 직접 테이블 접근(권한·RLS 유의)
+
+-   채점은 서버에서만 수행(키/모델 보호), Flutter는 결과만 표시
+
+**13) 운영/학습 데이터 전략**
+
+-   **앵커 셋(골드 라벨)**: 휴먼 채점 200\~300문서로 QWK 기준 수립
+
+-   **약지도→정지도**: LLM 약레이블 대량 생성 → 일부 휴먼 교정 → 기준별
+    소형 분류기 파인튜닝
+
+-   **회귀/편향 테스트**: 글자수/어휘난이도/문단수 민감도 모니터링
+
+**14) 법·윤리·저작권**
+
+-   대학 기출은 **링크+요약** 중심, 원문 전체 저장은 지양
+
+-   학생 제출은 소유권 학생에게, 삭제/비공개 권리 제공
+
+-   자동생성 모의문항은 **출처 혼동 금지**(명확히 '자체 제작' 표기)
+
+**15) 개발 로드맵(8주)**
+
+**W1--2**
+
+-   스키마/테이블/pgvector 구축, Auth/RLS, 기출 3개교×3개년 온톨로지
+    태깅
+
+-   NAG 작성 가이드 & 에디터 MVP
+
+**W3--4**
+
+-   GraphRAG 인덱싱, 프리체크·세분화·정렬 프로토타입
+
+-   LLM 채점 프롬프트 v1, 결과 저장·리포팅
+
+**W5--6**
+
+-   합의 채점/검증기/코치 피드백 완성, 대시보드(QWK/편향)
+
+-   모의문항 생성·검수 플로우
+
+**W7--8**
+
+-   웹 베타(30--50명), 성능 튜닝, Flutter 연동 테스트, 보안 점검/로그
+
+**16) 즉시 실행 체크리스트**
+
+-   Supabase 프로젝트 생성 → pgvector 설치
+
+-   위 **DDL 실행** & 기본 마스터 데이터(테마/과제유형 등) 인서트
+
+-   Embedding 파이프라인(ETL) 스크립트: index_items 채우기
+
+-   채점 프롬프트 JSON 스키마 고정 → /api/grade 연결
+
+-   분석 입력 폼(문항 온톨로지 & NAG 에디터) 1차 배포
+
+-   10개 제출 샘플로 QWK 러프 측정 → 프롬프트 보정
+
+필요하면 **초기 더미 데이터 인서트 SQL**, **분석 입력용 시트
+템플릿(Google Sheet 헤더)**, **LLM 프롬프트 완전판**,
+**/api/mock/generate** 샘플 코드까지 이어서 만들어줄게.
+
+먼저 Supabase를 열면, 내가 **초기 DDL**과 **마스터 데이터 INSERT**를
+이어서 작성해줄게---바로 붙여 넣어 돌릴 수 있게.

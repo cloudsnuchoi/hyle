@@ -8,8 +8,10 @@
 - **프로젝트명**: Hyle (AI Learning Companion)
 - **설명**: 학습을 게임처럼 재미있고 개인 과외처럼 맞춤형으로 만드는 AI 학습 플랫폼
 - **개발 시작**: 2025년 1월
-- **현재 날짜**: 2025년 7월 26일
-- **GitHub**: https://github.com/cloudsnuchoi/hyle
+- **현재 날짜**: 2025년 8월 31일
+- **GitHub**: 
+  - HYLE App: https://github.com/cloudsnuchoi/hyle
+  - Admin Dashboard: https://github.com/cloudsnuchoi/hyle-admin
 
 ## 🏗️ 전체 시스템 아키텍처
 
@@ -30,7 +32,8 @@
                        │
 ┌──────────────────────▼───────────────────────────────┐
 │              관리자 대시보드 (Next.js)                 │
-│                   admin.hyle.ai                      │
+│          hyle-admin-2c3w.vercel.app                 │
+│                   ✅ 배포 완료!                       │
 │                                                      │
 │  • 사용자 관리     • 실시간 모니터링                   │
 │  • 콘텐츠 관리     • AI 설정                         │
@@ -67,9 +70,10 @@
   - Edge Functions (서버리스)
 
 ### 개발 도구
-- **주 개발 환경**: Windows + WSL (Claude Code)
-- **보조 환경**: macOS
-- **AI Assistant**: Amazon Q (AWS 설정 가속화)
+- **주 개발 환경**: macOS (M1/M2)
+- **보조 환경**: Windows
+- **AI Assistant**: Claude Code
+- **배포**: Vercel (Admin), Supabase (Backend)
 
 ## 📊 개발 현황 통계
 
@@ -81,12 +85,13 @@
 - **GraphQL 모델**: 13개
 
 ### 에러 현황
-- **초기 Flutter 에러**: 973개
-- **현재 Flutter 에러**: 약 100개 미만 (90% 해결)
+- **초기 Flutter 에러**: 1541개
+- **현재 Flutter 에러**: 약 400개 (타입 관련)
+- **Admin Dashboard**: 0개 (모두 해결!)
 - **주요 해결 사항**: 
-  - Amplify 모델 통합
-  - 클래스명 충돌 해결
-  - Deprecated API 업데이트
+  - TypeScript 에러 100개+ 해결
+  - Vercel 배포 이슈 해결
+  - 환경 변수 설정 완료
 
 ## ✅ 완료된 기능 (70%)
 
@@ -127,11 +132,12 @@
 
 ## 🚧 진행 중인 작업 (20%)
 
-### 1. Supabase 연동 (30%)
-- [x] 패키지 설치
-- [x] 스키마 설계
-- [ ] 프로젝트 생성
-- [ ] 실제 연동
+### 1. Admin Dashboard (100% 완료!)
+- [x] Supabase 연동
+- [x] Vercel 배포
+- [x] 환경 변수 설정
+- [x] 로그인 기능 작동
+- [x] 실시간 데이터 연동
 
 ### 2. 학습자 유형 테스트 (30%)
 - [x] 16가지 유형 정의
@@ -170,8 +176,8 @@
 ## 🐛 현재 문제점
 
 ### 1. 기술적 이슈
-- **Flutter 에러 수백개**: 주로 타입 미스매치, import 누락
-- **Supabase 미연동**: Mock 데이터만 사용 중
+- **Flutter 에러 약 400개**: 주로 타입 미스매치, Amplify 모델 관련
+- **Flutter Supabase 미연동**: Mock 데이터만 사용 중
 - **AI 기능 미구현**: OpenAI API 연동 필요
 
 ### 2. 구조적 이슈
@@ -186,36 +192,32 @@
 
 ## 🎯 즉시 해야 할 작업 (Priority)
 
-### 1. 관리자 대시보드 생성 (Critical)
+### 1. Flutter Supabase 연동 (Critical)
 ```bash
-# Next.js 프로젝트 생성
-npx create-next-app@latest hyle-admin --typescript --tailwind --app
-cd hyle-admin
-npm install @supabase/supabase-js @tanstack/react-query recharts
-npx shadcn-ui@latest init
-```
-
-### 2. Supabase 연동 (High)
-```bash
-# 1. Supabase 프로젝트 생성 (supabase.com)
-# 2. 환경 변수 설정
-cp .env.example .env
-# 3. 데이터베이스 설정
-# Supabase 대시보드에서 SQL Editor로 schema.sql 실행
+# Flutter 프로젝트에서
+cd hyle
+flutter pub add supabase_flutter
+# lib/main.dart에 Supabase 초기화 추가
+# 실제 데이터 연동
 ```
 
 ### 2. Flutter 에러 수정 (High)
 ```bash
-# PowerShell에서 실행
+# 타입 에러 분석
 flutter analyze > error_log.txt
-# 타입 에러 우선 수정
-# import 문 정리
+# 약 400개 타입 에러 수정
+# Amplify 모델 제거 또는 수정
 ```
 
 ### 3. 학습자 유형 테스트 완성 (Medium)
 - UI 구현 (이미 설계됨)
 - 결과 저장 로직
 - 프로필 연동
+
+### 4. AI 튜터 활성화 (Medium)
+- OpenAI API 키 설정
+- Edge Functions 구현
+- 채팅 UI 연동
 
 ## 📂 프로젝트 구조
 
@@ -305,10 +307,26 @@ flutter run -d chrome -t lib/main_test_local.dart
 
 ---
 
-**마지막 업데이트**: 2025년 8월 23일
-**다음 액션**: Supabase 프로젝트 생성 후 연동
+**마지막 업데이트**: 2025년 8월 31일
+**다음 액션**: Flutter 앱 Supabase 연동 시작
 
-## 🔄 최근 변경사항 (2025-08-23)
+## 🔄 최근 변경사항 (2025-08-31)
+
+### 2025-08-31 Admin Dashboard 완전 작동
+1. **Vercel 환경 변수 설정 완료**
+   - 3개 환경 변수 모두 설정
+   - 수동 재배포 실행
+   
+2. **로그인 기능 정상화**
+   - admin@hyle.ai.kr / admin123
+   - 비밀번호 재설정 완료
+   - 11명 테스트 사용자 확인
+
+3. **AWS Amplify 완전 제거**
+   - 모든 Amplify 관련 파일 삭제
+   - Supabase 전용 환경 구축
+
+## 🔄 이전 변경사항
 
 ### 2025-08-23 Supabase 마이그레이션
 1. **백엔드 완전 전환**

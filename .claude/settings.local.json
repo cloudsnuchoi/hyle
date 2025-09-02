@@ -6,7 +6,9 @@
       "Bash(grep:*)",
       "Bash(npm install:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Read(/Users/junhoochoi/dev/github desktop/hyle-admin/**)",
+      "Read(/Users/junhoochoi/dev/github desktop/hyle-admin/**)"
     ],
     "deny": [],
     "additionalDirectories": [
