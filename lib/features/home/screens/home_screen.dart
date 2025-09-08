@@ -1,19 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
+import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../providers/user_stats_provider.dart';
-import '../../../providers/learning_type_provider.dart';
-import '../../todo/screens/todo_screen_with_categories.dart';
-import '../../learning_type/screens/learning_type_test_screen.dart';
-import '../../notes/screens/notes_screen_enhanced.dart';
-import '../../flashcards/screens/flashcards_screen.dart';
-import '../../timer/screens/timer_screen_enhanced.dart';
-import '../../schedule/screens/schedule_screen.dart';
-import '../../ai/screens/ai_assistant_screen.dart';
-import '../../profile/screens/profile_screen_improved.dart';
-import '../widgets/integrated_dashboard.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -22,681 +10,874 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedIndex = 0;
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _greetingController;
+  late AnimationController _cardController;
+  late Animation<double> _greetingAnimation;
+  late Animation<double> _cardAnimation;
+  
+  int _selectedBottomNavIndex = 0;
+  final ScrollController _scrollController = ScrollController();
 
-  final List<Widget> _pages = [
-    const IntegratedDashboard(),
-    const TodoScreenWithCategories(),
-    const TimerScreenEnhanced(),
-    const _MorePage(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _greetingController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    
+    _cardController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    
+    _greetingAnimation = CurvedAnimation(
+      parent: _greetingController,
+      curve: Curves.easeOutCubic,
+    );
+    
+    _cardAnimation = CurvedAnimation(
+      parent: _cardController,
+      curve: Curves.easeOutBack,
+    );
+    
+    _greetingController.forward();
+    Future.delayed(const Duration(milliseconds: 200), () {
+      _cardController.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _greetingController.dispose();
+    _cardController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: '대시보드',
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFF0F3FA), // primary50
+              Color(0xFFD5DEEF), // primary100
+            ],
           ),
-          NavigationDestination(
-            icon: Icon(Icons.task_outlined),
-            selectedIcon: Icon(Icons.task),
-            label: '투두',
+        ),
+        child: SafeArea(
+          child: CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              // App Bar
+              _buildSliverAppBar(),
+              
+              // Content
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    // Greeting Section
+                    FadeTransition(
+                      opacity: _greetingAnimation,
+                      child: _buildGreetingSection(),
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Study Streak Card
+                    ScaleTransition(
+                      scale: _cardAnimation,
+                      child: _buildStudyStreakCard(),
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Quick Actions
+                    _buildQuickActions(),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Daily Missions
+                    _buildDailyMissions(),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // AI Recommendations
+                    _buildAIRecommendations(),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Recent Activity
+                    _buildRecentActivity(),
+                    
+                    const SizedBox(height: 80), // Bottom nav padding
+                  ]),
+                ),
+              ),
+            ],
           ),
-          NavigationDestination(
-            icon: Icon(Icons.timer_outlined),
-            selectedIcon: Icon(Icons.timer),
-            label: '타이머',
+        ),
+      ),
+      bottomNavigationBar: _buildBottomNavBar(),
+      floatingActionButton: _buildFloatingAIButton(),
+    );
+  }
+
+  Widget _buildSliverAppBar() {
+    return SliverAppBar(
+      floating: true,
+      snap: true,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      title: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF8AAEE0), // primary300
+                  Color(0xFF395886), // primary500
+                ],
+              ),
+            ),
+            child: const Icon(
+              Icons.school_rounded,
+              size: 24,
+              color: Colors.white,
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.more_horiz),
-            selectedIcon: Icon(Icons.more_horiz),
-            label: '더보기',
+          const SizedBox(width: 12),
+          const Text(
+            'HYLE',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF262626), // gray800
+            ),
           ),
         ],
       ),
-    );
-  }
-}
-
-// Dashboard Page
-class _DashboardPage extends ConsumerWidget {
-  const _DashboardPage();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final userStats = ref.watch(userStatsProvider);
-    final dailyMissions = ref.watch(dailyMissionsProvider);
-    final learningType = ref.watch(currentLearningTypeProvider);
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 200,
-          floating: false,
-          pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-            title: const Text('Dashboard'),
-            background: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Theme.of(context).colorScheme.primary,
-                    Theme.of(context).colorScheme.secondary,
-                  ],
+      actions: [
+        IconButton(
+          icon: Stack(
+            children: [
+              const Icon(
+                Icons.notifications_outlined,
+                color: Color(0xFF525252), // gray600
+              ),
+              Positioned(
+                right: 0,
+                top: 0,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.red,
+                  ),
                 ),
               ),
-            ),
+            ],
+          ),
+          onPressed: () {
+            // Navigate to notifications
+          },
+        ),
+        IconButton(
+          icon: const Icon(
+            Icons.search_rounded,
+            color: Color(0xFF525252), // gray600
+          ),
+          onPressed: () {
+            // Navigate to search
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGreetingSection() {
+    final hour = DateTime.now().hour;
+    String greeting;
+    if (hour < 12) {
+      greeting = '좋은 아침이에요';
+    } else if (hour < 18) {
+      greeting = '좋은 오후에요';
+    } else {
+      greeting = '좋은 저녁이에요';
+    }
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          greeting,
+          style: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF262626), // gray800
           ),
         ),
-        SliverPadding(
-          padding: AppSpacing.paddingMD,
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              // Learning Type Card (if not taken)
-              if (learningType == null)
-                _buildLearningTypePrompt(context, ref),
-              if (learningType == null)
-                AppSpacing.verticalGapMD,
-              
-              // User Level Card
-              _buildLevelCard(context, userStats),
-              AppSpacing.verticalGapMD,
-              
-              // Stats Row
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildStatCard(
-                      context,
-                      'Study Streak',
-                      '${userStats.currentStreak} Days',
-                      Icons.local_fire_department,
-                      Colors.orange,
-                    ),
-                  ),
-                  AppSpacing.horizontalGapMD,
-                  Expanded(
-                    child: _buildStatCard(
-                      context,
-                      'Total Time',
-                      userStats.getFormattedStudyTime(),
-                      Icons.access_time,
-                      Colors.blue,
-                    ),
-                  ),
-                ],
-              ),
-              AppSpacing.verticalGapMD,
-              
-              // Daily Missions
-              _buildDailyMissionsCard(context, dailyMissions),
-              AppSpacing.verticalGapMD,
-              
-              // Subject Stats
-              _buildSubjectStatsCard(context, userStats.subjectStats),
-            ]),
+        const SizedBox(height: 8),
+        const Text(
+          '오늘의 학습 목표를 달성해보세요! 🎯',
+          style: TextStyle(
+            fontSize: 16,
+            color: Color(0xFF525252), // gray600
           ),
         ),
       ],
     );
   }
 
-  Widget _buildStatCard(
-    BuildContext context,
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Card(
-      child: InkWell(
-        onTap: () {
-          // 통계 상세 페이지로 이동
-          showModalBottomSheet(
-            context: context,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            builder: (context) => _StatDetailSheet(
-              title: title,
-              value: value,
-              icon: icon,
-              color: color,
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: AppSpacing.paddingMD,
-          child: Row(
-            children: [
-              Container(
-                padding: AppSpacing.paddingMD,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color, size: 32),
-              ),
-              AppSpacing.horizontalGapMD,
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: AppTypography.caption),
-                    Text(value, style: AppTypography.titleLarge),
-                  ],
-                ),
-              ),
-            ],
+  Widget _buildStudyStreakCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF638ECB), // primary400
+            Color(0xFF395886), // primary500
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF395886).withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
-        ),
+        ],
       ),
-    );
-  }
-  
-  Widget _buildLevelCard(BuildContext context, UserStats userStats) {
-    return Card(
-      child: Padding(
-        padding: AppSpacing.paddingMD,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: AppSpacing.paddingMD,
-                  decoration: BoxDecoration(
-                    color: Colors.purple.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.star, color: Colors.purple, size: 32),
-                ),
-                AppSpacing.horizontalGapMD,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Level ${userStats.level}', style: AppTypography.titleLarge),
-                      Text('${userStats.totalXP} XP', style: AppTypography.caption),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            AppSpacing.verticalGapMD,
-            LinearProgressIndicator(
-              value: userStats.getLevelProgress(),
-              backgroundColor: Colors.grey.shade300,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
-            ),
-            AppSpacing.verticalGapSM,
-            Text(
-              'Next Level: ${userStats.getXPForNextLevel() - userStats.totalXP} XP to go',
-              style: AppTypography.caption,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildDailyMissionsCard(BuildContext context, List<Mission> missions) {
-    return Card(
-      child: Padding(
-        padding: AppSpacing.paddingMD,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Daily Missions', style: AppTypography.titleMedium),
-            AppSpacing.verticalGapMD,
-            ...missions.map((mission) => _buildMissionItem(context, mission)),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildMissionItem(BuildContext context, Mission mission) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(
-            mission.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: mission.isCompleted ? Colors.green : Colors.grey,
-          ),
-          AppSpacing.horizontalGapMD,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(mission.title, style: AppTypography.body),
-                LinearProgressIndicator(
-                  value: mission.progress,
-                  backgroundColor: Colors.grey.shade300,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                const Text(
+                  '연속 학습',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white70,
+                  ),
                 ),
-                Text(
-                  '${mission.currentValue}/${mission.targetValue}',
-                  style: AppTypography.caption,
+                const SizedBox(height: 4),
+                const Text(
+                  '7일째',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: List.generate(7, (index) {
+                    return Container(
+                      margin: const EdgeInsets.only(right: 4),
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: index < 7
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.3),
+                      ),
+                      child: index < 7
+                          ? const Icon(
+                              Icons.check,
+                              size: 16,
+                              color: Color(0xFF395886),
+                            )
+                          : null,
+                    );
+                  }),
                 ),
               ],
+            ),
+          ),
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.2),
+            ),
+            child: const Icon(
+              Icons.local_fire_department_rounded,
+              size: 48,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '빠른 시작',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF262626), // gray800
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildQuickActionCard(
+                icon: Icons.menu_book_rounded,
+                label: '학습하기',
+                color: const Color(0xFF8AAEE0), // primary300
+                onTap: () {
+                  // Navigate to study
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildQuickActionCard(
+                icon: Icons.quiz_rounded,
+                label: '퀴즈',
+                color: const Color(0xFF638ECB), // primary400
+                onTap: () {
+                  // Navigate to quiz
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildQuickActionCard(
+                icon: Icons.smart_toy_rounded,
+                label: 'AI 튜터',
+                color: const Color(0xFF395886), // primary500
+                onTap: () {
+                  // Navigate to AI tutor
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickActionCard({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color.withValues(alpha: 0.1),
+              ),
+              child: Icon(
+                icon,
+                size: 24,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF525252), // gray600
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDailyMissions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              '일일 미션',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF262626), // gray800
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                // Navigate to all missions
+              },
+              child: const Text(
+                '모두 보기',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF638ECB), // primary400
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _buildMissionItem(
+          title: '수학 문제 10개 풀기',
+          progress: 0.7,
+          reward: '50 XP',
+          icon: Icons.calculate_rounded,
+        ),
+        const SizedBox(height: 8),
+        _buildMissionItem(
+          title: '영어 단어 20개 암기',
+          progress: 0.3,
+          reward: '30 XP',
+          icon: Icons.abc_rounded,
+        ),
+        const SizedBox(height: 8),
+        _buildMissionItem(
+          title: 'AI 튜터와 대화하기',
+          progress: 1.0,
+          reward: '20 XP',
+          icon: Icons.chat_rounded,
+          isCompleted: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMissionItem({
+    required String title,
+    required double progress,
+    required String reward,
+    required IconData icon,
+    bool isCompleted = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isCompleted 
+          ? const Color(0xFF4CAF50).withValues(alpha: 0.1)
+          : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: isCompleted
+          ? Border.all(color: const Color(0xFF4CAF50), width: 1)
+          : null,
+        boxShadow: isCompleted ? null : [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isCompleted
+                ? const Color(0xFF4CAF50)
+                : const Color(0xFF638ECB).withValues(alpha: 0.1),
+            ),
+            child: Icon(
+              isCompleted ? Icons.check : icon,
+              size: 20,
+              color: isCompleted
+                ? Colors.white
+                : const Color(0xFF638ECB),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF262626), // gray800
+                    decoration: isCompleted 
+                      ? TextDecoration.lineThrough 
+                      : null,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                LinearProgressIndicator(
+                  value: progress,
+                  backgroundColor: const Color(0xFFE5E5E5),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    isCompleted 
+                      ? const Color(0xFF4CAF50)
+                      : const Color(0xFF638ECB),
+                  ),
+                  minHeight: 4,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 4,
+            ),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFC107).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              reward,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFF57C00),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAIRecommendations() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'AI 추천 콘텐츠',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF262626), // gray800
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 180,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: 5,
+            itemBuilder: (context, index) {
+              return _buildRecommendationCard(index);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecommendationCard(int index) {
+    final subjects = ['수학', '영어', '과학', '역사', '코딩'];
+    final topics = [
+      '미적분 기초',
+      '토익 문법',
+      '물리학 개념',
+      '한국사 정리',
+      'Flutter 입문'
+    ];
+    final colors = [
+      const Color(0xFF8AAEE0),
+      const Color(0xFF638ECB),
+      const Color(0xFF395886),
+      const Color(0xFF8AAEE0),
+      const Color(0xFF638ECB),
+    ];
+    
+    return Container(
+      width: 140,
+      margin: EdgeInsets.only(
+        right: 12,
+        left: index == 0 ? 0 : 0,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colors[index],
+            colors[index].withValues(alpha: 0.8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: colors[index].withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            // Navigate to content
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  subjects[index],
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white70,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  topics[index],
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentActivity() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '최근 활동',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF262626), // gray800
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildActivityItem(
+          icon: Icons.edit_note_rounded,
+          title: '수학 노트 작성',
+          time: '30분 전',
+          color: const Color(0xFF8AAEE0),
+        ),
+        const SizedBox(height: 8),
+        _buildActivityItem(
+          icon: Icons.quiz_rounded,
+          title: '영어 퀴즈 완료',
+          time: '2시간 전',
+          color: const Color(0xFF638ECB),
+        ),
+        const SizedBox(height: 8),
+        _buildActivityItem(
+          icon: Icons.group_rounded,
+          title: '스터디 그룹 참여',
+          time: '어제',
+          color: const Color(0xFF395886),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActivityItem({
+    required IconData icon,
+    required String title,
+    required String time,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color.withValues(alpha: 0.1),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: color,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF262626), // gray800
+              ),
             ),
           ),
           Text(
-            '+${mission.xpReward} XP',
-            style: AppTypography.caption.copyWith(color: Colors.green),
+            time,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF737373), // gray500
+            ),
           ),
         ],
       ),
     );
   }
-  
-  Widget _buildSubjectStatsCard(BuildContext context, Map<String, int> subjectStats) {
-    if (subjectStats.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    
-    return Card(
-      child: Padding(
-        padding: AppSpacing.paddingMD,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Subject Stats', style: AppTypography.titleMedium),
-            AppSpacing.verticalGapMD,
-            ...subjectStats.entries.map((entry) => _buildSubjectItem(context, entry.key, entry.value)),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildSubjectItem(BuildContext context, String subject, int minutes) {
-    final hours = minutes ~/ 60;
-    final remainingMinutes = minutes % 60;
-    final timeText = hours > 0 ? '${hours}h ${remainingMinutes}m' : '${remainingMinutes}m';
-    
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(
-            _getSubjectIcon(subject),
-            color: _getSubjectColor(subject),
-          ),
-          AppSpacing.horizontalGapMD,
-          Expanded(
-            child: Text(subject, style: AppTypography.body),
-          ),
-          Text(timeText, style: AppTypography.caption),
-        ],
-      ),
-    );
-  }
-  
-  Color _getSubjectColor(String subject) {
-    switch (subject) {
-      case 'Math': return Colors.blue;
-      case 'English': return Colors.purple;
-      case 'Science': return Colors.green;
-      case 'History': return Colors.orange;
-      default: return Colors.grey;
-    }
-  }
-  
-  IconData _getSubjectIcon(String subject) {
-    switch (subject) {
-      case 'Math': return Icons.calculate;
-      case 'English': return Icons.book;
-      case 'Science': return Icons.science;
-      case 'History': return Icons.history_edu;
-      default: return Icons.assignment;
-    }
-  }
-  
-  Widget _buildLearningTypePrompt(BuildContext context, WidgetRef ref) {
-    return Card(
-      color: Theme.of(context).primaryColor.withOpacity(0.1),
-      child: Padding(
-        padding: AppSpacing.paddingMD,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.psychology, color: Theme.of(context).primaryColor),
-                AppSpacing.horizontalGapSM,
-                Expanded(
-                  child: Text(
-                    '당신의 학습 유형을 찾아보세요!',
-                    style: AppTypography.titleMedium.copyWith(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            AppSpacing.verticalGapSM,
-            Text(
-              '8가지 질문으로 16가지 학습 유형 중 당신에게 맞는 학습법을 찾아드립니다.',
-              style: AppTypography.body,
-            ),
-            AppSpacing.verticalGapMD,
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LearningTypeTestScreen(),
-                    ),
-                  );
-                },
-                child: const Text('테스트 시작하기'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
-// 통계 상세 바텀시트
-class _StatDetailSheet extends ConsumerWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color color;
-  
-  const _StatDetailSheet({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final userStats = ref.watch(userStatsProvider);
-    
+  Widget _buildBottomNavBar() {
     return Container(
-      padding: AppSpacing.paddingLG,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 핸들바
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
           ),
-          AppSpacing.verticalGapLG,
-          
-          // 아이콘과 제목
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: AppSpacing.paddingMD,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: color, size: 40),
-              ),
-              AppSpacing.horizontalGapMD,
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: AppTypography.titleMedium),
-                  Text(value, style: AppTypography.headlineMedium.copyWith(color: color)),
-                ],
-              ),
-            ],
+        ],
+      ),
+      child: BottomNavigationBar(
+        currentIndex: _selectedBottomNavIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedBottomNavIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        selectedItemColor: const Color(0xFF395886), // primary500
+        unselectedItemColor: const Color(0xFF737373), // gray500
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_rounded),
+            label: '홈',
           ),
-          
-          AppSpacing.verticalGapXL,
-          
-          // 상세 정보
-          if (title == 'Study Streak') ...[
-            _buildDetailRow('현재 연속 학습', '${userStats.currentStreak}일'),
-            _buildDetailRow('최고 기록', '${userStats.longestStreak}일'),
-            _buildDetailRow('시작일', _formatDate(userStats.streakStartDate)),
-            AppSpacing.verticalGapMD,
-            LinearProgressIndicator(
-              value: userStats.currentStreak / 30, // 30일 목표
-              backgroundColor: Colors.grey[300],
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-            ),
-            AppSpacing.verticalGapSM,
-            Text('30일 연속 학습 도전 중!', style: AppTypography.caption),
-          ] else if (title == 'Total Time') ...[
-            _buildDetailRow('오늘 학습 시간', '${userStats.todayStudyMinutes}분'),
-            _buildDetailRow('이번 주 학습 시간', '${userStats.weeklyStudyMinutes}분'),
-            _buildDetailRow('총 학습 시간', userStats.getFormattedStudyTime()),
-            AppSpacing.verticalGapMD,
-            // 과목별 학습 시간
-            if (userStats.subjectStats.isNotEmpty) ...[
-              Text('과목별 학습 시간', style: AppTypography.titleSmall),
-              AppSpacing.verticalGapMD,
-              ...userStats.subjectStats.entries.map((entry) {
-                final totalMinutes = userStats.subjectStats.values.fold(0, (sum, val) => sum + val);
-                final percentage = totalMinutes > 0 ? (entry.value / totalMinutes) : 0.0;
-                
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Text(entry.key, style: AppTypography.body),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: LinearProgressIndicator(
-                          value: percentage,
-                          backgroundColor: Colors.grey[300],
-                          valueColor: AlwaysStoppedAnimation<Color>(_getSubjectColor(entry.key)),
-                        ),
-                      ),
-                      AppSpacing.horizontalGapMD,
-                      Text('${entry.value}분', style: AppTypography.caption),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ],
+          BottomNavigationBarItem(
+            icon: Icon(Icons.menu_book_rounded),
+            label: '학습',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.show_chart_rounded),
+            label: '진도',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.groups_rounded),
+            label: '커뮤니티',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_rounded),
+            label: '프로필',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFloatingAIButton() {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFF638ECB), // primary400
+            Color(0xFF395886), // primary500
           ],
-          
-          AppSpacing.verticalGapXL,
-          
-          // 닫기 버튼
-          SizedBox(
-            width: double.infinity,
-            child: TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('닫기'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: AppTypography.body),
-          Text(value, style: AppTypography.titleSmall),
-        ],
-      ),
-    );
-  }
-  
-  String _formatDate(DateTime? date) {
-    if (date == null) return '-';
-    return '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
-  }
-  
-  Color _getSubjectColor(String subject) {
-    switch (subject) {
-      case 'Math': return Colors.blue;
-      case 'English': return Colors.purple;
-      case 'Science': return Colors.green;
-      case 'History': return Colors.orange;
-      default: return Colors.grey;
-    }
-  }
-}
-
-// More Page
-class _MorePage extends StatelessWidget {
-  const _MorePage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('더보기'),
-        centerTitle: true,
-      ),
-      body: ListView(
-        padding: AppSpacing.paddingMD,
-        children: [
-          _buildMenuItem(
-            context,
-            icon: Icons.calendar_today,
-            title: '스케줄',
-            subtitle: '일정 관리',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ScheduleScreen()),
-              );
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.note,
-            title: '노트',
-            subtitle: '학습 노트 작성',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const NotesScreenEnhanced()),
-              );
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.quiz,
-            title: '플래시카드',
-            subtitle: '암기 학습',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const FlashcardsScreen()),
-              );
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.psychology,
-            title: 'AI 어시스턴트',
-            subtitle: 'AI 학습 도우미',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AIAssistantScreen()),
-              );
-            },
-          ),
-          const Divider(height: 32),
-          _buildMenuItem(
-            context,
-            icon: Icons.person,
-            title: '프로필',
-            subtitle: '내 정보 관리',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreenImproved()),
-              );
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.school,
-            title: '학습 유형 테스트',
-            subtitle: '나의 학습 스타일 찾기',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const LearningTypeTestScreen()),
-              );
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.settings,
-            title: '설정',
-            subtitle: '앱 설정',
-            onTap: () {
-              // TODO: Navigate to settings
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMenuItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: Theme.of(context).primaryColor),
         ),
-        title: Text(title, style: AppTypography.titleSmall),
-        subtitle: Text(subtitle, style: AppTypography.caption),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: onTap,
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF395886).withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: FloatingActionButton(
+        onPressed: () {
+          // Navigate to AI assistant
+        },
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: const Icon(
+          Icons.auto_awesome,
+          color: Colors.white,
+        ),
       ),
     );
   }
 }
-
