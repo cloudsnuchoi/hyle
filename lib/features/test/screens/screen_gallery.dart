@@ -13,10 +13,13 @@ import '../../onboarding/screens/personalization_screen.dart';
 import '../../onboarding/screens/learning_type_test_screen.dart';
 
 // Home screens
-import '../../home/screens/home_screen.dart';
+import '../../home/screens/home_screen_new.dart';
 
 // Profile screens (using settings)
 import '../../settings/screens/profile_screen.dart';
+
+// Todo screens
+import '../../todo/screens/todo_screen.dart';
 
 // Study screens
 import '../../study/screens/lesson_screen.dart';
@@ -78,81 +81,82 @@ class ScreenGallery extends ConsumerStatefulWidget {
 
 class _ScreenGalleryState extends ConsumerState<ScreenGallery> {
   String _searchQuery = '';
-  String _selectedCategory = 'All';
+  String _selectedCategory = '전체';
 
   final Map<String, List<ScreenInfo>> _screensByCategory = {
-    'Auth': [
-      ScreenInfo('Login', const LoginScreen(), Icons.login),
-      ScreenInfo('Signup', const SignupScreen(), Icons.person_add),
-      ScreenInfo('Email Verification', const EmailVerificationScreen(), Icons.email),
-      ScreenInfo('Forgot Password', const ForgotPasswordScreen(), Icons.lock_reset),
+    '인증': [
+      ScreenInfo('로그인', const LoginScreen(), Icons.login),
+      ScreenInfo('회원가입', const SignupScreen(), Icons.person_add),
+      ScreenInfo('이메일 인증', const EmailVerificationScreen(), Icons.email),
+      ScreenInfo('비밀번호 찾기', const ForgotPasswordScreen(), Icons.lock_reset),
     ],
-    'Onboarding': [
-      ScreenInfo('Onboarding', const OnboardingScreen(), Icons.start),
-      ScreenInfo('Personalization', const PersonalizationScreen(), Icons.tune),
-      ScreenInfo('Learning Type Test', const LearningTypeTestScreen(), Icons.psychology),
+    '온보딩': [
+      ScreenInfo('온보딩', const OnboardingScreen(), Icons.start),
+      ScreenInfo('개인화 설정', const PersonalizationScreen(), Icons.tune),
+      ScreenInfo('학습 유형 테스트', const LearningTypeTestScreen(), Icons.psychology),
     ],
-    'Home': [
-      ScreenInfo('Home', const HomeScreen(), Icons.home),
-      ScreenInfo('Profile', const ProfileScreen(), Icons.person),
+    '홈': [
+      ScreenInfo('홈', const HomeScreenNew(), Icons.home),
+      ScreenInfo('프로필', const ProfileScreen(), Icons.person),
+      ScreenInfo('할 일', const TodoScreen(), Icons.checklist),
     ],
-    'Study': [
-      ScreenInfo('Lesson', const LessonScreen(), Icons.school),
-      ScreenInfo('Quiz', const QuizScreen(), Icons.quiz),
-      ScreenInfo('Flashcard', const FlashcardScreen(), Icons.style),
-      ScreenInfo('Topic', const TopicScreen(), Icons.topic),
-      ScreenInfo('Schedule', const ScheduleScreen(), Icons.schedule),
-      ScreenInfo('Video Player', const VideoPlayerScreen(), Icons.play_circle),
-      ScreenInfo('PDF Viewer', const PDFViewerScreen(), Icons.picture_as_pdf),
-      ScreenInfo('Resource', const ResourceScreen(), Icons.folder),
+    '학습': [
+      ScreenInfo('수업', const LessonScreen(), Icons.school),
+      ScreenInfo('퀴즈', const QuizScreen(), Icons.quiz),
+      ScreenInfo('플래시카드', const FlashcardScreen(), Icons.style),
+      ScreenInfo('주제', const TopicScreen(), Icons.topic),
+      ScreenInfo('일정', const ScheduleScreen(), Icons.schedule),
+      ScreenInfo('비디오 플레이어', const VideoPlayerScreen(), Icons.play_circle),
+      ScreenInfo('PDF 뷰어', const PDFViewerScreen(), Icons.picture_as_pdf),
+      ScreenInfo('자료', const ResourceScreen(), Icons.folder),
     ],
-    'Progress': [
-      ScreenInfo('Progress', const ProgressScreen(), Icons.trending_up),
-      ScreenInfo('Goals', const GoalsScreen(), Icons.flag),
-      ScreenInfo('Statistics', const StatisticsScreen(), Icons.bar_chart),
+    '진행상황': [
+      ScreenInfo('진행 상황', const ProgressScreen(), Icons.trending_up),
+      ScreenInfo('목표', const GoalsScreen(), Icons.flag),
+      ScreenInfo('통계', const StatisticsScreen(), Icons.bar_chart),
     ],
     'AI': [
-      ScreenInfo('AI Tutor', const AITutorScreen(), Icons.smart_toy),
-      ScreenInfo('AI Analysis', const AIAnalysisScreen(), Icons.analytics),
-      ScreenInfo('AI Chat', const AIChatScreen(), Icons.chat_bubble),
+      ScreenInfo('AI 튜터', const AITutorScreen(), Icons.smart_toy),
+      ScreenInfo('AI 분석', const AIAnalysisScreen(), Icons.analytics),
+      ScreenInfo('AI 채팅', const AIChatScreen(), Icons.chat_bubble),
     ],
-    'Community': [
-      ScreenInfo('Community', const CommunityScreen(), Icons.people),
-      ScreenInfo('Forum', const ForumScreen(), Icons.forum),
+    '커뮤니티': [
+      ScreenInfo('커뮤니티', const CommunityScreen(), Icons.people),
+      ScreenInfo('포럼', const ForumScreen(), Icons.forum),
     ],
-    'Social': [
-      ScreenInfo('Ranking', const RankingScreen(), Icons.leaderboard),
-      ScreenInfo('Mentor', const MentorScreen(), Icons.supervisor_account),
+    '소셜': [
+      ScreenInfo('랭킹', const RankingScreen(), Icons.leaderboard),
+      ScreenInfo('멘토', const MentorScreen(), Icons.supervisor_account),
     ],
-    'Gamification': [
-      ScreenInfo('Quest', const QuestScreen(), Icons.explore),
-      ScreenInfo('Daily Mission', const DailyMissionScreen(), Icons.today),
-      ScreenInfo('Reward', const RewardScreen(), Icons.card_giftcard),
-      ScreenInfo('Shop', const ShopScreen(), Icons.shopping_cart),
+    '게임화': [
+      ScreenInfo('퀘스트', const QuestScreen(), Icons.explore),
+      ScreenInfo('일일 미션', const DailyMissionScreen(), Icons.today),
+      ScreenInfo('보상', const RewardScreen(), Icons.card_giftcard),
+      ScreenInfo('상점', const ShopScreen(), Icons.shopping_cart),
     ],
-    'Tools': [
-      ScreenInfo('Timer', const TimerScreen(), Icons.timer),
-      ScreenInfo('Note', const NoteScreen(), Icons.note),
-      ScreenInfo('Bookmark', const BookmarkScreen(), Icons.bookmark),
-      ScreenInfo('History', const HistoryScreen(), Icons.history),
+    '도구': [
+      ScreenInfo('타이머', const TimerScreen(), Icons.timer),
+      ScreenInfo('노트', const NoteScreen(), Icons.note),
+      ScreenInfo('북마크', const BookmarkScreen(), Icons.bookmark),
+      ScreenInfo('기록', const HistoryScreen(), Icons.history),
     ],
-    'Settings': [
-      ScreenInfo('Settings', const SettingsScreen(), Icons.settings),
-      ScreenInfo('Notification Settings', const NotificationSettingsScreen(), Icons.notifications),
-      ScreenInfo('Privacy', const PrivacyScreen(), Icons.privacy_tip),
-      ScreenInfo('Subscription', const SubscriptionScreen(), Icons.subscriptions),
-      ScreenInfo('Help', const HelpScreen(), Icons.help),
+    '설정': [
+      ScreenInfo('설정', const SettingsScreen(), Icons.settings),
+      ScreenInfo('알림 설정', const NotificationSettingsScreen(), Icons.notifications),
+      ScreenInfo('개인정보', const PrivacyScreen(), Icons.privacy_tip),
+      ScreenInfo('구독', const SubscriptionScreen(), Icons.subscriptions),
+      ScreenInfo('도움말', const HelpScreen(), Icons.help),
     ],
-    'Achievement': [
-      ScreenInfo('Badge', const BadgeScreen(), Icons.military_tech),
-      ScreenInfo('Certificate', const CertificateScreen(), Icons.workspace_premium),
+    '성취': [
+      ScreenInfo('배지', const BadgeScreen(), Icons.military_tech),
+      ScreenInfo('인증서', const CertificateScreen(), Icons.workspace_premium),
     ],
   };
 
   List<ScreenInfo> get _filteredScreens {
     List<ScreenInfo> allScreens = [];
     
-    if (_selectedCategory == 'All') {
+    if (_selectedCategory == '전체') {
       _screensByCategory.forEach((category, screens) {
         allScreens.addAll(screens);
       });
@@ -216,7 +220,7 @@ class _ScreenGalleryState extends ConsumerState<ScreenGallery> {
           ),
           const SizedBox(height: 8),
           Text(
-            '$totalScreens MVP Screens Ready',
+            '$totalScreens개 MVP 스크린 준비 완료',
             style: const TextStyle(
               fontSize: 16,
               color: Color(0xFF638ECB),
@@ -245,7 +249,7 @@ class _ScreenGalleryState extends ConsumerState<ScreenGallery> {
       child: TextField(
         onChanged: (value) => setState(() => _searchQuery = value),
         decoration: const InputDecoration(
-          hintText: 'Search screens...',
+          hintText: '스크린 검색...',
           border: InputBorder.none,
           icon: Icon(Icons.search, color: Color(0xFF8AAEE0)),
         ),
@@ -254,7 +258,7 @@ class _ScreenGalleryState extends ConsumerState<ScreenGallery> {
   }
 
   Widget _buildCategoryFilter() {
-    final categories = ['All', ..._screensByCategory.keys];
+    final categories = ['전체', ..._screensByCategory.keys];
     
     return Container(
       height: 50,
@@ -292,7 +296,7 @@ class _ScreenGalleryState extends ConsumerState<ScreenGallery> {
     if (screens.isEmpty) {
       return const Center(
         child: Text(
-          'No screens found',
+          '스크린을 찾을 수 없습니다',
           style: TextStyle(
             fontSize: 18,
             color: Color(0xFF8AAEE0),
