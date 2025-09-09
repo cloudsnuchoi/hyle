@@ -1,17 +1,32 @@
-# HYLE 프로젝트 현황 (2025-09-08 업데이트)
+# HYLE 프로젝트 현황 (2025-09-09 업데이트)
 
 ## 🎊 최신 진행 상황
 
-### 54개 MVP 스크린 완전 개발 완료! (🆕 2025-09-08)
-- ✅ **전체 54개 MVP 스크린 개발 완료** (100%)
+### 홈 스크린 재설계 및 Todo 기능 구현! (🆕 2025-09-09)
+- ✅ **새로운 홈 스크린 (HomeScreenNew)** - 디자인 가이드 완벽 구현
+  - D-Day 카운터 (편집 가능)
+  - 목표 대비 진행률 표시 (원형 애니메이션)
+  - 총 공부 시간 및 과목별 시간 트래킹
+  - Todo 리스트 통합 표시
+  - 확장형 플로팅 메뉴
+- ✅ **Todo 스크린 구현** - 완전한 할 일 관리 시스템
+  - 카테고리별 필터링 (공부/과제/시험/기타)
+  - 우선순위 설정 (낮음/보통/높음/긴급)
+  - 마감일 관리 및 알림
+  - Swipe to delete 기능
+- ✅ **Gallery 한국어화** - 모든 UI 한국어로 통일
+- ✅ **GitHub 백업 완료** - commit: bcee16b
+
+### 54개 MVP 스크린 완전 개발 완료! (2025-09-08)
+- ✅ **전체 55개 MVP 스크린 개발 완료** (100%)
 - ✅ **Screen Gallery 시스템 구축** - 모든 스크린 테스트 가능
 - ✅ **통일된 디자인 시스템 적용** - 색상, 애니메이션, 레이아웃
 - ✅ **GitHub 백업 완료** - commit: 50b202c
 
-#### 개발된 스크린 상세 (54개):
+#### 개발된 스크린 상세 (55개):
 - **Auth** (4개): LoginScreen, SignupScreen, EmailVerificationScreen, ForgotPasswordScreen
 - **Onboarding** (3개): OnboardingScreen, PersonalizationScreen, LearningTypeTestScreen  
-- **Home** (2개): HomeScreen, ProfileScreen
+- **Home** (3개): HomeScreenNew, ProfileScreen, TodoScreen
 - **Study** (12개): LessonScreen, QuizScreen, FlashcardScreen, TopicScreen, ScheduleScreen, VideoPlayerScreen, PDFViewerScreen, ResourceScreen 등
 - **AI** (3개): AITutorScreen, AIAnalysisScreen, AIChatScreen
 - **Social/Community** (6개): CommunityScreen, ForumScreen, RankingScreen, MentorScreen 등
@@ -148,10 +163,11 @@ GitHub Repositories:
 - 배포: ████████░░░░░░░░░░░░ 40%
 
 ### MVP 스크린 개발
-- **전체: 54/54 완료 (100%)** ✅
+- **전체: 55/55 완료 (100%)** ✅
 
 ## 📝 변경 이력
 
+- 2025-09-09: 홈 스크린 재설계, Todo 스크린 구현, Gallery 한국어화
 - 2025-09-08: 54개 MVP 스크린 완전 개발 완료, Screen Gallery 시스템 구축
 - 2025-09-02: 인문논술 AI 채점 시스템 설계 완료
 - 2025-08-31: HYLE Admin Dashboard Vercel 배포 성공
