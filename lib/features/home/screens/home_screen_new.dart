@@ -79,12 +79,21 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
     return Scaffold(
       backgroundColor: const Color(0xFFF0F3FA),
       endDrawer: _buildSideDrawer(),
-      body: Stack(
-        children: [
-          SafeArea(
-            child: Column(
-              children: [
-                _buildTopBar(),
+      body: GestureDetector(
+        onTap: () {
+          // 플로팅 메뉴가 펼쳐져 있으면 접기
+          if (_isMenuExpanded) {
+            setState(() {
+              _isMenuExpanded = false;
+            });
+          }
+        },
+        child: Stack(
+          children: [
+            SafeArea(
+              child: Column(
+                children: [
+                  _buildTopBar(),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
@@ -107,8 +116,9 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
               ],
             ),
           ),
-          _buildBottomMenu(),
-        ],
+            _buildBottomMenu(),
+          ],
+        ),
       ),
     );
   }
@@ -171,10 +181,14 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
           ),
           
           // 햄버거 메뉴
-          IconButton(
-            icon: const Icon(Icons.menu, color: Color(0xFF395886)),
-            onPressed: () {
-              _showSideMenu();
+          Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: const Icon(Icons.menu, color: Color(0xFF395886)),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+              );
             },
           ),
         ],
@@ -588,7 +602,7 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        width: 70,
+        width: 60,
         height: 45,
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.1),
@@ -619,7 +633,7 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
       right: 20,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        width: _isMenuExpanded ? 400 : 60,
+        width: _isMenuExpanded ? 350 : 60,
         height: _isMenuExpanded ? 80 : 60,
         decoration: BoxDecoration(
           color: const Color(0xFF638ECB),
@@ -632,15 +646,19 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
             ),
           ],
         ),
-        child: _isMenuExpanded
-            ? Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  children: [
-                    // Main Navigation Row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
+        child: GestureDetector(
+          onTap: () {
+            // 메뉴 내부 클릭시 이벤트 전파 막기
+          },
+          child: _isMenuExpanded
+              ? Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    children: [
+                      // Main Navigation Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
                         _buildFloatingMenuItem(Icons.home, '홈', () {
                           context.go('/home');
                           setState(() => _isMenuExpanded = false);
@@ -654,7 +672,7 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
                           setState(() => _isMenuExpanded = false);
                         }),
                         _buildFloatingMenuItem(Icons.people, '소셜', () {
-                          context.push('/social/ranking');
+                          context.push('/social/study-groups');
                           setState(() => _isMenuExpanded = false);
                         }),
                         _buildFloatingMenuItem(Icons.smart_toy, 'AI', () {
@@ -663,10 +681,10 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
                         }),
                       ],
                     ),
-                  ],
-                ),
-              )
-            : IconButton(
+                    ],
+                  ),
+                )
+              : IconButton(
                 icon: const Icon(Icons.apps, color: Colors.white, size: 30),
                 onPressed: () {
                   setState(() {
@@ -674,6 +692,7 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
                   });
                 },
               ),
+        ),
       ),
     );
   }
@@ -729,7 +748,8 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
   }
 
   void _showSideMenu() {
-    Scaffold.of(context).openEndDrawer();
+    // This method is no longer needed but kept for compatibility
+    // Now using Builder widget in _buildTopBar to access correct context
   }
   
   Widget _buildSideDrawer() {
@@ -776,6 +796,64 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: [
+                  // 빠른 접근 섹션
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      '빠른 접근',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF395886),
+                      ),
+                    ),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.style, color: Color(0xFF638ECB)),
+                    title: const Text('플래시카드'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.push('/study/flashcard');
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.quiz, color: Color(0xFF638ECB)),
+                    title: const Text('퀴즈'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.push('/study/quiz');
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.chat_bubble_outline, color: Color(0xFF638ECB)),
+                    title: const Text('AI 채팅'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.push('/ai/chat');
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.analytics, color: Color(0xFF638ECB)),
+                    title: const Text('AI 분석'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.push('/ai/analysis');
+                    },
+                  ),
+                  const Divider(),
+                  
+                  // 학습 관련
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      '학습',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF395886),
+                      ),
+                    ),
+                  ),
                   ListTile(
                     leading: const Icon(Icons.school, color: Color(0xFF638ECB)),
                     title: const Text('학습'),
@@ -783,6 +861,19 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
                       Navigator.pop(context);
                       context.push('/study');
                     },
+                  ),
+                  
+                  // 커뮤니티 관련
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      '커뮤니티',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF395886),
+                      ),
+                    ),
                   ),
                   ListTile(
                     leading: const Icon(Icons.people, color: Color(0xFF638ECB)),
@@ -800,7 +891,19 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
                       context.push('/profile');
                     },
                   ),
-                  const Divider(),
+                  
+                  // 도구 및 설정
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      '도구 및 설정',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF395886),
+                      ),
+                    ),
+                  ),
                   ListTile(
                     leading: const Icon(Icons.settings, color: Color(0xFF8AAEE0)),
                     title: const Text('설정'),
@@ -825,7 +928,19 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
                       context.push('/social/study-groups');
                     },
                   ),
-                  const Divider(),
+                  
+                  // 성취 및 게임화
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      '성취 및 게임화',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF395886),
+                      ),
+                    ),
+                  ),
                   ListTile(
                     leading: const Icon(Icons.emoji_events, color: Color(0xFF638ECB)),
                     title: const Text('성취도'),
@@ -842,8 +957,6 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
                       context.push('/progress/leaderboard');
                     },
                   ),
-                  const Divider(),
-                  // 게임화 기능들
                   ListTile(
                     leading: const Icon(Icons.emoji_events, color: Color(0xFF638ECB)),
                     title: const Text('퀘스트'),
@@ -876,8 +989,19 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
                       context.push('/gamification/shop');
                     },
                   ),
-                  const Divider(),
+                  
                   // 도구들
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      '도구',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF395886),
+                      ),
+                    ),
+                  ),
                   ListTile(
                     leading: const Icon(Icons.note_add, color: Color(0xFF8AAEE0)),
                     title: const Text('노트'),
@@ -929,45 +1053,304 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
   }
 
   void _showTimerOptions() {
+    // Step 1: 과목과 투두 선택
+    _showSessionSetup();
+  }
+
+  void _showSessionSetup() {
+    String? selectedSubject;
+    String? selectedTodo;
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 20,
+            right: 20,
+            top: 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '학습 세션 설정',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF395886),
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // 과목 선택
+              const Text(
+                '과목 선택',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF395886),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _subjectTimes.keys.map((subject) {
+                  final isSelected = selectedSubject == subject;
+                  return ChoiceChip(
+                    label: Text(subject),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      setModalState(() {
+                        selectedSubject = selected ? subject : null;
+                      });
+                    },
+                    selectedColor: const Color(0xFF638ECB),
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : const Color(0xFF395886),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 24),
+              
+              // 투두 선택
+              const Text(
+                '할 일 선택',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF395886),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                constraints: const BoxConstraints(maxHeight: 150),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: _todos.where((todo) => !todo['completed']).map((todo) {
+                      final isSelected = selectedTodo == todo['title'];
+                      return ListTile(
+                        leading: Radio<String>(
+                          value: todo['title'],
+                          groupValue: selectedTodo,
+                          onChanged: (value) {
+                            setModalState(() {
+                              selectedTodo = value;
+                            });
+                          },
+                          activeColor: const Color(0xFF638ECB),
+                        ),
+                        title: Text(
+                          todo['title'],
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF395886),
+                          ),
+                        ),
+                        onTap: () {
+                          setModalState(() {
+                            selectedTodo = todo['title'];
+                          });
+                        },
+                        tileColor: isSelected ? const Color(0xFFD5DEEF) : null,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // 다음 버튼
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: (selectedSubject != null && selectedTodo != null)
+                      ? () {
+                          Navigator.pop(context);
+                          _showTimerModeSelection(selectedSubject!, selectedTodo!);
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF638ECB),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    '다음',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showTimerModeSelection(String subject, String todo) {
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '공부 시간 측정',
+              '타이머 모드 선택',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: Color(0xFF395886),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '과목: $subject | 할 일: $todo',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF8AAEE0),
+              ),
+            ),
+            const SizedBox(height: 24),
+            
+            // 스톱워치 옵션
+            InkWell(
+              onTap: () {
+                Navigator.pop(context);
+                // 스톱워치 화면으로 이동 (과목과 투두 정보 전달)
+                context.push('/timer/stopwatch', extra: {
+                  'subject': subject,
+                  'todo': todo,
+                });
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: const Color(0xFFD5DEEF)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF638ECB).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.timer,
+                        color: Color(0xFF638ECB),
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '스톱워치',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF395886),
+                            ),
+                          ),
+                          const Text(
+                            '자유롭게 공부 시간을 측정해요',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF8AAEE0),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            
+            // 뽀모도로 옵션
+            InkWell(
+              onTap: () {
+                Navigator.pop(context);
+                // 뽀모도로 화면으로 이동 (과목과 투두 정보 전달)
+                context.push('/timer/pomodoro', extra: {
+                  'subject': subject,
+                  'todo': todo,
+                });
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: const Color(0xFFD5DEEF)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF638ECB).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.timelapse,
+                        color: Color(0xFF638ECB),
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '뽀모도로',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF395886),
+                            ),
+                          ),
+                          const Text(
+                            '25분 집중, 5분 휴식을 반복해요',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF8AAEE0),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 20),
-            ListTile(
-              leading: const Icon(Icons.timer, color: Color(0xFF638ECB)),
-              title: const Text('타이머'),
-              onTap: () {
-                Navigator.pop(context);
-                context.go('/home/timer');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.access_time, color: Color(0xFF638ECB)),
-              title: const Text('스톱워치'),
-              onTap: () {
-                Navigator.pop(context);
-                context.go('/home/timer');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.timelapse, color: Color(0xFF638ECB)),
-              title: const Text('뽀모도로'),
-              onTap: () {
-                Navigator.pop(context);
-                context.go('/home/timer');
-              },
-            ),
           ],
         ),
       ),

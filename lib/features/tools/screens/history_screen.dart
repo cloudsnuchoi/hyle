@@ -17,16 +17,16 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
     {
       'date': DateTime.now(),
       'activities': [
-        {'type': 'study', 'title': 'Completed Math Lesson', 'time': '09:00', 'duration': '45 min'},
-        {'type': 'quiz', 'title': 'Physics Quiz - 85%', 'time': '10:30', 'duration': '20 min'},
-        {'type': 'achievement', 'title': 'Earned "Study Streak" Badge', 'time': '11:00', 'duration': ''},
+        {'type': 'study', 'title': '수학 수업 완료', 'time': '09:00', 'duration': '45분'},
+        {'type': 'quiz', 'title': '물리학 퀴즈 - 85%', 'time': '10:30', 'duration': '20분'},
+        {'type': 'achievement', 'title': '"학습 연속" 배지 획득', 'time': '11:00', 'duration': ''},
       ],
     },
     {
       'date': DateTime.now().subtract(const Duration(days: 1)),
       'activities': [
-        {'type': 'study', 'title': 'Chemistry Chapter 5', 'time': '14:00', 'duration': '60 min'},
-        {'type': 'practice', 'title': 'English Grammar Practice', 'time': '16:00', 'duration': '30 min'},
+        {'type': 'study', 'title': '화학 5장', 'time': '14:00', 'duration': '60분'},
+        {'type': 'practice', 'title': '영어 문법 연습', 'time': '16:00', 'duration': '30분'},
       ],
     },
   ];
@@ -97,7 +97,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
           ),
           const Expanded(
             child: Text(
-              'Learning History',
+              '학습 기록',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -133,9 +133,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem('7', 'Day Streak', Icons.local_fire_department),
-          _buildStatItem('156', 'Total Sessions', Icons.timer),
-          _buildStatItem('4.5h', 'Today', Icons.today),
+          _buildStatItem('7', '연속 일수', Icons.local_fire_department),
+          _buildStatItem('156', '총 세션', Icons.timer),
+          _buildStatItem('4.5h', '오늘', Icons.today),
         ],
       ),
     );
@@ -297,10 +297,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     if (date.year == now.year && date.month == now.month && date.day == now.day) {
-      return 'Today';
+      return '오늘';
     }
     if (date.year == now.year && date.month == now.month && date.day == now.day - 1) {
-      return 'Yesterday';
+      return '어제';
     }
     return '${date.day}/${date.month}/${date.year}';
   }

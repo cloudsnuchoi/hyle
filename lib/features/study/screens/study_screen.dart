@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class StudyScreen extends ConsumerStatefulWidget {
   const StudyScreen({super.key});
@@ -321,7 +322,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen>
   Widget _buildSubjectCard(Subject subject) {
     return InkWell(
       onTap: () {
-        // Navigate to subject detail
+        _showStudyOptionsBottomSheet(subject);
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -604,6 +605,203 @@ class _StudyScreenState extends ConsumerState<StudyScreen>
           ),
         );
       },
+    );
+  }
+
+  void _showStudyOptionsBottomSheet(Subject subject) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 50,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFD5DEEF),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            
+            // Subject Info
+            Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: subject.color.withValues(alpha: 0.1),
+                  ),
+                  child: Icon(
+                    subject.icon,
+                    size: 28,
+                    color: subject.color,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        subject.name,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF262626),
+                        ),
+                      ),
+                      Text(
+                        '${subject.completedLessons}/${subject.totalLessons} 레슨 완료',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF737373),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 30),
+            
+            // Study Options
+            const Text(
+              '학습 옵션 선택',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF262626),
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 3,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 1.0,
+              children: [
+                _buildStudyOptionCard(
+                  icon: Icons.style,
+                  label: '플래시카드',
+                  color: const Color(0xFF638ECB),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push('/study/flashcard');
+                  },
+                ),
+                _buildStudyOptionCard(
+                  icon: Icons.quiz,
+                  label: '퀴즈',
+                  color: const Color(0xFF8AAEE0),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push('/study/quiz');
+                  },
+                ),
+                _buildStudyOptionCard(
+                  icon: Icons.school,
+                  label: '수업',
+                  color: const Color(0xFF395886),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push('/study/lesson');
+                  },
+                ),
+                _buildStudyOptionCard(
+                  icon: Icons.edit,
+                  label: '연습',
+                  color: const Color(0xFF638ECB),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push('/study/practice');
+                  },
+                ),
+                _buildStudyOptionCard(
+                  icon: Icons.play_circle,
+                  label: '비디오',
+                  color: const Color(0xFF8AAEE0),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push('/study/video');
+                  },
+                ),
+                _buildStudyOptionCard(
+                  icon: Icons.picture_as_pdf,
+                  label: 'PDF 자료',
+                  color: const Color(0xFF395886),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push('/study/pdf');
+                  },
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStudyOptionCard({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: color.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: color,
+              size: 32,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: color,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -15,12 +15,12 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
   late Animation<double> _slideIn;
   late TabController _tabController;
 
-  String _selectedPeriod = 'Week';
+  String _selectedPeriod = '주간';
 
   final List<Map<String, dynamic>> _rankings = [
     {
       'rank': 1,
-      'name': 'Emma Wilson',
+      'name': '김민지',
       'avatar': '👩‍🎓',
       'score': 2850,
       'change': 'up',
@@ -30,7 +30,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
     },
     {
       'rank': 2,
-      'name': 'James Park',
+      'name': '박준호',
       'avatar': '👨‍💻',
       'score': 2720,
       'change': 'up',
@@ -40,7 +40,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
     },
     {
       'rank': 3,
-      'name': 'Sophie Chen',
+      'name': '이서연',
       'avatar': '👩‍🔬',
       'score': 2650,
       'change': 'down',
@@ -50,7 +50,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
     },
     {
       'rank': 4,
-      'name': 'You',
+      'name': '나',
       'avatar': '🎯',
       'score': 2480,
       'change': 'up',
@@ -61,7 +61,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
     },
     {
       'rank': 5,
-      'name': 'Alex Kim',
+      'name': '김현우',
       'avatar': '👨‍🏫',
       'score': 2350,
       'change': 'same',
@@ -158,7 +158,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
           ),
           const Expanded(
             child: Text(
-              'Leaderboard',
+              '리더보드',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -177,7 +177,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
   }
 
   Widget _buildPeriodSelector() {
-    final periods = ['Day', 'Week', 'Month', 'All Time'];
+    final periods = ['일간', '주간', '월간', '전체'];
     return Container(
       height: 40,
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -330,9 +330,9 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
         labelColor: const Color(0xFF638ECB),
         unselectedLabelColor: const Color(0xFF8AAEE0),
         tabs: const [
-          Tab(text: 'Global'),
-          Tab(text: 'Friends'),
-          Tab(text: 'School'),
+          Tab(text: '전체'),
+          Tab(text: '친구'),
+          Tab(text: '학교'),
         ],
       ),
     );
@@ -430,7 +430,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Text(
-                          'YOU',
+                          '나',
                           style: TextStyle(
                             fontSize: 10,
                             color: Colors.white,
@@ -447,7 +447,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
                     Icon(Icons.military_tech, size: 14, color: const Color(0xFF8AAEE0)),
                     const SizedBox(width: 4),
                     Text(
-                      'Level ${user['level']}',
+                      '레벨 ${user['level']}',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Color(0xFF8AAEE0),
@@ -457,7 +457,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
                     Icon(Icons.emoji_events, size: 14, color: const Color(0xFF8AAEE0)),
                     const SizedBox(width: 4),
                     Text(
-                      '${user['badges']} badges',
+                      '배지 ${user['badges']}개',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Color(0xFF8AAEE0),

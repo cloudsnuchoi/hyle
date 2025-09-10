@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class AITutorScreen extends ConsumerStatefulWidget {
   const AITutorScreen({super.key});
@@ -10,6 +11,7 @@ class AITutorScreen extends ConsumerStatefulWidget {
 
 class _AITutorScreenState extends ConsumerState<AITutorScreen>
     with TickerProviderStateMixin {
+  late TabController _tabController;
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   late AnimationController _typingAnimationController;
@@ -49,6 +51,7 @@ class _AITutorScreenState extends ConsumerState<AITutorScreen>
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 4, vsync: this);
     _typingAnimationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -67,6 +70,7 @@ class _AITutorScreenState extends ConsumerState<AITutorScreen>
     _messageController.dispose();
     _scrollController.dispose();
     _typingAnimationController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -154,8 +158,8 @@ class _AITutorScreenState extends ConsumerState<AITutorScreen>
                     Container(
                       width: 40,
                       height: 40,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
@@ -177,7 +181,7 @@ class _AITutorScreenState extends ConsumerState<AITutorScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'AI 튜터',
+                            'AI 허브',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -201,21 +205,21 @@ class _AITutorScreenState extends ConsumerState<AITutorScreen>
                           icon: const Icon(Icons.analytics, color: Color(0xFF638ECB)),
                           tooltip: 'AI 분석',
                           onPressed: () {
-                            Navigator.pushNamed(context, 'aiAnalysis');
+                            context.push('/ai/analysis');
                           },
                         ),
                         IconButton(
                           icon: const Icon(Icons.summarize, color: Color(0xFF638ECB)),
                           tooltip: 'AI 요약',
                           onPressed: () {
-                            Navigator.pushNamed(context, 'aiSummary');
+                            context.push('/ai/summary');
                           },
                         ),
                         IconButton(
                           icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFF638ECB)),
                           tooltip: 'AI 채팅',
                           onPressed: () {
-                            Navigator.pushNamed(context, 'aiChat');
+                            context.push('/ai/chat');
                           },
                         ),
                       ],
@@ -255,6 +259,40 @@ class _AITutorScreenState extends ConsumerState<AITutorScreen>
                 ),
               ),
 
+              // Tabs
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: TabBar(
+                  controller: _tabController,
+                  indicatorColor: const Color(0xFF395886),
+                  indicatorWeight: 3,
+                  labelColor: const Color(0xFF395886),
+                  unselectedLabelColor: const Color(0xFF737373),
+                  labelStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  isScrollable: true,
+                  tabs: const [
+                    Tab(text: 'AI 튜터'),
+                    Tab(text: 'AI 채팅'),
+                    Tab(text: 'AI 분석'),
+                    Tab(text: 'AI 요약'),
+                  ],
+                ),
+              ),
+
               // Quick Actions
               Container(
                 height: 40,
@@ -286,18 +324,20 @@ class _AITutorScreenState extends ConsumerState<AITutorScreen>
                 ),
               ),
 
-              // Chat Messages
+              // Tab Content
               Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: _messages.length + (_isTyping ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (_isTyping && index == _messages.length) {
-                      return _buildTypingIndicator();
-                    }
-                    return _buildMessage(_messages[index]);
-                  },
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    // AI 튜터 탭
+                    _buildAITutorTab(),
+                    // AI 채팅 탭
+                    _buildAIChatTab(),
+                    // AI 분석 탭
+                    _buildAIAnalysisTab(),
+                    // AI 요약 탭
+                    _buildAISummaryTab(),
+                  ],
                 ),
               ),
 
@@ -370,6 +410,153 @@ class _AITutorScreenState extends ConsumerState<AITutorScreen>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAITutorTab() {
+    return Column(
+      children: [
+        // Quick Actions
+        Container(
+          height: 40,
+          margin: const EdgeInsets.symmetric(vertical: 12),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: _quickActions.length,
+            itemBuilder: (context, index) {
+              return Container(
+                margin: const EdgeInsets.only(right: 8),
+                child: ActionChip(
+                  label: Text(_quickActions[index]),
+                  onPressed: () {
+                    _messageController.text = _quickActions[index];
+                    _sendMessage();
+                  },
+                  backgroundColor: Colors.white,
+                  labelStyle: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF638ECB),
+                  ),
+                  side: BorderSide(
+                    color: const Color(0xFF638ECB).withValues(alpha: 0.3),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        // Chat Messages
+        Expanded(
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: _messages.length + (_isTyping ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (_isTyping && index == _messages.length) {
+                return _buildTypingIndicator();
+              }
+              return _buildMessage(_messages[index]);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAIChatTab() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.chat_bubble_outline,
+            size: 80,
+            color: Color(0xFF8AAEE0),
+          ),
+          SizedBox(height: 16),
+          Text(
+            'AI 채팅',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF395886),
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'AI와 자유롭게 대화하세요',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF8AAEE0),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAIAnalysisTab() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.analytics,
+            size: 80,
+            color: Color(0xFF8AAEE0),
+          ),
+          SizedBox(height: 16),
+          Text(
+            'AI 분석',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF395886),
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            '학습 데이터를 분석합니다',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF8AAEE0),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAISummaryTab() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.summarize,
+            size: 80,
+            color: Color(0xFF8AAEE0),
+          ),
+          SizedBox(height: 16),
+          Text(
+            'AI 요약',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF395886),
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            '학습 내용을 요약해드립니다',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF8AAEE0),
+            ),
+          ),
+        ],
       ),
     );
   }

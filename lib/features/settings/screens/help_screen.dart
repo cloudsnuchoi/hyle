@@ -18,7 +18,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
 
   final TextEditingController _searchTextController = TextEditingController();
   String _searchQuery = '';
-  String _selectedCategory = 'All';
+  String _selectedCategory = '전체';
   final Set<String> _expandedFAQs = {};
 
   @override
@@ -98,7 +98,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
                       title: Opacity(
                         opacity: _fadeIn.value,
                         child: const Text(
-                          'Help & Support',
+                          '도움말 및 지원',
                           style: TextStyle(
                             color: Color(0xFF395886),
                             fontWeight: FontWeight.bold,
@@ -183,7 +183,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
         controller: _searchTextController,
         onChanged: (value) => setState(() => _searchQuery = value),
         decoration: InputDecoration(
-          hintText: 'Search for help...',
+          hintText: '도움말 검색...',
           hintStyle: const TextStyle(color: Color(0xFF8AAEE0)),
           prefixIcon: const Icon(Icons.search, color: Color(0xFF638ECB)),
           suffixIcon: _searchQuery.isNotEmpty
@@ -210,7 +210,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
         Expanded(
           child: _buildQuickActionCard(
             icon: Icons.book,
-            title: 'User Guide',
+            title: '사용자 가이드',
             color: const Color(0xFF8AAEE0),
             onTap: () {},
           ),
@@ -219,7 +219,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
         Expanded(
           child: _buildQuickActionCard(
             icon: Icons.play_circle,
-            title: 'Video Tutorials',
+            title: '동영상 강의',
             color: const Color(0xFF638ECB),
             onTap: () {},
           ),
@@ -228,7 +228,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
         Expanded(
           child: _buildQuickActionCard(
             icon: Icons.forum,
-            title: 'Community',
+            title: '커뮤니티',
             color: const Color(0xFF395886),
             onTap: () {},
           ),
@@ -272,13 +272,13 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
   }
 
   Widget _buildCategories() {
-    final categories = ['All', 'Getting Started', 'Account', 'Learning', 'Technical', 'Billing'];
+    final categories = ['전체', '시작하기', '계정', '학습', '기술', '결제'];
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Categories',
+          '카테고리',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -340,7 +340,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
                 Icon(Icons.trending_up, color: Color(0xFF638ECB)),
                 SizedBox(width: 12),
                 Text(
-                  'Popular Articles',
+                  '인기 글',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -351,23 +351,23 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
             ),
           ),
           _buildArticleItem(
-            'How to get started with HYLE',
-            'Learn the basics of our learning platform',
+            'HYLE 시작하기',
+            '학습 플랫폼의 기초 알아보기',
             Icons.rocket_launch,
           ),
           _buildArticleItem(
-            'Understanding your learning type',
-            'Discover your unique learning style',
+            '내 학습 유형 이해하기',
+            '나만의 학습 스타일 발견하기',
             Icons.psychology,
           ),
           _buildArticleItem(
-            'Setting up study goals',
-            'Create effective learning objectives',
+            '학습 목표 설정하기',
+            '효과적인 학습 목표 만들기',
             Icons.flag,
           ),
           _buildArticleItem(
-            'Using AI features effectively',
-            'Maximize your AI assistant benefits',
+            'AI 기능 효과적으로 사용하기',
+            'AI 비서의 이점 극대화하기',
             Icons.auto_awesome,
           ),
         ],
@@ -408,23 +408,23 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
     final faqs = [
       {
         'id': 'faq1',
-        'question': 'How do I reset my password?',
-        'answer': 'You can reset your password by going to Settings > Account > Change Password, or by clicking "Forgot Password" on the login screen.',
+        'question': '비밀번호를 어떻게 재설정하나요?',
+        'answer': '설정 > 계정 > 비밀번호 변경에서 비밀번호를 재설정하거나, 로그인 화면에서 "비밀번호 찾기"를 클릭하여 재설정할 수 있습니다.',
       },
       {
         'id': 'faq2',
-        'question': 'Can I use HYLE offline?',
-        'answer': 'Yes! Premium users can download content for offline access. Simply tap the download icon on any lesson or study material.',
+        'question': 'HYLE을 오프라인에서 사용할 수 있나요?',
+        'answer': '네! 프리미엄 사용자는 오프라인 액세스를 위해 콘텐츠를 다운로드할 수 있습니다. 단순히 수업이나 학습 자료의 다운로드 아이콘을 탭하면 됩니다.',
       },
       {
         'id': 'faq3',
-        'question': 'How does the AI tutor work?',
-        'answer': 'Our AI tutor uses advanced language models to provide personalized learning assistance, answer questions, and generate study materials tailored to your needs.',
+        'question': 'AI 튜터는 어떻게 작동하나요?',
+        'answer': '저희 AI 튜터는 고급 언어 모델을 사용하여 개인화된 학습 지원을 제공하고, 질문에 답하며, 여러분의 요구에 맞춰 학습 자료를 생성합니다.',
       },
       {
         'id': 'faq4',
-        'question': 'What payment methods are accepted?',
-        'answer': 'We accept all major credit cards, debit cards, PayPal, and various regional payment methods depending on your location.',
+        'question': '어떤 결제 방법을 지원하나요?',
+        'answer': '모든 주요 신용카드, 직불카드, PayPal, 그리고 지역에 따른 다양한 결제 방법을 지원합니다.',
       },
     ];
 
@@ -449,7 +449,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
                 Icon(Icons.help_outline, color: Color(0xFF638ECB)),
                 SizedBox(width: 12),
                 Text(
-                  'Frequently Asked Questions',
+                  '자주 묻는 질문',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -557,7 +557,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
                 Icon(Icons.contact_support, color: Color(0xFF638ECB)),
                 SizedBox(width: 12),
                 Text(
-                  'Contact Us',
+                  '문의하기',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -569,28 +569,28 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
           ),
           _buildContactTile(
             icon: Icons.chat_bubble,
-            title: 'Live Chat',
-            subtitle: 'Chat with our support team',
-            badge: 'Online',
+            title: '라이브 채팅',
+            subtitle: '지원팀과 채팅하기',
+            badge: '온라인',
             badgeColor: Colors.green,
             onTap: _showLiveChat,
           ),
           _buildContactTile(
             icon: Icons.email,
-            title: 'Email Support',
+            title: '이메일 지원',
             subtitle: 'support@hyle.app',
             onTap: () {},
           ),
           _buildContactTile(
             icon: Icons.phone,
-            title: 'Phone Support',
-            subtitle: 'Mon-Fri, 9AM-6PM EST',
+            title: '전화 지원',
+            subtitle: '월-금, 오전 9시-오후 6시 (EST)',
             onTap: () {},
           ),
           _buildContactTile(
             icon: Icons.feedback,
-            title: 'Send Feedback',
-            subtitle: 'Help us improve HYLE',
+            title: '피드백 보내기',
+            subtitle: 'HYLE 개선을 도와주세요',
             onTap: () {},
           ),
           const SizedBox(height: 8),
@@ -683,7 +683,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
             ),
             const SizedBox(height: 16),
             const Text(
-              'Learning Resources',
+              '학습 자료',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -692,7 +692,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              'Access our comprehensive learning resources including guides, tutorials, and best practices.',
+              '가이드, 튜토리얼, 베스트 프랙티스를 포함한 종합적인 학습 자료에 액세스하세요.',
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 14,
@@ -711,7 +711,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
                 ),
               ),
               child: const Text(
-                'Browse Resources',
+                '자료 둘러보기',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -746,7 +746,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
             const Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'Live Chat Support',
+                '라이브 채팅 지원',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -756,7 +756,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen>
             ),
             const Expanded(
               child: Center(
-                child: Text('Chat interface would go here'),
+                child: Text('채팅 인터페이스가 여기에 표시됩니다'),
               ),
             ),
           ],

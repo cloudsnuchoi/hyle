@@ -16,22 +16,22 @@ class _NoteScreenState extends ConsumerState<NoteScreen>
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
-  String _selectedCategory = 'Study';
+  String _selectedCategory = '학습';
   
   final List<Map<String, dynamic>> _notes = [
     {
       'id': '1',
-      'title': 'Math Formula Notes',
-      'content': 'Quadratic formula: x = (-b ± √(b²-4ac))/2a',
-      'category': 'Mathematics',
+      'title': '수학 공식 노트',
+      'content': '이차 방정식 공식: x = (-b ± √(b²-4ac))/2a',
+      'category': '수학',
       'date': DateTime.now().subtract(const Duration(days: 1)),
       'color': const Color(0xFF8AAEE0),
     },
     {
       'id': '2',
-      'title': 'Physics Concepts',
-      'content': 'Newton\'s Laws of Motion...',
-      'category': 'Science',
+      'title': '물리학 개념',
+      'content': '뉴턴의 운동 법칙...',
+      'category': '과학',
       'date': DateTime.now().subtract(const Duration(days: 2)),
       'color': const Color(0xFF638ECB),
     },
@@ -127,7 +127,7 @@ class _NoteScreenState extends ConsumerState<NoteScreen>
           ),
           const Expanded(
             child: Text(
-              'My Notes',
+              '내 노트',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -162,7 +162,7 @@ class _NoteScreenState extends ConsumerState<NoteScreen>
       ),
       child: const TextField(
         decoration: InputDecoration(
-          hintText: 'Search notes...',
+          hintText: '노트 검색...',
           border: InputBorder.none,
           icon: Icon(Icons.search, color: Color(0xFF8AAEE0)),
         ),
@@ -171,7 +171,7 @@ class _NoteScreenState extends ConsumerState<NoteScreen>
   }
 
   Widget _buildCategoryFilter() {
-    final categories = ['All', 'Study', 'Mathematics', 'Science', 'Personal'];
+    final categories = ['전체', '학습', '수학', '과학', '개인'];
     return Container(
       height: 40,
       margin: const EdgeInsets.all(20),
@@ -296,9 +296,9 @@ class _NoteScreenState extends ConsumerState<NoteScreen>
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    if (difference.inDays == 0) return 'Today';
-    if (difference.inDays == 1) return 'Yesterday';
-    return '${difference.inDays} days ago';
+    if (difference.inDays == 0) return '오늘';
+    if (difference.inDays == 1) return '어제';
+    return '${difference.inDays}일 전';
   }
 
   void _showAddNoteDialog() {
@@ -320,7 +320,7 @@ class _NoteScreenState extends ConsumerState<NoteScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'New Note',
+                '새 노트',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -331,7 +331,7 @@ class _NoteScreenState extends ConsumerState<NoteScreen>
               TextField(
                 controller: _titleController,
                 decoration: const InputDecoration(
-                  labelText: 'Title',
+                  labelText: '제목',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -340,7 +340,7 @@ class _NoteScreenState extends ConsumerState<NoteScreen>
                 controller: _contentController,
                 maxLines: 4,
                 decoration: const InputDecoration(
-                  labelText: 'Content',
+                  labelText: '내용',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -350,7 +350,7 @@ class _NoteScreenState extends ConsumerState<NoteScreen>
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
+                    child: const Text('취소'),
                   ),
                   const SizedBox(width: 12),
                   ElevatedButton(
@@ -361,7 +361,7 @@ class _NoteScreenState extends ConsumerState<NoteScreen>
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF638ECB),
                     ),
-                    child: const Text('Save'),
+                    child: const Text('저장'),
                   ),
                 ],
               ),

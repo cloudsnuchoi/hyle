@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 📚 핵심 참조 문서 (Context 유지용)
-- **최신 통합 메모리**: [`PROJECT_MEMORY_2025_09_08.md`](./PROJECT_MEMORY_2025_09_08.md) - 프로젝트 전체 context
+- **최신 통합 메모리**: [`PROJECT_MEMORY_2025_09_10.md`](./PROJECT_MEMORY_2025_09_10.md) - 프로젝트 전체 context
 - **개발 계획**: [`DEVELOPMENT_PLAN_2025_09.md`](./DEVELOPMENT_PLAN_2025_09.md) - 우선순위 및 일정
 - **프로젝트 현황**: [`PROJECT_STATUS.md`](./PROJECT_STATUS.md) - 실시간 진행 상황
 - **프로젝트 개요**: [`HYLE_PROJECT_OVERVIEW.md`](./HYLE_PROJECT_OVERVIEW.md) - 시스템 아키텍처
@@ -11,7 +11,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build and Development Commands
 
 ```bash
-# Run development mode (recommended)
+# Run current app (NEW - 플로팅 메뉴 네비게이션)
+flutter run -d chrome -t lib/main_new.dart
+
+# Run gallery mode (모든 스크린 테스트)
+flutter run -d chrome -t lib/main_gallery.dart
+
+# Run development mode
 flutter run -d chrome -t lib/main_dev.dart
 
 # Run test mode

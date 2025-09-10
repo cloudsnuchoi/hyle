@@ -13,28 +13,28 @@ class _BookmarkScreenState extends ConsumerState<BookmarkScreen>
   late AnimationController _controller;
   late Animation<double> _fadeIn;
   
-  String _selectedFilter = 'All';
+  String _selectedFilter = '전체';
 
   final List<Map<String, dynamic>> _bookmarks = [
     {
       'id': '1',
-      'title': 'Advanced Calculus Chapter 5',
+      'title': '고급 미적분학 5장',
       'type': 'lesson',
-      'subject': 'Mathematics',
+      'subject': '수학',
       'date': DateTime.now().subtract(const Duration(days: 2)),
     },
     {
       'id': '2',
-      'title': 'Physics Quiz - Thermodynamics',
+      'title': '물리학 퀴즈 - 열역학',
       'type': 'quiz',
-      'subject': 'Physics',
+      'subject': '물리학',
       'date': DateTime.now().subtract(const Duration(days: 5)),
     },
     {
       'id': '3',
-      'title': 'English Literature Essay Guide',
+      'title': '영문학 에세이 가이드',
       'type': 'resource',
-      'subject': 'English',
+      'subject': '영어',
       'date': DateTime.now().subtract(const Duration(days: 7)),
     },
   ];
@@ -105,7 +105,7 @@ class _BookmarkScreenState extends ConsumerState<BookmarkScreen>
           ),
           const Expanded(
             child: Text(
-              'Bookmarks',
+              '북마크',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -124,7 +124,7 @@ class _BookmarkScreenState extends ConsumerState<BookmarkScreen>
   }
 
   Widget _buildFilterChips() {
-    final filters = ['All', 'Lessons', 'Quizzes', 'Resources'];
+    final filters = ['전체', '수업', '퀴즈', '자료'];
     return Container(
       height: 40,
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -270,8 +270,8 @@ class _BookmarkScreenState extends ConsumerState<BookmarkScreen>
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    if (difference.inDays == 0) return 'Today';
-    if (difference.inDays == 1) return 'Yesterday';
-    return '${difference.inDays} days ago';
+    if (difference.inDays == 0) return '오늘';
+    if (difference.inDays == 1) return '어제';
+    return '${difference.inDays}일 전';
   }
 }

@@ -75,6 +75,10 @@ import '../features/tools/screens/note_screen.dart';
 import '../features/tools/screens/bookmark_screen.dart';
 import '../features/tools/screens/history_screen.dart';
 
+// Timer Screens
+import '../features/timer/screens/stopwatch_screen.dart';
+import '../features/timer/screens/pomodoro_screen.dart';
+
 // Other Screens
 import '../features/notifications/screens/notification_screen.dart';
 import '../features/search/screens/search_screen.dart';
@@ -371,6 +375,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/gamification/shop',
         name: 'shop',
         builder: (context, state) => const ShopScreen(),
+      ),
+      
+      // Timer Routes
+      GoRoute(
+        path: '/timer/stopwatch',
+        name: 'stopwatch',
+        builder: (context, state) {
+          final sessionData = state.extra as Map<String, dynamic>?;
+          return StopwatchScreen(sessionData: sessionData);
+        },
+      ),
+      GoRoute(
+        path: '/timer/pomodoro',
+        name: 'pomodoro',
+        builder: (context, state) {
+          final sessionData = state.extra as Map<String, dynamic>?;
+          return PomodoroScreen(sessionData: sessionData);
+        },
       ),
       
       // Splash Screen
