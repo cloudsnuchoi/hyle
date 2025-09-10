@@ -390,30 +390,13 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Text(
-                      '학습 시간',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF395886),
-                      ),
-                    ),
-                    if (_subjectTimes.length > 3)
-                      IconButton(
-                        icon: Icon(
-                          _isStudyTimeExpanded ? Icons.expand_less : Icons.expand_more,
-                          color: const Color(0xFF8AAEE0),
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isStudyTimeExpanded = !_isStudyTimeExpanded;
-                          });
-                        },
-                      ),
-                  ],
+                const Text(
+                  '학습 시간',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF395886),
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.play_circle_fill, 
@@ -428,7 +411,7 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
               ],
             ),
             const SizedBox(height: 12),
-            ...(_isStudyTimeExpanded ? _subjectTimes.entries : _subjectTimes.entries.take(3)).map((entry) {
+            ..._subjectTimes.entries.map((entry) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(
@@ -633,30 +616,13 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Text(
-                      'To-Do',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF395886),
-                      ),
-                    ),
-                    if (_todos.length > 2)
-                      IconButton(
-                        icon: Icon(
-                          _isTodoExpanded ? Icons.expand_less : Icons.expand_more,
-                          color: const Color(0xFF8AAEE0),
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isTodoExpanded = !_isTodoExpanded;
-                          });
-                        },
-                      ),
-                  ],
+                const Text(
+                  'To-Do',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF395886),
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.add_circle, 
@@ -670,7 +636,7 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
               ],
             ),
             const SizedBox(height: 12),
-            ...(_isTodoExpanded ? _todos : _todos.take(2)).map((todo) {
+            ..._todos.map((todo) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(
@@ -685,42 +651,15 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
                       activeColor: const Color(0xFF638ECB),
                     ),
                     Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              todo['title'],
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: const Color(0xFF395886),
-                                decoration: todo['completed'] 
-                                    ? TextDecoration.lineThrough 
-                                    : null,
-                              ),
-                            ),
-                          ),
-                          if (todo['subject'] != null)
-                            Container(
-                              margin: const EdgeInsets.only(left: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: _getSubjectColor(todo['subject']).withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: _getSubjectColor(todo['subject']),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Text(
-                                todo['subject'],
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: _getSubjectColor(todo['subject']),
-                                ),
-                              ),
-                            ),
-                        ],
+                      child: Text(
+                        todo['title'],
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: const Color(0xFF395886),
+                          decoration: todo['completed'] 
+                              ? TextDecoration.lineThrough 
+                              : null,
+                        ),
                       ),
                     ),
                   ],
@@ -1386,25 +1325,6 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
         ),
       ),
     );
-  }
-
-  Color _getSubjectColor(String subject) {
-    switch (subject) {
-      case '수학':
-        return const Color(0xFFFF6B6B);
-      case '영어':
-        return const Color(0xFF4ECDC4);
-      case '국어':
-        return const Color(0xFFFFBE0B);
-      case '과학':
-        return const Color(0xFF8338EC);
-      case '사회':
-        return const Color(0xFF3A86FF);
-      case '한국사':
-        return const Color(0xFFFB5607);
-      default:
-        return const Color(0xFF8AAEE0);
-    }
   }
 
   void _showAddTodoDialog() {

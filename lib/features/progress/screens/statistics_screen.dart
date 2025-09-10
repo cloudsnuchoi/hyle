@@ -44,7 +44,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -87,6 +87,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
                     _buildOverviewTab(),
                     _buildDetailsTab(),
                     _buildInsightsTab(),
+                    _buildAchievementsTab(),
                   ],
                 ),
               ),
@@ -216,6 +217,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
           Tab(text: '개요'),
           Tab(text: '상세'),
           Tab(text: '인사이트'),
+          Tab(text: '성취도'),
         ],
       ),
     );
@@ -636,6 +638,303 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildAchievementsTab() {
+    final achievements = [
+      {
+        'title': '연속 7일',
+        'description': '일주일 연속 학습',
+        'icon': Icons.local_fire_department,
+        'color': const Color(0xFFFF6B6B),
+        'earned': true,
+        'progress': 1.0,
+        'date': '2025년 1월 5일',
+      },
+      {
+        'title': '첫 100 XP',
+        'description': '100 경험치 달성',
+        'icon': Icons.star,
+        'color': const Color(0xFFFFC107),
+        'earned': true,
+        'progress': 1.0,
+        'date': '2025년 1월 3일',
+      },
+      {
+        'title': '야간 학습자',
+        'description': '밤 10시 이후 학습',
+        'icon': Icons.nightlight_round,
+        'color': const Color(0xFF9333EA),
+        'earned': true,
+        'progress': 1.0,
+        'date': '2025년 1월 8일',
+      },
+      {
+        'title': '퀴즈 마스터',
+        'description': '퀴즈 10개 연속 정답',
+        'icon': Icons.emoji_events,
+        'color': const Color(0xFF10B981),
+        'earned': false,
+        'progress': 0.7,
+        'date': null,
+      },
+      {
+        'title': '멀티태스커',
+        'description': '하루에 3과목 이상 학습',
+        'icon': Icons.dashboard,
+        'color': const Color(0xFF638ECB),
+        'earned': false,
+        'progress': 0.4,
+        'date': null,
+      },
+      {
+        'title': '완벽주의자',
+        'description': '정답률 100% 유지',
+        'icon': Icons.verified,
+        'color': const Color(0xFF395886),
+        'earned': false,
+        'progress': 0.85,
+        'date': null,
+      },
+      {
+        'title': '조기 학습자',
+        'description': '오전 6시 이전 학습',
+        'icon': Icons.wb_sunny,
+        'color': const Color(0xFFF59E0B),
+        'earned': false,
+        'progress': 0.2,
+        'date': null,
+      },
+      {
+        'title': '속도의 제왕',
+        'description': '문제 30초 내 풀기',
+        'icon': Icons.flash_on,
+        'color': const Color(0xFF06B6D4),
+        'earned': false,
+        'progress': 0.5,
+        'date': null,
+      },
+      {
+        'title': '토론 리더',
+        'description': '커뮤니티 답변 50개',
+        'icon': Icons.forum,
+        'color': const Color(0xFF8B5CF6),
+        'earned': false,
+        'progress': 0.3,
+        'date': null,
+      },
+    ];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Summary Card
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFF638ECB),
+                  const Color(0xFF8AAEE0),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF638ECB).withValues(alpha: 0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '내 성취도',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white70,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${achievements.where((a) => a['earned'] == true).length}/${achievements.length} 달성',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${(achievements.where((a) => a['earned'] == true).length / achievements.length * 100).round()}% 완료',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.emoji_events,
+                    size: 40,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // Categories
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildCategoryChip('전체', true),
+                const SizedBox(width: 8),
+                _buildCategoryChip('학습', false),
+                const SizedBox(width: 8),
+                _buildCategoryChip('도전', false),
+                const SizedBox(width: 8),
+                _buildCategoryChip('소셜', false),
+                const SizedBox(width: 8),
+                _buildCategoryChip('특별', false),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 20),
+          
+          // Achievements Grid
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.9,
+            ),
+            itemCount: achievements.length,
+            itemBuilder: (context, index) {
+              final achievement = achievements[index];
+              final bool earned = achievement['earned'] as bool;
+              final Color color = achievement['color'] as Color;
+              final double progress = achievement['progress'] as double;
+              
+              return GestureDetector(
+                onTap: () {
+                  // Show achievement details
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: earned ? color.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: earned ? color.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          if (!earned)
+                            CircularProgressIndicator(
+                              value: progress,
+                              backgroundColor: Colors.grey.withValues(alpha: 0.2),
+                              valueColor: AlwaysStoppedAnimation<Color>(color.withValues(alpha: 0.5)),
+                              strokeWidth: 3,
+                            ),
+                          Icon(
+                            achievement['icon'] as IconData,
+                            size: 32,
+                            color: earned ? color : Colors.grey,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        achievement['title'] as String,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: earned ? const Color(0xFF262626) : Colors.grey,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (earned && achievement['date'] != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          achievement['date'] as String,
+                          style: const TextStyle(
+                            fontSize: 9,
+                            color: Color(0xFF737373),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ] else if (!earned) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          '${(progress * 100).round()}%',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: color,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildCategoryChip(String label, bool isSelected) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: isSelected ? const Color(0xFF638ECB) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isSelected ? const Color(0xFF638ECB) : Colors.grey.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isSelected ? Colors.white : const Color(0xFF737373),
+        ),
+      ),
     );
   }
 

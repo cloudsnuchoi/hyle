@@ -17,38 +17,69 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
   late Animation<double> _scaleIn;
 
   DateTime _selectedDate = DateTime.now();
-  String _viewMode = 'week'; // week, month, day
+  String _viewMode = 'month'; // week, month, day
   
+  // 샘플 일정 데이터 (나중에 Supabase와 연동)
   final List<Map<String, dynamic>> _schedules = [
     {
       'id': '1',
-      'title': '수학 공부',
+      'title': '수학 중간고사',
       'subject': '수학',
-      'time': '09:00 - 10:30',
-      'color': const Color(0xFF8AAEE0),
       'date': DateTime.now(),
-      'type': 'study',
-      'description': '미적분 3단원 복습',
+      'startTime': '09:00',
+      'endTime': '10:30',
+      'color': const Color(0xFFFF6B6B),
+      'type': 'exam',
     },
     {
       'id': '2',
-      'title': '물리 퀴즈',
-      'subject': '과학',
-      'time': '14:00 - 15:00',
-      'color': const Color(0xFF638ECB),
-      'date': DateTime.now(),
+      'title': '영어 단어 시험',
+      'subject': '영어',
+      'date': DateTime.now().add(const Duration(days: 1)),
+      'startTime': '14:00',
+      'endTime': '15:00',
+      'color': const Color(0xFF4ECDC4),
       'type': 'quiz',
-      'description': '역학 단원 테스트',
     },
     {
       'id': '3',
-      'title': '영어 에세이',
-      'subject': '영어',
-      'time': '16:00 - 17:30',
-      'color': const Color(0xFF395886),
-      'date': DateTime.now(),
+      'title': '물리 실험',
+      'subject': '과학',
+      'date': DateTime.now().add(const Duration(days: 2)),
+      'startTime': '13:00',
+      'endTime': '15:00',
+      'color': const Color(0xFF8338EC),
+      'type': 'lab',
+    },
+    {
+      'id': '4',
+      'title': '국어 발표',
+      'subject': '국어',
+      'date': DateTime.now().subtract(const Duration(days: 1)),
+      'startTime': '10:00',
+      'endTime': '11:00',
+      'color': const Color(0xFFFFBE0B),
+      'type': 'presentation',
+    },
+    {
+      'id': '5',
+      'title': '한국사 보고서 마감',
+      'subject': '한국사',
+      'date': DateTime.now().add(const Duration(days: 3)),
+      'startTime': '23:59',
+      'endTime': '23:59',
+      'color': const Color(0xFFFB5607),
       'type': 'assignment',
-      'description': '셰익스피어 작품 분석',
+    },
+    {
+      'id': '6',
+      'title': '사회 토론',
+      'subject': '사회',
+      'date': DateTime.now().add(const Duration(days: 4)),
+      'startTime': '15:00',
+      'endTime': '16:30',
+      'color': const Color(0xFF3A86FF),
+      'type': 'discussion',
     },
   ];
 
@@ -121,15 +152,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
                 children: [
                   _buildHeader(),
                   _buildViewModeSelector(),
-                  _buildCalendarView(),
                   Expanded(
-                    child: Transform.translate(
-                      offset: Offset(0, _slideIn.value),
-                      child: Opacity(
-                        opacity: _fadeIn.value,
-                        child: _buildScheduleList(),
-                      ),
-                    ),
+                    child: _buildCalendarView(),
                   ),
                 ],
               );
@@ -182,9 +206,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
 
   Widget _buildViewModeSelector() {
     final modes = [
-      {'id': 'day', 'label': '일', 'icon': Icons.view_day},
-      {'id': 'week', 'label': '주', 'icon': Icons.view_week},
-      {'id': 'month', 'label': '월', 'icon': Icons.calendar_month},
+      {'id': 'day', 'label': 'Day', 'icon': Icons.view_day},
+      {'id': 'week', 'label': 'Week', 'icon': Icons.view_week},
+      {'id': 'month', 'label': 'Month', 'icon': Icons.calendar_month},
     ];
 
     return Padding(
@@ -258,11 +282,12 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
         ),
         child: Column(
           children: [
-            _buildCalendarHeader(),
-            const SizedBox(height: 16),
-            if (_viewMode == 'week') _buildWeekView(),
-            if (_viewMode == 'month') _buildMonthView(),
-            if (_viewMode == 'day') _buildDayView(),
+            // Day 뷰에서는 헤더 생략 (이미 Day 뷰 안에 포함됨)
+            if (_viewMode != 'day') _buildCalendarHeader(),
+            if (_viewMode != 'day') const SizedBox(height: 16),
+            if (_viewMode == 'week') Expanded(child: _buildWeekView()),
+            if (_viewMode == 'month') Expanded(child: _buildMonthView()),
+            if (_viewMode == 'day') Expanded(child: _buildDayView()),
           ],
         ),
       ),
@@ -327,100 +352,546 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
       Duration(days: _selectedDate.weekday - 1),
     );
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: List.generate(7, (index) {
-        final date = startOfWeek.add(Duration(days: index));
-        final isToday = _isSameDay(date, DateTime.now());
-        final isSelected = _isSameDay(date, _selectedDate);
-        final hasSchedule = _schedules.any((s) => _isSameDay(s['date'], date));
-
-        return GestureDetector(
-          onTap: () => setState(() => _selectedDate = date),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? const Color(0xFF638ECB)
-                  : isToday
-                      ? const Color(0xFF8AAEE0).withValues(alpha: 0.1)
-                      : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  weekDays[index],
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isSelected
-                        ? Colors.white
-                        : const Color(0xFF8AAEE0),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  date.day.toString(),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isSelected
-                        ? Colors.white
-                        : const Color(0xFF395886),
-                  ),
-                ),
-                if (hasSchedule) ...[
-                  const SizedBox(height: 4),
-                  Container(
-                    width: 6,
-                    height: 6,
+    return Container(
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF395886).withOpacity(0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // 주간 헤더
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(7, (index) {
+              final date = startOfWeek.add(Duration(days: index));
+              final isToday = _isSameDay(date, DateTime.now());
+              final isSelected = _isSameDay(date, _selectedDate);
+              
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() {
+                    _selectedDate = date;
+                    _viewMode = 'day';  // 날짜 클릭 시 Day 뷰로 전환
+                  }),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? Colors.white
-                          : const Color(0xFF638ECB),
-                      shape: BoxShape.circle,
+                          ? const Color(0xFF638ECB)
+                          : isToday
+                              ? const Color(0xFF8AAEE0).withOpacity(0.1)
+                              : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          weekDays[index],
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isSelected
+                                ? Colors.white
+                                : isToday
+                                    ? const Color(0xFF638ECB)
+                                    : const Color(0xFF8AAEE0),
+                            fontWeight: isToday || isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${date.day}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isSelected
+                                ? Colors.white
+                                : isToday
+                                    ? const Color(0xFF638ECB)
+                                    : const Color(0xFF395886),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ],
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 16),
+          
+          // 주간 일정 표시
+          Expanded(
+            child: Row(
+              children: List.generate(7, (index) {
+                final date = startOfWeek.add(Duration(days: index));
+                final daySchedules = _schedules.where((s) => 
+                  _isSameDay(s['date'], date)
+                ).toList();
+                
+                return Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: daySchedules.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    '-',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade300,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount: daySchedules.length,
+                                  itemBuilder: (context, idx) {
+                                    final schedule = daySchedules[idx];
+                                    return Container(
+                                      margin: const EdgeInsets.only(bottom: 4),
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: (schedule['color'] as Color).withOpacity(0.9),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            schedule['startTime'] ?? '',
+                                            style: const TextStyle(
+                                              fontSize: 9,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            schedule['title'],
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
             ),
           ),
-        );
-      }),
-    );
-  }
-
-  Widget _buildMonthView() {
-    // Simplified month view
-    return const Center(
-      child: Text(
-        '월간 캘린더 뷰',
-        style: TextStyle(color: Color(0xFF8AAEE0)),
+        ],
       ),
     );
   }
 
-  Widget _buildDayView() {
-    return Column(
-      children: [
-        Text(
-          '${_selectedDate.day} ${_getMonthName(_selectedDate.month)}',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF395886),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          _getDayName(_selectedDate.weekday),
-          style: const TextStyle(
-            fontSize: 14,
-            color: Color(0xFF8AAEE0),
+  Widget _buildMonthView() {
+    final now = DateTime.now();
+    final currentMonth = _selectedDate.month;
+    final currentYear = _selectedDate.year;
+    
+    final firstDayOfMonth = DateTime(currentYear, currentMonth, 1);
+    final lastDayOfMonth = DateTime(currentYear, currentMonth + 1, 0);
+    
+    final daysInMonth = lastDayOfMonth.day;
+    final startWeekday = firstDayOfMonth.weekday % 7; // 0 = Sunday
+    
+    // 필요한 행 수 계산 (더 효율적으로)
+    final rows = ((daysInMonth + startWeekday) / 7).ceil();
+    final totalCells = rows * 7;
+    
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 가용 높이를 기반으로 셀 높이 계산
+        final availableHeight = constraints.maxHeight - 50; // 헤더 높이 제외
+        final cellHeight = availableHeight / rows;
+        final cellWidth = constraints.maxWidth / 7;
+        final aspectRatio = cellWidth / cellHeight;
+        
+        return Column(
+          children: [
+            // Week days header
+            Container(
+              height: 40,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: ['일', '월', '화', '수', '목', '금', '토'].map((day) {
+                  return Expanded(
+                    child: Center(
+                      child: Text(
+                        day,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: day == '일' 
+                              ? Colors.red.shade400 
+                              : day == '토' 
+                                  ? Colors.blue.shade400 
+                                  : const Color(0xFF8AAEE0),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            const Divider(height: 1),
+            
+            // Calendar grid - 남은 공간 전체 활용
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 7,
+                  childAspectRatio: aspectRatio,  // 동적으로 계산된 비율 사용
+                  crossAxisSpacing: 4,
+                  mainAxisSpacing: 4,
+                ),
+                itemCount: totalCells,
+            itemBuilder: (context, index) {
+              if (index < startWeekday) {
+                return const SizedBox();
+              }
+              
+              final day = index - startWeekday + 1;
+              if (day > daysInMonth) {
+                return const SizedBox();
+              }
+              
+              final date = DateTime(currentYear, currentMonth, day);
+              final isToday = date.year == now.year && 
+                             date.month == now.month && 
+                             date.day == now.day;
+              final isSelected = _selectedDate.year == date.year &&
+                                _selectedDate.month == date.month &&
+                                _selectedDate.day == date.day;
+              
+              // Check if there are schedules on this date
+              final schedulesOnDate = _schedules.where((schedule) {
+                final scheduleDate = schedule['date'] as DateTime;
+                return scheduleDate.year == date.year &&
+                       scheduleDate.month == date.month &&
+                       scheduleDate.day == date.day;
+              }).toList();
+              
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedDate = date;
+                    // 날짜 클릭 시 일 뷰로 전환
+                    _viewMode = 'day';
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? const Color(0xFF638ECB).withOpacity(0.1)
+                        : isToday
+                            ? const Color(0xFF8AAEE0).withOpacity(0.1)
+                            : Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isSelected
+                          ? const Color(0xFF638ECB)
+                          : isToday
+                              ? const Color(0xFF8AAEE0)
+                              : Colors.grey.shade200,
+                      width: isSelected ? 2 : 1,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 날짜 표시
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          '$day',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isSelected || isToday
+                                ? const Color(0xFF638ECB)
+                                : const Color(0xFF395886),
+                            fontWeight: isToday || isSelected
+                                ? FontWeight.bold
+                                : FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      // 일정 표시 (최대 3개)
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ...schedulesOnDate.take(3).map((schedule) {
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: schedule['color'],
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                                child: Text(
+                                  schedule['title'],
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.2,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            }).toList(),
+                            // 더 많은 일정이 있을 때
+                            if (schedulesOnDate.length > 3)
+                              Container(
+                                margin: const EdgeInsets.only(top: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                                child: Text(
+                                  '+${schedulesOnDate.length - 3} more',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ],
+    );
+      },
+    );
+  }
+
+  Widget _buildDayView() {
+    final daySchedules = _schedules.where((s) => 
+      _isSameDay(s['date'], _selectedDate)
+    ).toList();
+    
+    // 시간순으로 정렬
+    daySchedules.sort((a, b) => 
+      (a['startTime'] as String).compareTo(b['startTime'] as String));
+
+    return Container(
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF395886).withOpacity(0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 날짜 헤더 with 네비게이션 통합
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.chevron_left),
+                color: const Color(0xFF638ECB),
+                onPressed: () {
+                  setState(() {
+                    _selectedDate = _selectedDate.subtract(const Duration(days: 1));
+                  });
+                },
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(
+                      '${_selectedDate.year}년 ${_selectedDate.month}월 ${_selectedDate.day}일',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF395886),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _getDayName(_selectedDate.weekday),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF8AAEE0),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.chevron_right),
+                color: const Color(0xFF638ECB),
+                onPressed: () {
+                  setState(() {
+                    _selectedDate = _selectedDate.add(const Duration(days: 1));
+                  });
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const Divider(),
+          const SizedBox(height: 20),
+          
+          // 일정 목록
+          Expanded(
+            child: daySchedules.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.event_available,
+                          size: 80,
+                          color: const Color(0xFF8AAEE0).withOpacity(0.3),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          '오늘은 일정이 없습니다',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF8AAEE0),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: daySchedules.length,
+                    itemBuilder: (context, index) {
+                      final schedule = daySchedules[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 시간
+                            SizedBox(
+                              width: 80,
+                              child: Text(
+                                schedule['startTime'],
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF8AAEE0),
+                                ),
+                              ),
+                            ),
+                            // 일정 카드
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: (schedule['color'] as Color).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: schedule['color'],
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      schedule['title'],
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF395886),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.subject,
+                                          size: 14,
+                                          color: schedule['color'],
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          schedule['subject'],
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: schedule['color'],
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Icon(
+                                          Icons.access_time,
+                                          size: 14,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${schedule['startTime']} - ${schedule['endTime']}',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 

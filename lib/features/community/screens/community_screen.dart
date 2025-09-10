@@ -286,6 +286,117 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                 child: SizedBox(height: 20),
               ),
 
+              // Leaderboard Section
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.leaderboard,
+                            color: Color(0xFFFFC107),
+                            size: 24,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            '리더보드',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1A1E27),
+                            ),
+                          ),
+                          const Spacer(),
+                          TextButton(
+                            onPressed: () {},
+                            child: const Text(
+                              '전체 보기',
+                              style: TextStyle(
+                                color: Color(0xFF638ECB),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.white,
+                              const Color(0xFFFFC107).withValues(alpha: 0.05),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            _buildLeaderboardItem(
+                              rank: 1,
+                              name: '박지훈',
+                              points: 2450,
+                              level: 15,
+                              avatar: '👑',
+                              isCurrentUser: false,
+                            ),
+                            _buildLeaderboardItem(
+                              rank: 2,
+                              name: '김서연',
+                              points: 2320,
+                              level: 14,
+                              avatar: '🥈',
+                              isCurrentUser: false,
+                            ),
+                            _buildLeaderboardItem(
+                              rank: 3,
+                              name: '이준호',
+                              points: 2180,
+                              level: 13,
+                              avatar: '🥉',
+                              isCurrentUser: true,
+                            ),
+                            _buildLeaderboardItem(
+                              rank: 4,
+                              name: '최민지',
+                              points: 2050,
+                              level: 12,
+                              avatar: '⭐',
+                              isCurrentUser: false,
+                            ),
+                            _buildLeaderboardItem(
+                              rank: 5,
+                              name: '정우진',
+                              points: 1980,
+                              level: 11,
+                              avatar: '✨',
+                              isCurrentUser: false,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 20),
+              ),
+
               // Community Sections
               SliverToBoxAdapter(
                 child: Padding(
@@ -679,6 +790,155 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
         ],
       );
     }
+  }
+
+  Widget _buildLeaderboardItem({
+    required int rank,
+    required String name,
+    required int points,
+    required int level,
+    required String avatar,
+    required bool isCurrentUser,
+  }) {
+    Color rankColor;
+    if (rank == 1) {
+      rankColor = const Color(0xFFFFD700);
+    } else if (rank == 2) {
+      rankColor = const Color(0xFFC0C0C0);
+    } else if (rank == 3) {
+      rankColor = const Color(0xFFCD7F32);
+    } else {
+      rankColor = const Color(0xFF638ECB);
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isCurrentUser 
+            ? const Color(0xFF638ECB).withValues(alpha: 0.1)
+            : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: isCurrentUser
+            ? Border.all(
+                color: const Color(0xFF638ECB).withValues(alpha: 0.3),
+                width: 2,
+              )
+            : Border.all(
+                color: Colors.grey.withValues(alpha: 0.1),
+                width: 1,
+              ),
+      ),
+      child: Row(
+        children: [
+          // Rank
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: rankColor.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                '$rank',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: rankColor,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Avatar
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0F3FA),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                avatar,
+                style: const TextStyle(fontSize: 20),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Name and Level
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: isCurrentUser 
+                            ? const Color(0xFF638ECB)
+                            : const Color(0xFF1A1E27),
+                      ),
+                    ),
+                    if (isCurrentUser) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF638ECB),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'YOU',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Lv.$level',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Points
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '$points',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1E27),
+                ),
+              ),
+              Text(
+                'XP',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildActivityCard(String title, String time, IconData icon, Color color) {

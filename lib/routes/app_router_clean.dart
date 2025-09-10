@@ -25,6 +25,7 @@ import '../features/study/screens/study_screen.dart';
 import '../features/study/screens/lesson_screen.dart';
 import '../features/study/screens/quiz_screen.dart';
 import '../features/study/screens/flashcard_screen.dart';
+import '../features/study/screens/flashcard_list_screen.dart';
 import '../features/study/screens/topic_screen.dart';
 import '../features/study/screens/schedule_screen.dart';
 import '../features/study/screens/video_player_screen.dart';
@@ -230,8 +231,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/study/flashcard',
-        name: 'flashcard',
-        builder: (context, state) => const FlashcardScreen(),
+        name: 'flashcardList',
+        builder: (context, state) => const FlashcardListScreen(),
+      ),
+      GoRoute(
+        path: '/study/flashcard/session',
+        name: 'flashcardSession',
+        builder: (context, state) {
+          final set = state.extra as FlashcardSet?;
+          return FlashcardScreen(flashcardSet: set);
+        },
       ),
       GoRoute(
         path: '/study/topic',

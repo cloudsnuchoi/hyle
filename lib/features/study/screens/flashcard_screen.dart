@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'flashcard_list_screen.dart'; // FlashcardSet import
 
 class FlashcardScreen extends ConsumerStatefulWidget {
-  const FlashcardScreen({super.key});
+  final FlashcardSet? flashcardSet;
+  const FlashcardScreen({super.key, this.flashcardSet});
 
   @override
   ConsumerState<FlashcardScreen> createState() => _FlashcardScreenState();
@@ -22,58 +24,159 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
   int _knownCount = 0;
   int _unknownCount = 0;
   
-  // Mock flashcard data
-  final List<FlashCard> _flashcards = [
-    FlashCard(
-      id: '1',
-      question: 'What is the derivative of x²?',
-      answer: '2x',
-      category: '수학',
-      difficulty: 'easy',
-      lastReviewed: DateTime.now().subtract(const Duration(days: 1)),
-      reviewCount: 3,
-    ),
-    FlashCard(
-      id: '2',
-      question: 'Bonjour는 무슨 뜻일까요?',
-      answer: '안녕하세요 (프랑스어)',
-      category: '언어',
-      difficulty: 'easy',
-      lastReviewed: DateTime.now().subtract(const Duration(days: 2)),
-      reviewCount: 1,
-    ),
-    FlashCard(
-      id: '3',
-      question: '광합성의 화학식은?',
-      answer: '6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂',
-      category: '과학',
-      difficulty: 'medium',
-      lastReviewed: DateTime.now().subtract(const Duration(days: 3)),
-      reviewCount: 2,
-    ),
-    FlashCard(
-      id: '4',
-      question: '조선의 첫 번째 왕은?',
-      answer: '태조 이성계',
-      category: '역사',
-      difficulty: 'easy',
-      lastReviewed: DateTime.now().subtract(const Duration(hours: 12)),
-      reviewCount: 5,
-    ),
-    FlashCard(
-      id: '5',
-      question: 'Python에서 리스트를 정의하는 방법은?',
-      answer: 'list_name = [] 또는 list_name = list()',
-      category: '코딩',
-      difficulty: 'easy',
-      lastReviewed: DateTime.now(),
-      reviewCount: 4,
-    ),
-  ];
+  // 세트별 플래시카드 데이터를 동적으로 생성
+  late final List<FlashCard> _flashcards;
+  
+  List<FlashCard> _generateFlashcards() {
+    if (widget.flashcardSet == null) {
+      // 기본 플래시카드 데이터
+      return [
+        FlashCard(
+          id: '1',
+          question: 'x²의 미분은?',
+          answer: '2x',
+          category: '수학',
+          difficulty: 'easy',
+          lastReviewed: DateTime.now().subtract(const Duration(days: 1)),
+          reviewCount: 3,
+        ),
+        FlashCard(
+          id: '2',
+          question: 'Bonjour는 무슨 뜻일까요?',
+          answer: '안녕하세요 (프랑스어)',
+          category: '언어',
+          difficulty: 'easy',
+          lastReviewed: DateTime.now().subtract(const Duration(days: 2)),
+          reviewCount: 1,
+        ),
+        FlashCard(
+          id: '3',
+          question: '광합성의 화학식은?',
+          answer: '6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂',
+          category: '과학',
+          difficulty: 'medium',
+          lastReviewed: DateTime.now().subtract(const Duration(days: 3)),
+          reviewCount: 2,
+        ),
+        FlashCard(
+          id: '4',
+          question: '조선의 첫 번째 왕은?',
+          answer: '태조 이성계',
+          category: '역사',
+          difficulty: 'easy',
+          lastReviewed: DateTime.now().subtract(const Duration(hours: 12)),
+          reviewCount: 5,
+        ),
+        FlashCard(
+          id: '5',
+          question: 'Python에서 리스트를 정의하는 방법은?',
+          answer: 'list_name = [] 또는 list_name = list()',
+          category: '코딩',
+          difficulty: 'easy',
+          lastReviewed: DateTime.now(),
+          reviewCount: 4,
+        ),
+      ];
+    }
+    
+    // 세트별 다른 플래시카드 생성
+    switch (widget.flashcardSet!.id) {
+      case '1': // 수학 공식 모음
+        return [
+          FlashCard(id: '1', question: '원의 넓이 공식은?', answer: 'πr²', category: '수학', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 2),
+          FlashCard(id: '2', question: '피타고라스 정리는?', answer: 'a² + b² = c²', category: '수학', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 3),
+          FlashCard(id: '3', question: '이차방정식의 근의 공식은?', answer: 'x = (-b ± √(b²-4ac))/2a', category: '수학', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 1),
+          FlashCard(id: '4', question: 'sin²θ + cos²θ = ?', answer: '1', category: '수학', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 4),
+          FlashCard(id: '5', question: '극한 lim(x→0) sin(x)/x = ?', answer: '1', category: '수학', difficulty: 'hard', lastReviewed: DateTime.now(), reviewCount: 2),
+        ];
+      case '2': // 프랑스어 기초 단어
+        return [
+          FlashCard(id: '1', question: 'Merci는 무슨 뜻?', answer: '감사합니다', category: '언어', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 5),
+          FlashCard(id: '2', question: 'Au revoir는 무슨 뜻?', answer: '안녕히 가세요', category: '언어', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 3),
+          FlashCard(id: '3', question: 'S\'il vous plaît는 무슨 뜻?', answer: '부탁드립니다', category: '언어', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 2),
+          FlashCard(id: '4', question: 'Comment allez-vous?', answer: '어떻게 지내세요?', category: '언어', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 1),
+          FlashCard(id: '5', question: 'Je ne comprends pas', answer: '이해하지 못합니다', category: '언어', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 2),
+        ];
+      case '3': // 생물학 - 광합성
+        return [
+          FlashCard(id: '1', question: '광합성이 일어나는 장소는?', answer: '엽록체', category: '과학', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 4),
+          FlashCard(id: '2', question: '광합성의 명반응이 일어나는 곳은?', answer: '틸라코이드', category: '과학', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 2),
+          FlashCard(id: '3', question: '광합성의 암반응이 일어나는 곳은?', answer: '스트로마', category: '과학', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 1),
+          FlashCard(id: '4', question: 'ATP의 정식 명칭은?', answer: '아데노신 삼인산', category: '과학', difficulty: 'hard', lastReviewed: DateTime.now(), reviewCount: 3),
+          FlashCard(id: '5', question: '캘빈 회로의 최종 산물은?', answer: '포도당', category: '과학', difficulty: 'hard', lastReviewed: DateTime.now(), reviewCount: 1),
+        ];
+      case '4': // 한국사 연대표
+        return [
+          FlashCard(id: '1', question: '조선 건국 연도는?', answer: '1392년', category: '역사', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 6),
+          FlashCard(id: '2', question: '임진왜란이 일어난 연도는?', answer: '1592년', category: '역사', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 5),
+          FlashCard(id: '3', question: '세종대왕 재위 기간은?', answer: '1418년 ~ 1450년', category: '역사', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 3),
+          FlashCard(id: '4', question: '훈민정음 창제 연도는?', answer: '1443년', category: '역사', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 4),
+          FlashCard(id: '5', question: '경술국치 연도는?', answer: '1910년', category: '역사', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 7),
+        ];
+      case '5': // Python 기초 문법
+        return [
+          FlashCard(id: '1', question: 'Python에서 주석 처리는?', answer: '# 또는 """..."""', category: '코딩', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 3),
+          FlashCard(id: '2', question: 'Python의 조건문 키워드는?', answer: 'if, elif, else', category: '코딩', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 4),
+          FlashCard(id: '3', question: 'Python의 반복문 종류는?', answer: 'for, while', category: '코딩', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 2),
+          FlashCard(id: '4', question: '리스트 컴프리헨션 예시는?', answer: '[x**2 for x in range(10)]', category: '코딩', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 1),
+          FlashCard(id: '5', question: 'lambda 함수란?', answer: '익명 함수', category: '코딩', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 2),
+        ];
+      case '6': // 영어 숙어 표현
+        return [
+          FlashCard(id: '1', question: 'piece of cake의 뜻은?', answer: '매우 쉬운 일', category: '언어', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 2),
+          FlashCard(id: '2', question: 'break a leg의 뜻은?', answer: '행운을 빌어', category: '언어', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 1),
+          FlashCard(id: '3', question: 'hit the nail on the head', answer: '정확히 맞추다', category: '언어', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 3),
+          FlashCard(id: '4', question: 'burn the midnight oil', answer: '늦게까지 일하다', category: '언어', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 2),
+          FlashCard(id: '5', question: 'when pigs fly의 뜻은?', answer: '절대 일어나지 않을 일', category: '언어', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 4),
+        ];
+      case '7': // 화학 원소 주기율표
+        return [
+          FlashCard(id: '1', question: '수소의 원자번호는?', answer: '1', category: '과학', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 0),
+          FlashCard(id: '2', question: '금의 원소기호는?', answer: 'Au', category: '과학', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 0),
+          FlashCard(id: '3', question: '철의 원소기호는?', answer: 'Fe', category: '과학', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 0),
+          FlashCard(id: '4', question: '나트륨의 원소기호는?', answer: 'Na', category: '과학', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 0),
+          FlashCard(id: '5', question: '희유가스 5개는?', answer: 'He, Ne, Ar, Kr, Xe', category: '과학', difficulty: 'hard', lastReviewed: DateTime.now(), reviewCount: 0),
+        ];
+      case '8': // 경제학 기본 용어
+        return [
+          FlashCard(id: '1', question: 'GDP의 정식 명칭은?', answer: '국내총생산', category: '사회', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 1),
+          FlashCard(id: '2', question: '인플레이션이란?', answer: '화폐 가치 하락으로 인한 물가 상승', category: '사회', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 2),
+          FlashCard(id: '3', question: '기회비용이란?', answer: '선택으로 포기한 차선의 가치', category: '사회', difficulty: 'medium', lastReviewed: DateTime.now(), reviewCount: 1),
+          FlashCard(id: '4', question: '수요의 법칙이란?', answer: '가격이 오르면 수요량이 감소', category: '사회', difficulty: 'easy', lastReviewed: DateTime.now(), reviewCount: 3),
+          FlashCard(id: '5', question: '한계효용 체감의 법칙', answer: '소비량이 늘수록 추가 만족도 감소', category: '사회', difficulty: 'hard', lastReviewed: DateTime.now(), reviewCount: 1),
+        ];
+      default:
+        return _generateDefaultFlashcards();
+    }
+  }
+  
+  List<FlashCard> _generateDefaultFlashcards() {
+    return [
+      FlashCard(
+        id: '1',
+        question: 'x²의 미분은?',
+        answer: '2x',
+        category: '수학',
+        difficulty: 'easy',
+        lastReviewed: DateTime.now().subtract(const Duration(days: 1)),
+        reviewCount: 3,
+      ),
+      FlashCard(
+        id: '2',
+        question: 'Bonjour는 무슨 뜻일까요?',
+        answer: '안녕하세요 (프랑스어)',
+        category: '언어',
+        difficulty: 'easy',
+        lastReviewed: DateTime.now().subtract(const Duration(days: 2)),
+        reviewCount: 1,
+      ),
+    ];
+  }
 
   @override
   void initState() {
     super.initState();
+    _flashcards = _generateFlashcards();
     _flipController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -416,10 +519,10 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
             icon: const Icon(Icons.arrow_back_ios_rounded),
             onPressed: () => Navigator.pop(context),
           ),
-          const Expanded(
+          Expanded(
             child: Text(
-              '플래시카드',
-              style: TextStyle(
+              widget.flashcardSet?.title ?? '플래시카드',
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF262626), // gray800

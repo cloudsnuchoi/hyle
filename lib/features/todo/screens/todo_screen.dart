@@ -17,18 +17,17 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
   
   final TextEditingController _newTodoController = TextEditingController();
   String _selectedCategory = '전체';
-  String _selectedPriority = '보통';
+  String _selectedSubject = '수학';
   DateTime? _selectedDate;
   
-  final List<String> _categories = ['전체', '공부', '과제', '시험', '기타'];
-  final List<String> _priorities = ['낮음', '보통', '높음', '긴급'];
+  final List<String> _categories = ['전체', '수학', '영어', '국어', '과학', '사회', '한국사', '기타'];
+  final List<String> _subjects = ['수학', '영어', '국어', '과학', '사회', '한국사', '기타'];
   
   final List<Map<String, dynamic>> _todos = [
     {
       'id': '1',
       'title': '수학 문제집 3단원 풀기',
-      'category': '공부',
-      'priority': '높음',
+      'subject': '수학',
       'completed': false,
       'dueDate': DateTime.now().add(const Duration(days: 1)),
       'createdAt': DateTime.now().subtract(const Duration(hours: 2)),
@@ -36,8 +35,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
     {
       'id': '2',
       'title': '영어 단어 100개 암기',
-      'category': '공부',
-      'priority': '보통',
+      'subject': '영어',
       'completed': true,
       'dueDate': DateTime.now(),
       'createdAt': DateTime.now().subtract(const Duration(days: 1)),
@@ -45,20 +43,66 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
     {
       'id': '3',
       'title': '국어 독후감 제출',
-      'category': '과제',
-      'priority': '긴급',
+      'subject': '국어',
       'completed': false,
       'dueDate': DateTime.now().add(const Duration(days: 2)),
       'createdAt': DateTime.now().subtract(const Duration(hours: 5)),
     },
     {
       'id': '4',
-      'title': '모의고사 복습',
-      'category': '시험',
-      'priority': '높음',
+      'title': '물리 실험 보고서 작성',
+      'subject': '과학',
       'completed': false,
       'dueDate': DateTime.now().add(const Duration(days: 3)),
       'createdAt': DateTime.now(),
+    },
+    {
+      'id': '5',
+      'title': '한국사 연표 정리',
+      'subject': '한국사',
+      'completed': false,
+      'dueDate': DateTime.now().subtract(const Duration(days: 1)),
+      'createdAt': DateTime.now().subtract(const Duration(hours: 3)),
+    },
+    {
+      'id': '6',
+      'title': '영어 에세이 작성',
+      'subject': '영어',
+      'completed': false,
+      'dueDate': DateTime.now().add(const Duration(days: 5)),
+      'createdAt': DateTime.now(),
+    },
+    {
+      'id': '7',
+      'title': '수학 공식 정리',
+      'subject': '수학',
+      'completed': true,
+      'dueDate': DateTime.now().subtract(const Duration(days: 2)),
+      'createdAt': DateTime.now().subtract(const Duration(days: 3)),
+    },
+    {
+      'id': '8',
+      'title': '사회 발표 준비',
+      'subject': '사회',
+      'completed': false,
+      'dueDate': DateTime.now().add(const Duration(days: 4)),
+      'createdAt': DateTime.now(),
+    },
+    {
+      'id': '9',
+      'title': '과학 실험 계획서',
+      'subject': '과학',
+      'completed': false,
+      'dueDate': DateTime.now(),
+      'createdAt': DateTime.now().subtract(const Duration(hours: 1)),
+    },
+    {
+      'id': '10',
+      'title': '국어 시 암송',
+      'subject': '국어',
+      'completed': true,
+      'dueDate': DateTime.now().subtract(const Duration(days: 3)),
+      'createdAt': DateTime.now().subtract(const Duration(days: 4)),
     },
   ];
 
@@ -109,8 +153,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
       _todos.insert(0, {
         'id': DateTime.now().millisecondsSinceEpoch.toString(),
         'title': _newTodoController.text,
-        'category': _selectedCategory == '전체' ? '기타' : _selectedCategory,
-        'priority': _selectedPriority,
+        'subject': _selectedSubject,
         'completed': false,
         'dueDate': _selectedDate,
         'createdAt': DateTime.now(),
@@ -135,18 +178,22 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
     });
   }
   
-  Color _getPriorityColor(String priority) {
-    switch (priority) {
-      case '긴급':
-        return Colors.red.shade400;
-      case '높음':
-        return Colors.orange.shade400;
-      case '보통':
-        return const Color(0xFF638ECB);
-      case '낮음':
-        return Colors.grey.shade400;
+  Color _getSubjectColor(String subject) {
+    switch (subject) {
+      case '수학':
+        return const Color(0xFFFF6B6B);
+      case '영어':
+        return const Color(0xFF4ECDC4);
+      case '국어':
+        return const Color(0xFFFFBE0B);
+      case '과학':
+        return const Color(0xFF8338EC);
+      case '사회':
+        return const Color(0xFF3A86FF);
+      case '한국사':
+        return const Color(0xFFFB5607);
       default:
-        return const Color(0xFF638ECB);
+        return const Color(0xFF8AAEE0);
     }
   }
   
@@ -168,9 +215,21 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
     final screenHeight = MediaQuery.of(context).size.height;
     final isTablet = screenWidth > 600;
     
-    final filteredTodos = _selectedCategory == '전체' 
+    // 카테고리 필터링 (subject로 변경)
+    var filteredTodos = _selectedCategory == '전체' 
         ? _todos 
-        : _todos.where((todo) => todo['category'] == _selectedCategory).toList();
+        : _todos.where((todo) => todo['subject'] == _selectedCategory).toList();
+    
+    // 날짜 필터링 추가
+    if (_selectedDate != null) {
+      filteredTodos = filteredTodos.where((todo) {
+        final dueDate = todo['dueDate'] as DateTime?;
+        if (dueDate == null) return false;
+        return dueDate.year == _selectedDate!.year &&
+               dueDate.month == _selectedDate!.month &&
+               dueDate.day == _selectedDate!.day;
+      }).toList();
+    }
     
     final incompleteTodos = filteredTodos.where((todo) => !todo['completed']).toList();
     final completedTodos = filteredTodos.where((todo) => todo['completed']).toList();
@@ -188,7 +247,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          '할 일 목록',
+          'To-Do',
           style: TextStyle(
             color: Color(0xFF395886),
             fontWeight: FontWeight.bold,
@@ -284,7 +343,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
                       
                       const SizedBox(height: 20),
                       
-                      // Add Todo Input
+                      // Calendar View
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -300,112 +359,113 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
                         ),
                         child: Column(
                           children: [
+                            // Calendar Header
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: _newTodoController,
-                                    decoration: const InputDecoration(
-                                      hintText: '새로운 할 일을 입력하세요',
-                                      border: InputBorder.none,
-                                    ),
-                                    onSubmitted: (_) => _addTodo(),
-                                  ),
-                                ),
                                 IconButton(
-                                  onPressed: () async {
-                                    final date = await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime.now(),
-                                      lastDate: DateTime.now().add(
-                                        const Duration(days: 365),
-                                      ),
-                                    );
-                                    if (date != null) {
-                                      setState(() {
-                                        _selectedDate = date;
-                                      });
-                                    }
-                                  },
-                                  icon: Icon(
-                                    Icons.calendar_today,
-                                    color: _selectedDate != null 
-                                        ? const Color(0xFF638ECB)
-                                        : Colors.grey,
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: _getPriorityColor(_selectedPriority),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: DropdownButton<String>(
-                                    value: _selectedPriority,
-                                    underline: const SizedBox(),
-                                    dropdownColor: Colors.white,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    icon: const Icon(
-                                      Icons.arrow_drop_down,
-                                      color: Colors.white,
-                                    ),
-                                    items: _priorities.map((priority) {
-                                      return DropdownMenuItem(
-                                        value: priority,
-                                        child: Text(
-                                          priority,
-                                          style: TextStyle(
-                                            color: _getPriorityColor(priority),
-                                          ),
-                                        ),
+                                  icon: const Icon(Icons.chevron_left, color: Color(0xFF638ECB)),
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedDate = DateTime(
+                                        _selectedDate?.year ?? DateTime.now().year,
+                                        (_selectedDate?.month ?? DateTime.now().month) - 1,
+                                        1,
                                       );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        setState(() {
-                                          _selectedPriority = value;
-                                        });
-                                      }
-                                    },
+                                    });
+                                  },
+                                ),
+                                Text(
+                                  '${_selectedDate?.year ?? DateTime.now().year}년 ${_selectedDate?.month ?? DateTime.now().month}월',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF395886),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
                                 IconButton(
-                                  onPressed: _addTodo,
-                                  icon: const Icon(
-                                    Icons.add_circle,
-                                    color: Color(0xFF638ECB),
-                                    size: 32,
-                                  ),
+                                  icon: const Icon(Icons.chevron_right, color: Color(0xFF638ECB)),
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedDate = DateTime(
+                                        _selectedDate?.year ?? DateTime.now().year,
+                                        (_selectedDate?.month ?? DateTime.now().month) + 1,
+                                        1,
+                                      );
+                                    });
+                                  },
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 16),
+                            
+                            // 선택된 날짜 표시
                             if (_selectedDate != null)
                               Container(
-                                margin: const EdgeInsets.only(top: 8),
+                                margin: const EdgeInsets.only(bottom: 12),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
-                                  vertical: 4,
+                                  vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFD5DEEF),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  '마감일: ${_formatDate(_selectedDate)}',
-                                  style: const TextStyle(
-                                    color: Color(0xFF395886),
-                                    fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF638ECB).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: const Color(0xFF638ECB),
+                                    width: 1,
                                   ),
                                 ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.calendar_today,
+                                      size: 16,
+                                      color: Color(0xFF638ECB),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '${_selectedDate!.month}월 ${_selectedDate!.day}일 할 일',
+                                      style: const TextStyle(
+                                        color: Color(0xFF638ECB),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedDate = null;
+                                        });
+                                      },
+                                      child: const Icon(
+                                        Icons.close,
+                                        size: 16,
+                                        color: Color(0xFF638ECB),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
+                            
+                            // Week Days Header
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: const [
+                                _WeekDayHeader(day: '일'),
+                                _WeekDayHeader(day: '월'),
+                                _WeekDayHeader(day: '화'),
+                                _WeekDayHeader(day: '수'),
+                                _WeekDayHeader(day: '목'),
+                                _WeekDayHeader(day: '금'),
+                                _WeekDayHeader(day: '토'),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            
+                            // Calendar Grid
+                            _buildCalendarGrid(),
                           ],
                         ),
                       ),
@@ -550,33 +610,15 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFD5DEEF),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          todo['category'],
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF395886),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getPriorityColor(todo['priority'])
+                          color: _getSubjectColor(todo['subject'] ?? '기타')
                               .withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          todo['priority'],
+                          todo['subject'] ?? '기타',
                           style: TextStyle(
                             fontSize: 12,
-                            color: _getPriorityColor(todo['priority']),
+                            color: _getSubjectColor(todo['subject'] ?? '기타'),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -601,6 +643,267 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCalendarGrid() {
+    final now = DateTime.now();
+    final currentMonth = _selectedDate?.month ?? now.month;
+    final currentYear = _selectedDate?.year ?? now.year;
+    
+    final firstDayOfMonth = DateTime(currentYear, currentMonth, 1);
+    final lastDayOfMonth = DateTime(currentYear, currentMonth + 1, 0);
+    
+    final daysInMonth = lastDayOfMonth.day;
+    final startWeekday = firstDayOfMonth.weekday % 7; // 0 = Sunday
+    
+    final totalCells = ((daysInMonth + startWeekday) / 7).ceil() * 7;
+    
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 7,
+        childAspectRatio: 1.0,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
+      ),
+      itemCount: totalCells,
+      itemBuilder: (context, index) {
+        if (index < startWeekday) {
+          return const SizedBox();
+        }
+        
+        final day = index - startWeekday + 1;
+        if (day > daysInMonth) {
+          return const SizedBox();
+        }
+        
+        final date = DateTime(currentYear, currentMonth, day);
+        final isToday = date.year == now.year && 
+                       date.month == now.month && 
+                       date.day == now.day;
+        final isSelected = _selectedDate != null &&
+                          date.year == _selectedDate!.year &&
+                          date.month == _selectedDate!.month &&
+                          date.day == _selectedDate!.day;
+        
+        // Check if there are todos on this date
+        final todosOnDate = _todos.where((todo) {
+          final dueDate = todo['dueDate'] as DateTime?;
+          return dueDate != null &&
+                 dueDate.year == date.year &&
+                 dueDate.month == date.month &&
+                 dueDate.day == date.day;
+        }).toList();
+        
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              // 같은 날짜를 다시 클릭하면 필터 해제
+              if (_selectedDate != null &&
+                  _selectedDate!.year == date.year &&
+                  _selectedDate!.month == date.month &&
+                  _selectedDate!.day == date.day) {
+                _selectedDate = null;
+              } else {
+                _selectedDate = date;
+              }
+            });
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? const Color(0xFF638ECB)
+                  : isToday
+                      ? const Color(0xFF8AAEE0).withOpacity(0.2)
+                      : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: isSelected || isToday
+                    ? const Color(0xFF638ECB)
+                    : Colors.transparent,
+                width: isSelected ? 2 : 1,
+              ),
+            ),
+            child: Stack(
+              children: [
+                Center(
+                  child: Text(
+                    '$day',
+                    style: TextStyle(
+                      color: isSelected
+                          ? Colors.white
+                          : isToday
+                              ? const Color(0xFF638ECB)
+                              : const Color(0xFF395886),
+                      fontWeight: isToday || isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ),
+                if (todosOnDate.isNotEmpty)
+                  Positioned(
+                    bottom: 2,
+                    right: 0,
+                    left: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: todosOnDate.take(3).map((todo) {
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 1),
+                          width: 4,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: _getSubjectColor(todo['subject'] ?? '기타'),
+                            shape: BoxShape.circle,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showTodosDialog(DateTime date, List<Map<String, dynamic>> todos) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('${date.month}월 ${date.day}일 할 일'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: todos.map((todo) {
+            return ListTile(
+              leading: Checkbox(
+                value: todo['completed'],
+                onChanged: (value) {
+                  setState(() {
+                    todo['completed'] = value;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              title: Text(todo['title']),
+              subtitle: Text(todo['subject'] ?? '기타'),
+            );
+          }).toList(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('닫기'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showAddTodoDialog(date);
+            },
+            child: const Text('할 일 추가'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddTodoDialog(DateTime date) {
+    final controller = TextEditingController();
+    String selectedSubject = _selectedSubject;
+    
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('${date.month}월 ${date.day}일 할 일 추가'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  hintText: '할 일을 입력하세요',
+                ),
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              DropdownButton<String>(
+                value: selectedSubject,
+                isExpanded: true,
+                items: _subjects.map((subject) {
+                  return DropdownMenuItem(
+                    value: subject,
+                    child: Text(subject),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setDialogState(() {
+                      selectedSubject = value;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.isNotEmpty) {
+                  setState(() {
+                    _todos.insert(0, {
+                      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                      'title': controller.text,
+                      'subject': selectedSubject,
+                      'completed': false,
+                      'dueDate': date,
+                      'createdAt': DateTime.now(),
+                    });
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('추가'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Week Day Header Widget
+class _WeekDayHeader extends StatelessWidget {
+  final String day;
+  
+  const _WeekDayHeader({required this.day});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 30,
+      alignment: Alignment.center,
+      child: Text(
+        day,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: day == '일' 
+              ? Colors.red.shade400 
+              : day == '토' 
+                  ? Colors.blue.shade400 
+                  : const Color(0xFF8AAEE0),
         ),
       ),
     );
