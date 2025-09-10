@@ -14,6 +14,9 @@ class AppColors {
   static const Color accentLight = Color(0xFFF6AD55);
   static const Color accentDark = Color(0xFFDD6B20);
   
+  static const Color tertiary = Color(0xFFED8936);  // accent와 동일
+  static const Color background = Color(0xFFFFFFFF);
+  
   // Neutral Colors
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);

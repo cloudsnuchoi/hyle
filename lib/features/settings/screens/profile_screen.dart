@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -84,7 +85,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           IconButton(
             icon: const Icon(Icons.settings_rounded),
             onPressed: () {
-              // Navigate to settings
+              context.go('/profile/settings');
             },
           ),
         ],
@@ -376,15 +377,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             icon: Icons.person_outline_rounded,
             title: '프로필 편집',
             onTap: () {
-              // Navigate to edit profile
+              // 프로필 편집 화면은 아직 없음
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('프로필 편집 화면 준비 중')),
+              );
             },
           ),
           _buildDivider(),
           _buildMenuItem(
             icon: Icons.school_outlined,
-            title: '학습 기록',
+            title: '통계',
             onTap: () {
-              // Navigate to study history
+              context.go('/profile/statistics');
             },
           ),
           _buildDivider(),
@@ -392,7 +396,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             icon: Icons.emoji_events_outlined,
             title: '업적 & 배지',
             onTap: () {
-              // Navigate to achievements
+              context.go('/profile/badges');
             },
           ),
           _buildDivider(),
@@ -400,7 +404,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             icon: Icons.group_outlined,
             title: '친구 관리',
             onTap: () {
-              // Navigate to friends
+              // 친구 관리 화면은 아직 없음
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('친구 관리 화면 준비 중')),
+              );
             },
           ),
           _buildDivider(),
@@ -409,7 +416,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             title: '구독 관리',
             subtitle: '프리미엄',
             onTap: () {
-              // Navigate to subscription
+              context.go('/profile/subscription');
             },
           ),
           _buildDivider(),
@@ -417,7 +424,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             icon: Icons.help_outline_rounded,
             title: '도움말 & 지원',
             onTap: () {
-              // Navigate to help
+              context.go('/profile/help');
             },
           ),
         ],

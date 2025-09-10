@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseService {
@@ -178,9 +179,10 @@ class SupabaseService {
     required List<int> bytes,
   }) async {
     try {
+      final Uint8List uint8List = Uint8List.fromList(bytes);
       final response = await client.storage
           .from(bucket)
-          .uploadBinary(path, bytes);
+          .uploadBinary(path, uint8List);
       
       final url = client.storage
           .from(bucket)

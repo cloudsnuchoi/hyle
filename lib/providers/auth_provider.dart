@@ -44,7 +44,7 @@ class AuthState extends ChangeNotifier {
     }
   }
   
-  Future<void> signIn(String email, String password) async {
+  Future<bool> signIn(String email, String password) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -64,16 +64,18 @@ class AuthState extends ChangeNotifier {
         name: 'Test User',
       );
       _error = null;
+      return true;
     } catch (e) {
       _error = e.toString();
       _user = null;
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
   
-  Future<void> signUp(String email, String password, String name) async {
+  Future<bool> signUp(String email, String password, String name) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -94,9 +96,11 @@ class AuthState extends ChangeNotifier {
         name: name,
       );
       _error = null;
+      return true;
     } catch (e) {
       _error = e.toString();
       _user = null;
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -118,6 +122,26 @@ class AuthState extends ChangeNotifier {
     }
   }
   
+  Future<bool> confirmSignUp(String email, String code) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    
+    try {
+      // TODO: Implement Supabase email confirmation
+      // For now, just simulate success
+      await Future.delayed(const Duration(seconds: 1));
+      _error = null;
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> resetPassword(String email) async {
     try {
       // TODO: Implement Supabase password reset

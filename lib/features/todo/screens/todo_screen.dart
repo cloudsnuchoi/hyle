@@ -177,6 +177,39 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
     
     return Scaffold(
       backgroundColor: const Color(0xFFF0F3FA),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Color(0xFF395886),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          '할 일 목록',
+          style: TextStyle(
+            color: Color(0xFF395886),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            child: IconButton(
+              icon: const Icon(
+                Icons.checklist_rounded,
+                color: Color(0xFF638ECB),
+                size: 28,
+              ),
+              onPressed: () {
+                // Could add additional functionality here
+              },
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -190,50 +223,12 @@ class _TodoScreenState extends ConsumerState<TodoScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '할 일 목록',
-                                style: TextStyle(
-                                  fontSize: isTablet ? 32 : 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF395886),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${incompleteTodos.length}개의 할 일이 남았습니다',
-                                style: TextStyle(
-                                  fontSize: isTablet ? 16 : 14,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Icon(
-                              Icons.checklist_rounded,
-                              color: const Color(0xFF638ECB),
-                              size: isTablet ? 32 : 28,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        '${incompleteTodos.length}개의 할 일이 남았습니다',
+                        style: TextStyle(
+                          fontSize: isTablet ? 16 : 14,
+                          color: Colors.grey[600],
+                        ),
                       ),
                       const SizedBox(height: 20),
                       

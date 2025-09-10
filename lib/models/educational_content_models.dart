@@ -1,5 +1,24 @@
 // Educational content models that don't need to be Amplify models
-import 'ModelProvider.dart';
+// import 'ModelProvider.dart'; // Removed - Amplify model no longer used
+
+// Define missing Curriculum class
+class Curriculum {
+  final String id;
+  final String name;
+  final String? description;
+  final List<String> subjects;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  Curriculum({
+    required this.id,
+    required this.name,
+    this.description,
+    required this.subjects,
+    this.createdAt,
+    this.updatedAt,
+  });
+}
 
 class UniversityCourse {
   final String id;

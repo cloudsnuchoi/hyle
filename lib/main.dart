@@ -1,28 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'services/local_storage_service.dart';
 import 'core/theme/app_theme.dart';
-import 'providers/theme_provider.dart';
 import 'routes/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize date formatting
-  await initializeDateFormatting('ko_KR', null);
-  
-  // Initialize LocalStorageService first
+  // Initialize local storage
   await LocalStorageService.init();
   
-  // TODO: Initialize Supabase here when we have the project URL and anon key
-  // await Supabase.initialize(
-  //   url: 'YOUR_SUPABASE_URL',
-  //   anonKey: 'YOUR_SUPABASE_ANON_KEY',
-  // );
+  // Load environment variables
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    print('Warning: .env file not found. Running in development mode.');
+  }
+  
+  // Initialize Supabase if credentials are available
+  final supabaseUrl = dotenv.env['SUPABASE_URL'];
+  final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
+  
+  if (supabaseUrl != null && supabaseAnonKey != null) {
+    await Supabase.initialize(
+      url: supabaseUrl,
+      anonKey: supabaseAnonKey,
+      debug: false,
+    );
+    print('✅ Supabase initialized');
+  } else {
+    print('⚠️ Running without Supabase (development mode)');
+  }
   
   runApp(const ProviderScope(child: HyleApp()));
 }
@@ -32,20 +42,16 @@ class HyleApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
-    final router = ref.watch(routerProvider);
-    
-    // Apply theme with skin
-    final lightTheme = AppTheme.lightTheme();
-    final darkTheme = AppTheme.darkTheme();
+    // Check if we're in development mode
+    final isDevelopment = dotenv.env['SUPABASE_URL'] == null;
     
     return MaterialApp.router(
-      title: 'Hyle - AI Learning Companion',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: themeMode,
-      routerConfig: router,
-      debugShowCheckedModeBanner: false,
+      title: 'HYLE - AI Learning Assistant',
+      debugShowCheckedModeBanner: isDevelopment,
+      theme: AppTheme.lightTheme(),
+      darkTheme: AppTheme.darkTheme(),
+      themeMode: ThemeMode.system,
+      routerConfig: AppRouter.router,
     );
   }
 }

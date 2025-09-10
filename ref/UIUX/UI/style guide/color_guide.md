@@ -1,0 +1,7 @@
+#f0f3fa
+#D5DEEF
+#B1C9EF
+#8AAEE0
+#638ECB
+#395886
+

@@ -7,19 +7,26 @@ import 'app_spacing.dart';
 import 'app_shadows.dart';
 
 class AppTheme {
-  // 테마별 폰트 가져오기
+  // 테마별 폰트 가져오기 (Pretendard를 기본으로)
   static TextTheme _getTextTheme(ThemePreset preset, Brightness brightness) {
     TextTheme baseTextTheme = brightness == Brightness.light 
       ? AppTypography.lightTextTheme 
       : AppTypography.darkTextTheme;
+    
+    // Pretendard를 기본 폰트로 적용
+    baseTextTheme = baseTextTheme.apply(
+      fontFamily: 'Pretendard',
+    );
       
     switch (preset.name) {
       case 'Notion + Apple':
-        return GoogleFonts.interTextTheme(baseTextTheme);
+        // Pretendard 사용 (한글 지원)
+        return baseTextTheme;
       case 'Colorful Fun':
         return GoogleFonts.poppinsTextTheme(baseTextTheme);
       case 'Study Focus':
-        return GoogleFonts.robotoTextTheme(baseTextTheme);
+        // Pretendard 사용 (학습에 적합)
+        return baseTextTheme;
       case 'Modern Dark':
         return GoogleFonts.spaceGroteskTextTheme(baseTextTheme);
       case 'Pastel Soft':

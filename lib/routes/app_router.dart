@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../features/auth/screens/login_screen.dart';
+import '../features/auth/screens/login_screen_enhanced.dart';
 import '../features/auth/screens/login_screen_minimal.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/auth/screens/beta_signup_screen.dart';
@@ -33,7 +33,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/login',
         name: 'login',
-        builder: (context, state) => const LoginScreenMinimal(),
+        builder: (context, state) => const LoginScreenEnhanced(),
       ),
       GoRoute(
         path: '/signup',
@@ -71,7 +71,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home',
         name: 'home',
-        builder: (context, state) => const HomeScreenMinimal(),
+        builder: (context, state) => const HomeScreen(),
         routes: [
           GoRoute(
             path: 'profile',

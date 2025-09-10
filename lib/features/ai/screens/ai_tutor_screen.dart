@@ -194,6 +194,33 @@ class _AITutorScreenState extends ConsumerState<AITutorScreen>
                         ],
                       ),
                     ),
+                    // AI Feature Buttons
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.analytics, color: Color(0xFF638ECB)),
+                          tooltip: 'AI 분석',
+                          onPressed: () {
+                            Navigator.pushNamed(context, 'aiAnalysis');
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.summarize, color: Color(0xFF638ECB)),
+                          tooltip: 'AI 요약',
+                          onPressed: () {
+                            Navigator.pushNamed(context, 'aiSummary');
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFF638ECB)),
+                          tooltip: 'AI 채팅',
+                          onPressed: () {
+                            Navigator.pushNamed(context, 'aiChat');
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 8),
                     // Subject Selector
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

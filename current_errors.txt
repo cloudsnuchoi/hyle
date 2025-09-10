@@ -1,0 +1,74 @@
+  error • The argument type 'StudyTask' can't be assigned to the parameter type 'PlannedTask'.  • lib/presentation/screens/ai/ai_planner_screen.dart:515:23 • argument_type_not_assignable
+  error • The getter 'suggestedTime' isn't defined for the type 'PlannedTask' • lib/presentation/screens/ai/ai_planner_screen.dart:601:24 • undefined_getter
+  error • The getter 'suggestedTime' isn't defined for the type 'PlannedTask' • lib/presentation/screens/ai/ai_planner_screen.dart:609:27 • undefined_getter
+  error • The getter 'suggestedTime' isn't defined for the type 'PlannedTask' • lib/presentation/screens/ai/ai_planner_screen.dart:609:55 • undefined_getter
+  error • The named parameter 'breaksTaken' is required, but there's no corresponding argument • lib/presentation/screens/ai/real_time_feedback_widget.dart:61:34 • missing_required_argument
+  error • The named parameter 'completionRate' is required, but there's no corresponding argument • lib/presentation/screens/ai/real_time_feedback_widget.dart:61:34 • missing_required_argument
+  error • The named parameter 'distractions' is required, but there's no corresponding argument • lib/presentation/screens/ai/real_time_feedback_widget.dart:61:34 • missing_required_argument
+  error • The named parameter 'focusScore' is required, but there's no corresponding argument • lib/presentation/screens/ai/real_time_feedback_widget.dart:61:34 • missing_required_argument
+  error • The named parameter 'timeSpent' is required, but there's no corresponding argument • lib/presentation/screens/ai/real_time_feedback_widget.dart:61:34 • missing_required_argument
+  error • The named parameter 'duration' isn't defined • lib/presentation/screens/ai/real_time_feedback_widget.dart:62:9 • undefined_named_parameter
+  error • The named parameter 'pauseCount' isn't defined • lib/presentation/screens/ai/real_time_feedback_widget.dart:63:9 • undefined_named_parameter
+  error • The named parameter 'taskCompletionRate' isn't defined • lib/presentation/screens/ai/real_time_feedback_widget.dart:64:9 • undefined_named_parameter
+  error • The named parameter 'timeOfDay' isn't defined • lib/presentation/screens/ai/real_time_feedback_widget.dart:65:9 • undefined_named_parameter
+  error • The named parameter 'subject' isn't defined • lib/presentation/screens/ai/real_time_feedback_widget.dart:66:9 • undefined_named_parameter
+  error • The named parameter 'breaksTaken' is required, but there's no corresponding argument • lib/presentation/screens/ai/real_time_feedback_widget.dart:73:34 • missing_required_argument
+  error • The named parameter 'completionRate' is required, but there's no corresponding argument • lib/presentation/screens/ai/real_time_feedback_widget.dart:73:34 • missing_required_argument
+  error • The named parameter 'distractions' is required, but there's no corresponding argument • lib/presentation/screens/ai/real_time_feedback_widget.dart:73:34 • missing_required_argument
+  error • The named parameter 'focusScore' is required, but there's no corresponding argument • lib/presentation/screens/ai/real_time_feedback_widget.dart:73:34 • missing_required_argument
+  error • The named parameter 'timeSpent' is required, but there's no corresponding argument • lib/presentation/screens/ai/real_time_feedback_widget.dart:73:34 • missing_required_argument
+  error • The named parameter 'duration' isn't defined • lib/presentation/screens/ai/real_time_feedback_widget.dart:74:9 • undefined_named_parameter
+  error • The named parameter 'pauseCount' isn't defined • lib/presentation/screens/ai/real_time_feedback_widget.dart:75:9 • undefined_named_parameter
+  error • The named parameter 'taskCompletionRate' isn't defined • lib/presentation/screens/ai/real_time_feedback_widget.dart:76:9 • undefined_named_parameter
+  error • The named parameter 'timeOfDay' isn't defined • lib/presentation/screens/ai/real_time_feedback_widget.dart:77:9 • undefined_named_parameter
+  error • The named parameter 'subject' isn't defined • lib/presentation/screens/ai/real_time_feedback_widget.dart:78:9 • undefined_named_parameter
+  error • The method 'analyzeStudySession' isn't defined for the type 'AIService' • lib/presentation/screens/ai/real_time_feedback_widget.dart:100:41 • undefined_method
+  error • The method 'getRealtimeAdvice' isn't defined for the type 'AIService' • lib/presentation/screens/ai/real_time_feedback_widget.dart:129:39 • undefined_method
+  error • The getter 'breakRecommended' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:153:21 • undefined_getter
+  error • The getter 'productivityScore' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:154:21 • undefined_getter
+  error • The getter 'focusLevel' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:155:21 • undefined_getter
+  error • The getter 'productivityScore' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:269:28 • undefined_getter
+  error • The getter 'productivityScore' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:270:56 • undefined_getter
+  error • The getter 'breakRecommended' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:297:28 • undefined_getter
+  error • The getter 'nextBestAction' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:322:28 • undefined_getter
+  error • The getter 'nextBestAction' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:339:36 • undefined_getter
+  error • The getter 'breakRecommended' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:362:18 • undefined_getter
+  error • The getter 'productivityScore' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:363:18 • undefined_getter
+  error • The getter 'productivityScore' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:364:18 • undefined_getter
+  error • The getter 'breakRecommended' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:369:18 • undefined_getter
+  error • The getter 'focusLevel' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:370:18 • undefined_getter
+  error • The getter 'productivityScore' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:371:18 • undefined_getter
+  error • The getter 'breakRecommended' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:376:18 • undefined_getter
+  error • The getter 'focusLevel' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:377:18 • undefined_getter
+  error • The getter 'productivityScore' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:378:18 • undefined_getter
+  error • The getter 'breakRecommended' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:383:18 • undefined_getter
+  error • The getter 'focusLevel' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:384:18 • undefined_getter
+  error • The getter 'productivityScore' isn't defined for the type 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:385:18 • undefined_getter
+  error • The argument type 'double' can't be assigned to the parameter type 'Offset?'.  • lib/presentation/screens/learning_type/learning_type_test_screen.dart:375:21 • argument_type_not_assignable
+  error • The argument type 'double' can't be assigned to the parameter type 'Offset?'.  • lib/presentation/screens/learning_type/learning_type_test_screen.dart:375:31 • argument_type_not_assignable
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/learning_type/learning_type_test_screen.dart:478:15 • missing_required_argument
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/learning_type/learning_type_test_screen.dart:483:17 • undefined_named_parameter
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/learning_type/learning_type_test_screen.dart:488:15 • missing_required_argument
+  error • The named parameter 'variant' isn't defined • lib/presentation/screens/learning_type/learning_type_test_screen.dart:492:17 • undefined_named_parameter
+  error • Undefined name 'ButtonVariant' • lib/presentation/screens/learning_type/learning_type_test_screen.dart:492:26 • undefined_identifier
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/learning_type/learning_type_test_screen.dart:493:17 • undefined_named_parameter
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/missions/missions_screen.dart:745:15 • missing_required_argument
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/missions/missions_screen.dart:750:17 • undefined_named_parameter
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/profile/profile_screen.dart:859:9 • missing_required_argument
+  error • The named parameter 'variant' isn't defined • lib/presentation/screens/profile/profile_screen.dart:863:11 • undefined_named_parameter
+  error • Undefined name 'ButtonVariant' • lib/presentation/screens/profile/profile_screen.dart:863:20 • undefined_identifier
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/profile/profile_screen.dart:864:11 • undefined_named_parameter
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/profile/profile_screen.dart:876:9 • missing_required_argument
+  error • The named parameter 'variant' isn't defined • lib/presentation/screens/profile/profile_screen.dart:880:11 • undefined_named_parameter
+  error • Undefined name 'ButtonVariant' • lib/presentation/screens/profile/profile_screen.dart:880:20 • undefined_identifier
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/profile/profile_screen.dart:881:11 • undefined_named_parameter
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/profile/profile_screen.dart:893:9 • missing_required_argument
+  error • The named parameter 'variant' isn't defined • lib/presentation/screens/profile/profile_screen.dart:897:11 • undefined_named_parameter
+  error • Undefined name 'ButtonVariant' • lib/presentation/screens/profile/profile_screen.dart:897:20 • undefined_identifier
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/profile/profile_screen.dart:898:11 • undefined_named_parameter
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/social/study_groups_screen.dart:761:30 • missing_required_argument
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/social/study_groups_screen.dart:772:25 • undefined_named_parameter
+  error • The argument type 'int' can't be assigned to the parameter type 'Offset?'.  • lib/presentation/screens/social/study_reels_screen.dart:797:45 • argument_type_not_assignable
+  error • The argument type 'double' can't be assigned to the parameter type 'Offset?'.  • lib/presentation/screens/social/study_reels_screen.dart:797:53 • argument_type_not_assignable
+  error • The argument type 'double' can't be assigned to the parameter type 'Offset?'.  • lib/presentation/screens/social/study_reels_screen.dart:799:45 • argument_type_not_assignable
+  error • The argument type 'int' can't be assigned to the parameter type 'Offset?'.  • lib/presentation/screens/social/study_reels_screen.dart:799:55 • argument_type_not_assignable

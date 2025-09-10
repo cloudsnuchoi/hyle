@@ -273,7 +273,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen>
           children: [
             if (showDateSeparator)
               Padding(
-                padding: const EdgeInsets.only(bottom: 12, top: index == 0 ? 0 : 12),
+                padding: EdgeInsets.only(bottom: 12, top: index == 0 ? 0 : 12),
                 child: Text(
                   _getDateLabel(notification.timestamp),
                   style: const TextStyle(

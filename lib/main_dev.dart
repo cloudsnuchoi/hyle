@@ -1,50 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:intl/date_symbol_data_local.dart';
-
-import 'core/theme/app_theme.dart';
-import 'providers/theme_provider.dart';
-import 'features/home/screens/home_screen.dart';
 import 'services/local_storage_service.dart';
+import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize local storage only
   await LocalStorageService.init();
-  await initializeDateFormatting('ko_KR', null); // 한국어 날짜 포맷 초기화
-  runApp(const ProviderScope(child: HyleApp()));
+  
+  runApp(const ProviderScope(child: HyleDevApp()));
 }
 
-// Simple router - 바로 홈으로 이동
-final routerProvider = Provider<GoRouter>((ref) {
-  return GoRouter(
-    initialLocation: '/home',
-    routes: [
-      GoRoute(
-        path: '/home',
-        name: 'home',
-        builder: (context, state) => const HomeScreen(),
-      ),
-    ],
-  );
-});
-
-class HyleApp extends ConsumerWidget {
-  const HyleApp({super.key});
+class HyleDevApp extends ConsumerWidget {
+  const HyleDevApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
-    final themePreset = ref.watch(themePresetProvider);
-    final router = ref.watch(routerProvider);
-    
-    return MaterialApp.router(
-      title: 'Hyle Dev',
-      theme: AppTheme.lightTheme(preset: themePreset),
-      darkTheme: AppTheme.darkTheme(preset: themePreset),
-      themeMode: themeMode,
-      routerConfig: router,
-      debugShowCheckedModeBanner: false,
+    return MaterialApp(
+      title: 'HYLE Dev Mode',
+      debugShowCheckedModeBanner: true,
+      theme: AppTheme.lightTheme(),
+      darkTheme: AppTheme.darkTheme(),
+      themeMode: ThemeMode.system,
+      home: const DevHomePage(),
+    );
+  }
+}
+
+class DevHomePage extends StatelessWidget {
+  const DevHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.construction,
+              size: 100,
+              color: Colors.orange,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'HYLE Development Mode',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '새로운 UI를 구축 중입니다',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 48),
+            ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Navigate to new screens
+              },
+              icon: const Icon(Icons.widgets),
+              label: const Text('UI 컴포넌트 갤러리'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

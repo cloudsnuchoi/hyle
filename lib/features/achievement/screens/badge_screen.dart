@@ -14,15 +14,15 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen>
   late Animation<double> _fadeIn;
   late Animation<double> _scaleIn;
 
-  String _selectedCategory = 'All';
+  String _selectedCategory = '전체';
 
   final List<Map<String, dynamic>> _badges = [
     {
       'id': '1',
-      'title': 'First Step',
-      'description': 'Complete your first lesson',
+      'title': '첫 발걸음',
+      'description': '첫 번째 수업 완료',
       'icon': Icons.flag,
-      'category': 'Beginner',
+      'category': '초급',
       'earned': true,
       'earnedDate': DateTime.now().subtract(const Duration(days: 30)),
       'color': const Color(0xFF8AAEE0),
@@ -30,10 +30,10 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen>
     },
     {
       'id': '2',
-      'title': 'Study Streak',
-      'description': 'Study for 7 days in a row',
+      'title': '연속 학습',
+      'description': '7일 연속 학습',
       'icon': Icons.local_fire_department,
-      'category': 'Consistency',
+      'category': '꾸준함',
       'earned': true,
       'earnedDate': DateTime.now().subtract(const Duration(days: 7)),
       'color': Colors.orange,
@@ -41,8 +41,8 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen>
     },
     {
       'id': '3',
-      'title': 'Quiz Master',
-      'description': 'Score 90% or higher on 10 quizzes',
+      'title': '퀴즈 마스터',
+      'description': '10개 퀴즈에서 90점 이상',
       'icon': Icons.emoji_events,
       'category': 'Excellence',
       'earned': false,
@@ -52,8 +52,8 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen>
     },
     {
       'id': '4',
-      'title': 'Knowledge Seeker',
-      'description': 'Complete 50 lessons',
+      'title': '지식 탐구자',
+      'description': '50개 수업 완료',
       'icon': Icons.school,
       'category': 'Learning',
       'earned': false,
@@ -149,7 +149,7 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen>
           ),
           const Expanded(
             child: Text(
-              'My Badges',
+              '내 배지',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -189,7 +189,7 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '$earned/$total Badges Earned',
+                '$earned/$total 배지 획득',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -222,7 +222,7 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen>
   }
 
   Widget _buildCategoryFilter() {
-    final categories = ['All', 'Beginner', 'Consistency', 'Excellence', 'Learning'];
+    final categories = ['전체', '초급', '꾸준함', '우수', '학습'];
     return Container(
       height: 40,
       margin: const EdgeInsets.all(20),
@@ -365,7 +365,7 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen>
           if (!isEarned) ...[
             const SizedBox(height: 8),
             Text(
-              '${(progress * 100).toInt()}% Complete',
+              '${(progress * 100).toInt()}% 완료',
               style: const TextStyle(
                 fontSize: 11,
                 color: Color(0xFF638ECB),
@@ -391,10 +391,10 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen>
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    if (difference.inDays == 0) return 'Today';
-    if (difference.inDays == 1) return 'Yesterday';
-    if (difference.inDays < 7) return '${difference.inDays} days ago';
-    if (difference.inDays < 30) return '${difference.inDays ~/ 7} weeks ago';
-    return '${difference.inDays ~/ 30} months ago';
+    if (difference.inDays == 0) return '오늘';
+    if (difference.inDays == 1) return '어제';
+    if (difference.inDays < 7) return '${difference.inDays}일 전';
+    if (difference.inDays < 30) return '${difference.inDays ~/ 7}주 전';
+    return '${difference.inDays ~/ 30}개월 전';
   }
 }

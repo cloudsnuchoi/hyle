@@ -1,5 +1,15 @@
 // Curriculum-related models that don't need to be Amplify models
-import 'ModelProvider.dart';
+// import 'ModelProvider.dart'; // Removed - no longer using Amplify
+
+// Define CurriculumType enum here
+enum CurriculumType {
+  MIDDLE_SCHOOL,
+  HIGH_SCHOOL,
+  CSAT,
+  AP,
+  IB,
+  CUSTOM
+}
 
 // Data models
 class Subject {

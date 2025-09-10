@@ -1,6 +1,6 @@
 // Service-specific models that don't need to be Amplify models
 import 'package:flutter/material.dart';
-import 'ModelProvider.dart';
+// import 'ModelProvider.dart'; // Removed - Amplify model no longer used
 
 // Achievement models with namespace prefixes
 class SessionAchievement {

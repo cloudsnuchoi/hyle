@@ -1,0 +1,68 @@
+  error • Undefined name 'aiServiceProvider' • lib/features/ai/screens/ai_features_screen.dart:69:34 • undefined_identifier
+  error • The method 'UserContext' isn't defined for the type '_AIFeaturesScreenState' • lib/features/ai/screens/ai_features_screen.dart:79:18 • undefined_method
+  error • The method 'confirmSignUp' isn't defined for the type 'AuthState' • lib/features/auth/screens/confirmation_screen.dart:42:39 • undefined_method
+  error • This expression has a type of 'void' so its value can't be used • lib/features/auth/screens/login_screen.dart:40:11 • use_of_void_result
+  error • This expression has a type of 'void' so its value can't be used • lib/features/auth/screens/login_screen.dart:42:19 • use_of_void_result
+  error • This expression has a type of 'void' so its value can't be used • lib/features/auth/screens/login_screen_minimal.dart:69:11 • use_of_void_result
+  error • This expression has a type of 'void' so its value can't be used • lib/features/auth/screens/login_screen_minimal.dart:71:19 • use_of_void_result
+  error • This expression has a type of 'void' so its value can't be used • lib/features/auth/screens/signup_screen.dart:51:11 • use_of_void_result
+  error • This expression has a type of 'void' so its value can't be used • lib/features/auth/screens/signup_screen.dart:55:19 • use_of_void_result
+  error • The method 'confirmSignUp' isn't defined for the type 'AuthState' • lib/features/auth/screens/signup_screen.dart:76:39 • undefined_method
+  error • Target of URI doesn't exist: 'ModelProvider.dart' • lib/models/educational_content_models.dart:2:8 • uri_does_not_exist
+  error • Undefined class 'Curriculum' • lib/models/educational_content_models.dart:392:9 • undefined_class
+  error • Target of URI doesn't exist: 'ModelProvider.dart' • lib/models/service_models.dart:3:8 • uri_does_not_exist
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/ai/ai_insights_screen.dart:826:30 • missing_required_argument
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/ai/ai_insights_screen.dart:831:25 • undefined_named_parameter
+  error • Target of URI doesn't exist: '../../../data/services/ai_service.dart' • lib/presentation/screens/ai/ai_planner_screen.dart:8:8 • uri_does_not_exist
+  error • Undefined name 'aiServiceProvider' • lib/presentation/screens/ai/ai_planner_screen.dart:12:37 • undefined_identifier
+  error • Undefined class 'StudyPlan' • lib/presentation/screens/ai/ai_planner_screen.dart:17:9 • undefined_class
+  error • Undefined class 'StudyPlan' • lib/presentation/screens/ai/ai_planner_screen.dart:30:5 • undefined_class
+  error • Undefined class 'AIService' • lib/presentation/screens/ai/ai_planner_screen.dart:44:9 • undefined_class
+  error • Undefined class 'UserContext' • lib/presentation/screens/ai/ai_planner_screen.dart:48:44 • undefined_class
+  error • The method 'UserContext' isn't defined for the type '_AIPlannerScreenState' • lib/presentation/screens/ai/ai_planner_screen.dart:187:21 • undefined_method
+  error • Undefined class 'StudyPlan' • lib/presentation/screens/ai/ai_planner_screen.dart:454:9 • undefined_class
+  error • Undefined class 'PlannedTask' • lib/presentation/screens/ai/ai_planner_screen.dart:564:9 • undefined_class
+  error • Target of URI doesn't exist: '../../../data/services/ai_service.dart' • lib/presentation/screens/ai/real_time_feedback_widget.dart:8:8 • uri_does_not_exist
+  error • Undefined name 'aiServiceProvider' • lib/presentation/screens/ai/real_time_feedback_widget.dart:12:44 • undefined_identifier
+  error • Undefined class 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:17:9 • undefined_class
+  error • Undefined class 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:32:5 • undefined_class
+  error • Undefined class 'AIService' • lib/presentation/screens/ai/real_time_feedback_widget.dart:48:9 • undefined_class
+  error • The method 'SessionMetrics' isn't defined for the type 'RealtimeFeedbackNotifier' • lib/presentation/screens/ai/real_time_feedback_widget.dart:61:34 • undefined_method
+  error • The method 'SessionMetrics' isn't defined for the type 'RealtimeFeedbackNotifier' • lib/presentation/screens/ai/real_time_feedback_widget.dart:73:34 • undefined_method
+  error • Undefined class 'SessionMetrics' • lib/presentation/screens/ai/real_time_feedback_widget.dart:88:50 • undefined_class
+  error • Undefined class 'StudyContext' • lib/presentation/screens/ai/real_time_feedback_widget.dart:125:43 • undefined_class
+  error • Undefined class 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:148:30 • undefined_class
+  error • Undefined class 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:210:9 • undefined_class
+  error • Undefined class 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:361:25 • undefined_class
+  error • Undefined class 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:368:21 • undefined_class
+  error • Undefined class 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:375:23 • undefined_class
+  error • Undefined class 'SessionFeedback' • lib/presentation/screens/ai/real_time_feedback_widget.dart:382:20 • undefined_class
+  error • Undefined class 'StudyContext' • lib/presentation/screens/ai/real_time_feedback_widget.dart:444:9 • undefined_class
+  error • The argument type 'double' can't be assigned to the parameter type 'Offset?'.  • lib/presentation/screens/learning_type/learning_type_test_screen.dart:375:21 • argument_type_not_assignable
+  error • The argument type 'double' can't be assigned to the parameter type 'Offset?'.  • lib/presentation/screens/learning_type/learning_type_test_screen.dart:375:31 • argument_type_not_assignable
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/learning_type/learning_type_test_screen.dart:478:15 • missing_required_argument
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/learning_type/learning_type_test_screen.dart:483:17 • undefined_named_parameter
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/learning_type/learning_type_test_screen.dart:488:15 • missing_required_argument
+  error • The named parameter 'variant' isn't defined • lib/presentation/screens/learning_type/learning_type_test_screen.dart:492:17 • undefined_named_parameter
+  error • Undefined name 'ButtonVariant' • lib/presentation/screens/learning_type/learning_type_test_screen.dart:492:26 • undefined_identifier
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/learning_type/learning_type_test_screen.dart:493:17 • undefined_named_parameter
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/missions/missions_screen.dart:745:15 • missing_required_argument
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/missions/missions_screen.dart:750:17 • undefined_named_parameter
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/profile/profile_screen.dart:859:9 • missing_required_argument
+  error • The named parameter 'variant' isn't defined • lib/presentation/screens/profile/profile_screen.dart:863:11 • undefined_named_parameter
+  error • Undefined name 'ButtonVariant' • lib/presentation/screens/profile/profile_screen.dart:863:20 • undefined_identifier
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/profile/profile_screen.dart:864:11 • undefined_named_parameter
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/profile/profile_screen.dart:876:9 • missing_required_argument
+  error • The named parameter 'variant' isn't defined • lib/presentation/screens/profile/profile_screen.dart:880:11 • undefined_named_parameter
+  error • Undefined name 'ButtonVariant' • lib/presentation/screens/profile/profile_screen.dart:880:20 • undefined_identifier
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/profile/profile_screen.dart:881:11 • undefined_named_parameter
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/profile/profile_screen.dart:893:9 • missing_required_argument
+  error • The named parameter 'variant' isn't defined • lib/presentation/screens/profile/profile_screen.dart:897:11 • undefined_named_parameter
+  error • Undefined name 'ButtonVariant' • lib/presentation/screens/profile/profile_screen.dart:897:20 • undefined_identifier
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/profile/profile_screen.dart:898:11 • undefined_named_parameter
+  error • The named parameter 'text' is required, but there's no corresponding argument • lib/presentation/screens/social/study_groups_screen.dart:761:30 • missing_required_argument
+  error • The named parameter 'child' isn't defined • lib/presentation/screens/social/study_groups_screen.dart:772:25 • undefined_named_parameter
+  error • The argument type 'int' can't be assigned to the parameter type 'Offset?'.  • lib/presentation/screens/social/study_reels_screen.dart:797:45 • argument_type_not_assignable
+  error • The argument type 'double' can't be assigned to the parameter type 'Offset?'.  • lib/presentation/screens/social/study_reels_screen.dart:797:53 • argument_type_not_assignable
+  error • The argument type 'double' can't be assigned to the parameter type 'Offset?'.  • lib/presentation/screens/social/study_reels_screen.dart:799:45 • argument_type_not_assignable
+  error • The argument type 'int' can't be assigned to the parameter type 'Offset?'.  • lib/presentation/screens/social/study_reels_screen.dart:799:55 • argument_type_not_assignable

@@ -183,14 +183,14 @@ class ThemePresets {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: data.surfaceColor,
         indicatorColor: data.primaryColor.withValues(alpha: 0.1),
-        iconTheme: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return IconThemeData(color: data.primaryColor);
           }
           return IconThemeData(color: data.onSurface.withValues(alpha: 0.6));
         }),
-        labelTextStyle: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return TextStyle(
               color: data.primaryColor,
               fontSize: 12,
@@ -259,10 +259,10 @@ class ThemePresets {
       ),
       
       // Dialog Theme
-      dialogTheme: DialogTheme(
-        backgroundColor: data.surfaceColor,
+      dialogTheme: const DialogThemeData(
+        backgroundColor: null, // Will use surface color from theme
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
       

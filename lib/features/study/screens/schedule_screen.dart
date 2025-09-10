@@ -22,30 +22,33 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
   final List<Map<String, dynamic>> _schedules = [
     {
       'id': '1',
-      'title': 'Mathematics Study',
-      'subject': 'Mathematics',
+      'title': '수학 공부',
+      'subject': '수학',
       'time': '09:00 - 10:30',
       'color': const Color(0xFF8AAEE0),
       'date': DateTime.now(),
       'type': 'study',
+      'description': '미적분 3단원 복습',
     },
     {
       'id': '2',
-      'title': 'Physics Quiz',
-      'subject': 'Science',
+      'title': '물리 퀴즈',
+      'subject': '과학',
       'time': '14:00 - 15:00',
       'color': const Color(0xFF638ECB),
       'date': DateTime.now(),
       'type': 'quiz',
+      'description': '역학 단원 테스트',
     },
     {
       'id': '3',
-      'title': 'English Essay',
-      'subject': 'Literature',
+      'title': '영어 에세이',
+      'subject': '영어',
       'time': '16:00 - 17:30',
       'color': const Color(0xFF395886),
       'date': DateTime.now(),
       'type': 'assignment',
+      'description': '셰익스피어 작품 분석',
     },
   ];
 
@@ -155,7 +158,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
           ),
           const Expanded(
             child: Text(
-              'Study Schedule',
+              '학습 일정',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -179,9 +182,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
 
   Widget _buildViewModeSelector() {
     final modes = [
-      {'id': 'day', 'label': 'Day', 'icon': Icons.view_day},
-      {'id': 'week', 'label': 'Week', 'icon': Icons.view_week},
-      {'id': 'month', 'label': 'Month', 'icon': Icons.calendar_month},
+      {'id': 'day', 'label': '일', 'icon': Icons.view_day},
+      {'id': 'week', 'label': '주', 'icon': Icons.view_week},
+      {'id': 'month', 'label': '월', 'icon': Icons.calendar_month},
     ];
 
     return Padding(
@@ -319,7 +322,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
   }
 
   Widget _buildWeekView() {
-    final weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final weekDays = ['월', '화', '수', '목', '금', '토', '일'];
     final startOfWeek = _selectedDate.subtract(
       Duration(days: _selectedDate.weekday - 1),
     );
@@ -392,7 +395,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
     // Simplified month view
     return const Center(
       child: Text(
-        'Month view calendar',
+        '월간 캘린더 뷰',
         style: TextStyle(color: Color(0xFF8AAEE0)),
       ),
     );
@@ -438,7 +441,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
             ),
             const SizedBox(height: 16),
             const Text(
-              'No schedules for this day',
+              '이 날에는 일정이 없습니다',
               style: TextStyle(
                 fontSize: 16,
                 color: Color(0xFF8AAEE0),
@@ -476,7 +479,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () {},
+          onTap: () => _showScheduleDetailsDialog(schedule),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -583,16 +586,16 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
 
   String _getMonthName(int month) {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      '1월', '2월', '3월', '4월', '5월', '6월',
+      '7월', '8월', '9월', '10월', '11월', '12월'
     ];
     return months[month - 1];
   }
 
   String _getDayName(int weekday) {
     const days = [
-      'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-      'Friday', 'Saturday', 'Sunday'
+      '월요일', '화요일', '수요일', '목요일',
+      '금요일', '토요일', '일요일'
     ];
     return days[weekday - 1];
   }
@@ -605,22 +608,171 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add New Schedule'),
-        content: const Text('Schedule creation form would go here'),
+        title: const Text('새 일정 추가'),
+        content: const Text('일정 생성 폼이 여기에 표시됩니다'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('취소'),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               // Add schedule logic
             },
-            child: const Text('Add'),
+            child: const Text('추가'),
           ),
         ],
       ),
+    );
+  }
+
+  void _showScheduleDetailsDialog(Map<String, dynamic> schedule) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: schedule['color'].withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      _getScheduleIcon(schedule['type']),
+                      color: schedule['color'],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          schedule['title'],
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF395886),
+                          ),
+                        ),
+                        Text(
+                          schedule['subject'],
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF8AAEE0),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Color(0xFF8AAEE0)),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _buildDetailRow(Icons.access_time, '시간', schedule['time']),
+              const SizedBox(height: 12),
+              _buildDetailRow(Icons.calendar_today, '날짜', 
+                '${schedule['date'].year}년 ${schedule['date'].month}월 ${schedule['date'].day}일'),
+              if (schedule['description'] != null) ...[
+                const SizedBox(height: 12),
+                _buildDetailRow(Icons.description, '설명', schedule['description']),
+              ],
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _deleteSchedule(schedule['id']);
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    label: const Text('삭제', style: TextStyle(color: Colors.red)),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _editSchedule(schedule);
+                    },
+                    icon: const Icon(Icons.edit),
+                    label: const Text('수정'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF638ECB),
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: const Color(0xFF8AAEE0)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF8AAEE0),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF395886),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _editSchedule(Map<String, dynamic> schedule) {
+    // 수정 로직을 여기에 구현
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('"${schedule['title']}" 수정 기능 구현 예정')),
+    );
+  }
+
+  void _deleteSchedule(String id) {
+    setState(() {
+      _schedules.removeWhere((s) => s['id'] == id);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('일정이 삭제되었습니다')),
     );
   }
 }
