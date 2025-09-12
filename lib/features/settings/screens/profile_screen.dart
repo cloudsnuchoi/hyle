@@ -71,7 +71,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back_ios_rounded),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/home');
+              }
+            },
           ),
           const Text(
             '프로필',
@@ -385,22 +391,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           _buildDivider(),
           _buildMenuItem(
-            icon: Icons.school_outlined,
-            title: '통계',
-            onTap: () {
-              context.go('/profile/statistics');
-            },
-          ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.emoji_events_outlined,
-            title: '업적 & 배지',
-            onTap: () {
-              context.go('/profile/badges');
-            },
-          ),
-          _buildDivider(),
-          _buildMenuItem(
             icon: Icons.group_outlined,
             title: '친구 관리',
             onTap: () {
@@ -416,15 +406,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             title: '구독 관리',
             subtitle: '프리미엄',
             onTap: () {
-              context.go('/profile/subscription');
-            },
-          ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.help_outline_rounded,
-            title: '도움말 & 지원',
-            onTap: () {
-              context.go('/profile/help');
+              context.go('/settings/subscription');
             },
           ),
         ],

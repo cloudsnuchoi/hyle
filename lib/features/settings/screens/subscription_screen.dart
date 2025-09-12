@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class SubscriptionScreen extends ConsumerStatefulWidget {
   const SubscriptionScreen({super.key});
@@ -8,30 +9,21 @@ class SubscriptionScreen extends ConsumerStatefulWidget {
   ConsumerState<SubscriptionScreen> createState() => _SubscriptionScreenState();
 }
 
-class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
-    with TickerProviderStateMixin {
+class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> 
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late AnimationController _pulseController;
   late Animation<double> _fadeIn;
   late Animation<double> _slideIn;
-  late Animation<double> _scaleIn;
-  late Animation<double> _pulse;
-
-  String _selectedPlan = 'premium';
-  String _billingCycle = 'monthly';
+  
+  String _selectedPlan = 'free'; // 'free' or 'premium'
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-
-    _pulseController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat();
 
     _fadeIn = Tween<double>(
       begin: 0.0,
@@ -49,29 +41,12 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
       curve: const Interval(0.2, 0.7, curve: Curves.easeOut),
     ));
 
-    _scaleIn = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.3, 0.8, curve: Curves.elasticOut),
-    ));
-
-    _pulse = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
-
     _controller.forward();
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    _pulseController.dispose();
     super.dispose();
   }
 
@@ -85,7 +60,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
             end: Alignment.bottomRight,
             colors: [
               Color(0xFFF0F3FA),
-              Color(0xFF395886),
+              Color(0xFFD5DEEF),
             ],
           ),
         ),
@@ -93,62 +68,21 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
           child: AnimatedBuilder(
             animation: _controller,
             builder: (context, child) {
-              return CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    expandedHeight: 120,
-                    floating: false,
-                    pinned: true,
-                    backgroundColor: Colors.transparent,
-                    flexibleSpace: FlexibleSpaceBar(
-                      title: Opacity(
-                        opacity: _fadeIn.value,
-                        child: const Text(
-                          'Subscription',
-                          style: TextStyle(
-                            color: Color(0xFF395886),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      centerTitle: true,
-                    ),
-                    leading: IconButton(
-                      icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF395886)),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.all(16),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        Transform.translate(
-                          offset: Offset(0, _slideIn.value),
-                          child: Opacity(
-                            opacity: _fadeIn.value,
-                            child: Column(
-                              children: [
-                                _buildCurrentPlan(),
-                                const SizedBox(height: 24),
-                                _buildBillingToggle(),
-                                const SizedBox(height: 24),
-                                _buildPlanOptions(),
-                                const SizedBox(height: 24),
-                                _buildFeatureComparison(),
-                                const SizedBox(height: 24),
-                                _buildPaymentMethod(),
-                                const SizedBox(height: 24),
-                                _buildBillingHistory(),
-                                const SizedBox(height: 32),
-                                _buildActionButtons(),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ]),
-                    ),
-                  ),
-                ],
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 20),
+                    _buildCurrentPlan(),
+                    const SizedBox(height: 24),
+                    _buildPlanOptions(),
+                    const SizedBox(height: 24),
+                    _buildFeatureComparison(),
+                    const SizedBox(height: 24),
+                    _buildActionButton(),
+                    const SizedBox(height: 32),
+                  ],
+                ),
               );
             },
           ),
@@ -157,395 +91,293 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
     );
   }
 
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF395886)),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/profile');
+              }
+            },
+          ),
+          const Expanded(
+            child: Text(
+              '구독 관리',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF395886),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(width: 48), // 좌우 균형을 위한 공간
+        ],
+      ),
+    );
+  }
+
   Widget _buildCurrentPlan() {
-    return Transform.scale(
-      scale: _scaleIn.value,
+    return FadeTransition(
+      opacity: _fadeIn,
       child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF8AAEE0), Color(0xFF638ECB)],
+            colors: [
+              Color(0xFF638ECB),
+              Color(0xFF395886),
+            ],
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF638ECB).withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+              color: const Color(0xFF395886).withValues(alpha: 0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Current Plan',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Premium',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Renews on Dec 15, 2024',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Icon(
-                    Icons.workspace_premium,
-                    color: Colors.white,
-                    size: 32,
+                  child: const Text(
+                    '현재 플랜',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            const SizedBox(height: 12),
+            const Text(
+              '무료 플랜',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '기본 학습 기능을 무료로 이용중입니다',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Row(
               children: [
-                _buildPlanStat('Days Left', '15'),
-                _buildPlanStat('Saved', '\$120'),
-                _buildPlanStat('Member Since', 'Jan 2024'),
+                Icon(Icons.calendar_today, color: Colors.white70, size: 16),
+                SizedBox(width: 8),
+                Text(
+                  '가입일: 2025년 8월 1일',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
               ],
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildPlanStat(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.8),
-            fontSize: 12,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBillingToggle() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF395886).withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _billingCycle = 'monthly'),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: _billingCycle == 'monthly'
-                      ? const Color(0xFF638ECB)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: Text(
-                    'Monthly',
-                    style: TextStyle(
-                      color: _billingCycle == 'monthly'
-                          ? Colors.white
-                          : const Color(0xFF395886),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _billingCycle = 'yearly'),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: _billingCycle == 'yearly'
-                      ? const Color(0xFF638ECB)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Text(
-                      'Yearly',
-                      style: TextStyle(
-                        color: _billingCycle == 'yearly'
-                            ? Colors.white
-                            : const Color(0xFF395886),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (_billingCycle != 'yearly')
-                      Positioned(
-                        top: -4,
-                        right: 20,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'Save 20%',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
 
   Widget _buildPlanOptions() {
-    return Column(
-      children: [
-        _buildPlanCard(
-          id: 'free',
-          name: 'Free',
-          price: _billingCycle == 'monthly' ? '\$0' : '\$0',
-          period: _billingCycle == 'monthly' ? '/month' : '/year',
-          features: [
-            'Basic learning features',
-            '5 AI queries per day',
-            'Limited study materials',
-            'Basic progress tracking',
-          ],
-          isPopular: false,
-        ),
-        const SizedBox(height: 16),
-        AnimatedBuilder(
-          animation: _pulseController,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: _selectedPlan == 'premium' ? _pulse.value : 1.0,
-              child: _buildPlanCard(
+    return Transform.translate(
+      offset: Offset(0, _slideIn.value),
+      child: FadeTransition(
+        opacity: _fadeIn,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '플랜 선택',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF395886),
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildPlanCard(
+                id: 'free',
+                title: '무료 플랜',
+                price: '₩0',
+                period: '/월',
+                description: '기본 학습 기능',
+                isPopular: false,
+              ),
+              const SizedBox(height: 12),
+              _buildPlanCard(
                 id: 'premium',
-                name: 'Premium',
-                price: _billingCycle == 'monthly' ? '\$9.99' : '\$95.99',
-                period: _billingCycle == 'monthly' ? '/month' : '/year',
-                features: [
-                  'Unlimited AI assistance',
-                  'All study materials',
-                  'Advanced analytics',
-                  'Priority support',
-                  'Offline mode',
-                  'Custom study plans',
-                ],
+                title: '프리미엄 플랜',
+                price: '₩9,900',
+                period: '/월',
+                description: 'AI 튜터 + 모든 기능',
                 isPopular: true,
               ),
-            );
-          },
+            ],
+          ),
         ),
-        const SizedBox(height: 16),
-        _buildPlanCard(
-          id: 'pro',
-          name: 'Pro',
-          price: _billingCycle == 'monthly' ? '\$19.99' : '\$191.99',
-          period: _billingCycle == 'monthly' ? '/month' : '/year',
-          features: [
-            'Everything in Premium',
-            'Team collaboration',
-            'API access',
-            'White-label options',
-            'Dedicated account manager',
-            'Custom integrations',
-            'SLA guarantee',
-          ],
-          isPopular: false,
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildPlanCard({
     required String id,
-    required String name,
+    required String title,
     required String price,
     required String period,
-    required List<String> features,
+    required String description,
     required bool isPopular,
   }) {
-    bool isSelected = _selectedPlan == id;
-
+    final isSelected = _selectedPlan == id;
+    
     return GestureDetector(
-      onTap: () => setState(() => _selectedPlan = id),
-      child: Container(
+      onTap: () {
+        setState(() {
+          _selectedPlan = id;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? const Color(0xFF638ECB) : Colors.transparent,
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF395886).withValues(alpha: 0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: isSelected 
+                  ? const Color(0xFF638ECB).withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.05),
+              blurRadius: isSelected ? 20 : 10,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
-        child: Stack(
+        child: Row(
           children: [
-            if (isPopular)
-              Positioned(
-                top: 0,
-                right: 20,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFF6B6B),
-                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
-                  ),
-                  child: const Text(
-                    'MOST POPULAR',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? const Color(0xFF638ECB) : const Color(0xFFD5DEEF),
+                  width: 2,
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.all(20),
+              child: isSelected
+                  ? Center(
+                      child: Container(
+                        width: 12,
+                        height: 12,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFF638ECB),
+                        ),
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        name,
+                        title,
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF395886),
                         ),
                       ),
-                      if (isSelected)
+                      if (isPopular) ...[
+                        const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF638ECB),
-                            shape: BoxShape.circle,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(
-                            Icons.check,
-                            color: Colors.white,
-                            size: 16,
+                          child: const Text(
+                            '인기',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
+                      ],
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    textBaseline: TextBaseline.alphabetic,
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    children: [
-                      Text(
-                        price,
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF638ECB),
-                        ),
-                      ),
-                      Text(
-                        period,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF8AAEE0),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF8AAEE0),
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  ...features.map((feature) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.check_circle,
-                              color: Color(0xFF8AAEE0),
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                feature,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF395886),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
                 ],
               ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      price,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? const Color(0xFF638ECB) : const Color(0xFF395886),
+                      ),
+                    ),
+                    Text(
+                      period,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF8AAEE0),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
@@ -554,299 +386,191 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen>
   }
 
   Widget _buildFeatureComparison() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF395886).withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.compare, color: Color(0xFF638ECB)),
-                SizedBox(width: 12),
-                Text(
-                  'Feature Comparison',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF395886),
-                  ),
-                ),
-              ],
+    return FadeTransition(
+      opacity: _fadeIn,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
             ),
-          ),
-          _buildComparisonRow('AI Queries', ['5/day', 'Unlimited', 'Unlimited']),
-          _buildComparisonRow('Study Materials', ['Basic', 'All', 'All + Premium']),
-          _buildComparisonRow('Analytics', ['Basic', 'Advanced', 'Enterprise']),
-          _buildComparisonRow('Support', ['Community', 'Priority', 'Dedicated']),
-          _buildComparisonRow('Team Features', ['—', '—', '✓']),
-          _buildComparisonRow('API Access', ['—', '—', '✓']),
-          const SizedBox(height: 16),
-        ],
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '기능 비교',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF395886),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildFeatureRow('학습 타이머', true, true),
+            _buildFeatureRow('투두 리스트', true, true),
+            _buildFeatureRow('학습 기록', true, true),
+            _buildFeatureRow('기본 통계', true, true),
+            const Divider(height: 24),
+            _buildFeatureRow('AI 튜터', false, true),
+            _buildFeatureRow('맞춤형 학습 추천', false, true),
+            _buildFeatureRow('상세 분석 리포트', false, true),
+            _buildFeatureRow('무제한 플래시카드', false, true),
+            _buildFeatureRow('오프라인 모드', false, true),
+            _buildFeatureRow('광고 제거', false, true),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildComparisonRow(String feature, List<String> values) {
+  Widget _buildFeatureRow(String feature, bool inFree, bool inPremium) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Text(
               feature,
               style: const TextStyle(
                 fontSize: 14,
-                color: Color(0xFF395886),
+                color: Color(0xFF525252),
               ),
             ),
           ),
-          ...values.map((value) => Expanded(
-                child: Center(
-                  child: Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: value == '—' ? Colors.grey : const Color(0xFF638ECB),
-                      fontWeight: value == '✓' ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                ),
-              )),
+          Expanded(
+            child: Center(
+              child: Icon(
+                inFree ? Icons.check_circle : Icons.cancel,
+                color: inFree ? Colors.green : Colors.grey.shade300,
+                size: 20,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Icon(
+                inPremium ? Icons.check_circle : Icons.cancel,
+                color: inPremium ? Colors.green : Colors.grey.shade300,
+                size: 20,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPaymentMethod() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF395886).withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.payment, color: Color(0xFF638ECB)),
-                SizedBox(width: 12),
-                Text(
-                  'Payment Method',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF395886),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.credit_card, color: Color(0xFF8AAEE0)),
-            title: const Text('•••• •••• •••• 4242'),
-            subtitle: const Text('Expires 12/25'),
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF638ECB),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text(
-                'Default',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.add_circle_outline, color: Color(0xFF8AAEE0)),
-            title: const Text('Add Payment Method'),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () {},
-          ),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBillingHistory() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF395886).withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.history, color: Color(0xFF638ECB)),
-                SizedBox(width: 12),
-                Text(
-                  'Billing History',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF395886),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          _buildBillingItem('Nov 15, 2024', 'Premium Monthly', '\$9.99'),
-          _buildBillingItem('Oct 15, 2024', 'Premium Monthly', '\$9.99'),
-          _buildBillingItem('Sep 15, 2024', 'Premium Monthly', '\$9.99'),
-          ListTile(
-            leading: const Icon(Icons.receipt_long, color: Color(0xFF8AAEE0)),
-            title: const Text('View All Invoices'),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () {},
-          ),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBillingItem(String date, String description, String amount) {
-    return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF0F3FA),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: const Icon(Icons.receipt, color: Color(0xFF638ECB), size: 20),
-      ),
-      title: Text(
-        description,
-        style: const TextStyle(fontSize: 15),
-      ),
-      subtitle: Text(
-        date,
-        style: const TextStyle(fontSize: 13),
-      ),
-      trailing: Text(
-        amount,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF395886),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          height: 56,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF8AAEE0), Color(0xFF638ECB)],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF638ECB).withValues(alpha: 0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
+  Widget _buildActionButton() {
+    final isPremiumSelected = _selectedPlan == 'premium';
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: ElevatedButton(
+          onPressed: isPremiumSelected ? () {
+            // 결제 프로세스 시작
+            _showPaymentDialog();
+          } : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF638ECB),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              onTap: () {
-                // Handle upgrade/change plan
-              },
-              child: const Center(
-                child: Text(
-                  'Change Plan',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+            ),
+            elevation: isPremiumSelected ? 8 : 0,
+            shadowColor: const Color(0xFF638ECB).withValues(alpha: 0.3),
+          ),
+          child: Text(
+            isPremiumSelected ? '프리미엄 시작하기' : '현재 플랜 사용중',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        const SizedBox(height: 12),
-        TextButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Cancel Subscription'),
-                content: const Text(
-                  'Are you sure you want to cancel your subscription? '
-                  'You will lose access to premium features at the end of your billing period.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Keep Subscription'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      // Handle cancellation
-                    },
-                    child: const Text(
-                      'Cancel Subscription',
-                      style: TextStyle(color: Colors.red),
+      ),
+    );
+  }
+
+  void _showPaymentDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Text('프리미엄 구독'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('프리미엄 플랜을 시작하시겠습니까?'),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF638ECB).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '₩9,900/월',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF638ECB),
                     ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    '• 7일 무료 체험 제공',
+                    style: TextStyle(fontSize: 14, color: Color(0xFF525252)),
+                  ),
+                  Text(
+                    '• 언제든지 취소 가능',
+                    style: TextStyle(fontSize: 14, color: Color(0xFF525252)),
                   ),
                 ],
               ),
-            );
-          },
-          child: const Text(
-            'Cancel Subscription',
-            style: TextStyle(
-              color: Color(0xFF395886),
-              fontSize: 14,
             ),
-          ),
+          ],
         ),
-      ],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('결제 기능은 준비 중입니다'),
+                  backgroundColor: Color(0xFF638ECB),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF638ECB),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('구독 시작'),
+          ),
+        ],
+      ),
     );
   }
 }
