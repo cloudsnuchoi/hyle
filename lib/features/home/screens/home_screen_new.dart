@@ -791,9 +791,11 @@ class _HomeScreenNewState extends ConsumerState<HomeScreenNew>
                   padding: const EdgeInsets.all(8),
                   child: Column(
                     children: [
-                      // Main Navigation Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      // Main Navigation Row - Wrap으로 변경하여 오버플로우 방지
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 8,
+                        runSpacing: 8,
                         children: [
                         _buildFloatingMenuItem(Icons.home, '홈', () {
                           context.go('/home');
